@@ -7,13 +7,18 @@ var instance = axios.create({
     return status === 200
   }
 })
-instance.interceptors.request.use(function (config) {
+// 拦截请求
+instance.interceptors.request.use((config) => {
+  // let token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJVc2VyIjoiYWRtaW4iLCJQbGF0IjoiV0VCIiwiaWF0IjoxNTY2NTUyNjY0LCJleHAiOjE1NjcxNTc0NjR9.-OM7EVIRYSSHDj2tx60H-_ZjJi1WNaZTYaU3Q6S-QOk'
+  // if (token) {
+  //   config.headers.token = token
+  // }
   return config
-}, function (error) {
+}, (error) => {
   return Promise.reject(error)
 })
 
-instance.interceptors.response.use(function (response) {
+instance.interceptors.response.use((response) => {
   return response
 }, function (error) {
   return Promise.reject(error)
@@ -21,17 +26,8 @@ instance.interceptors.response.use(function (response) {
 const request = {
   post (url, params = {}) {
     return instance.post(url, params, {
-      transformRequest: [(params) => {
-        let result = ''
-        Object.keys(params).forEach((key) => {
-          if (!Object.is(params[key], undefined) && !Object.is(params[key], null)) {
-            result += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-          }
-        })
-        return result
-      }],
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/json'
       }
     })
   },
@@ -49,7 +45,22 @@ const request = {
       _paramsarr.length === 0 ? _params = '' : _params = '?' + _paramsarr.join('&')
     }
     return instance.get(`${url}${_params}`)
+  },
+  postJSON(url, params) {
+    return instance.post(url, params, {
+        transformRequest: [(params) => {
+          let result = ''
+          Object.keys(params).forEach((key) => {
+            if (!Object.is(params[key], undefined) && !Object.is(params[key], null)) {
+              result += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+            }
+          })
+          return result
+        }],
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
+      })
   }
 }
-
 export default request
