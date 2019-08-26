@@ -60,6 +60,11 @@ export default {
                     icon: 'el-icon-lx-home',
                     index: 'dashboard',
                     title: '系统首页'
+                },
+                {
+                    icon: 'el-icon-s-custom',
+                    index: 'customer',
+                    title: '客户列表'
                 }
             ]
         };
@@ -83,7 +88,7 @@ export default {
     display: block;
     position: absolute;
     left: 0;
-    top: 70px;
+    top: 60px;
     bottom: 0;
     overflow-y: scroll;
 }
@@ -91,7 +96,7 @@ export default {
     width: 0;
 }
 .sidebar-el-menu:not(.el-menu--collapse) {
-    width: 250px;
+    width: 200px;
 }
 .sidebar > ul {
     height: 100%;

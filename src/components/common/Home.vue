@@ -30,9 +30,6 @@
             vHead, vSidebar
         },
         created(){
-            this.$post('/login').then((data) => {
-              console.log(data)
-            })
             bus.$on('collapse', msg => {
                 this.collapse = msg;
             })

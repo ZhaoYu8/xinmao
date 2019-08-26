@@ -27,6 +27,13 @@ export default new Router({
           meta: {
             title: '404'
           }
+        },
+        {
+          path: '/customer',
+          component: () => import('../components/page/Customer.vue'),
+          meta: {
+            title: '客户列表'
+          }
         }
       ]
     },

@@ -346,7 +346,7 @@ export default {
 }
 
 .user-info-list span {
-    margin-left: 70px;
+    margin-left: 60px;
 }
 
 .mgb20 {

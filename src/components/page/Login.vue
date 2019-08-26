@@ -56,27 +56,36 @@ export default {
         submitForm() {
             this.$refs.login.validate(valid => {
                 if (!valid) return;
-                this.$post('login', this.param).then((r, data = r.data) => {
-                    if (data.success) {
-                        this.$message.success('登录成功');
-                        localStorage.setItem('ms_username', this.param.username);
-                        this.$router.push('/');
-                    } else {
-                        console.log(data.message);
-                        this.$confirm(data.message, '提示', {
-                            confirmButtonText: '确定',
-                            cancelButtonText: '取消',
-                            type: 'warning'
-                        }).then(() => {
-                            this.$post('register', this.param).then((r, data = r.data) => {
-                                this.$message({
-                                    type: 'success',
-                                    message: '成功!'
+                this.$post('login', this.param)
+                    .then((r, data = r.data) => {
+                        if (data.success) {
+                            this.$message.success('登录成功');
+                            localStorage.setItem('ms_username', this.param.username);
+                            localStorage.setItem('token', data.token);
+                            localStorage.setItem('token_exp', new Date().getTime());
+                            this.$router.push('/');
+                        } else {
+                            this.$confirm(data.message, '提示', {
+                                confirmButtonText: '确定',
+                                cancelButtonText: '取消',
+                                type: 'warning'
+                            }).then(() => {
+                                this.$post('register', this.param).then((r, data = r.data) => {
+                                    this.$message({
+                                        type: 'success',
+                                        message: '登陆成功!'
+                                    });
+                                    localStorage.setItem('ms_username', this.param.username);
+                                    localStorage.setItem('token', data.token);
+                                    localStorage.setItem('token_exp', new Date().getTime());
+                                    this.$router.push('/');
                                 });
                             });
-                        });
-                    }
-                });
+                        }
+                    })
+                    .catch(data => {
+                        console.log(data);
+                    });
             });
         }
     }
