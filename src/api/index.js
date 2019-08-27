@@ -13,7 +13,7 @@ var instance = axios.create({
 instance.interceptors.request.use((config) => {
   let token = localStorage.getItem('token');
   if (token) {
-    config.headers.token = 'Bearer ' + token
+    config.headers.token = token
   }
   return config
 }, (error) => {

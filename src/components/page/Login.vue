@@ -23,7 +23,7 @@
                 <div class="login-btn">
                     <el-button type="primary" @click="submitForm()">登录</el-button>
                 </div>
-                <p class="login-tips">Tips : 使用请联系作者。</p>
+                <p class="login-tips">Tips : 使用请联系作者。13370229059</p>
             </el-form>
         </div>
     </div>
@@ -61,26 +61,38 @@ export default {
                         if (data.success) {
                             this.$message.success('登录成功');
                             localStorage.setItem('ms_username', this.param.username);
-                            localStorage.setItem('token', data.token);
-                            localStorage.setItem('token_exp', new Date().getTime());
+                            if (data.token) {
+                                localStorage.setItem('token', data.token);
+                                localStorage.setItem('token_exp', new Date().getTime());
+                            }
                             this.$router.push('/');
                         } else {
-                            this.$confirm(data.message, '提示', {
-                                confirmButtonText: '确定',
-                                cancelButtonText: '取消',
-                                type: 'warning'
-                            }).then(() => {
-                                this.$post('register', this.param).then((r, data = r.data) => {
-                                    this.$message({
-                                        type: 'success',
-                                        message: '登陆成功!'
+                            if (data.errorType === 2) {
+                                // 是未注册过的
+                                this.$confirm(data.message, '提示', {
+                                    confirmButtonText: '确定',
+                                    cancelButtonText: '取消',
+                                    type: 'warning'
+                                }).then(() => {
+                                    this.$post('register', this.param).then((r, data = r.data) => {
+                                        this.$message({
+                                            type: 'success',
+                                            message: '登陆成功!'
+                                        });
+                                        localStorage.setItem('ms_username', this.param.username);
+                                        if (data.token) {
+                                            localStorage.setItem('token', data.token);
+                                            localStorage.setItem('token_exp', new Date().getTime());
+                                        }
+                                        this.$router.push('/');
                                     });
-                                    localStorage.setItem('ms_username', this.param.username);
-                                    localStorage.setItem('token', data.token);
-                                    localStorage.setItem('token_exp', new Date().getTime());
-                                    this.$router.push('/');
                                 });
-                            });
+                            } else {
+                                this.$alert(data.message, '提示', {
+                                    confirmButtonText: '确定',
+                                    type: 'warning'
+                                });
+                            }
                         }
                     })
                     .catch(data => {

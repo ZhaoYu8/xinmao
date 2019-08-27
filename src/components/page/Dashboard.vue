@@ -6,8 +6,8 @@
                     <div class="user-info">
                         <img src="../../assets/img/img.jpg" class="user-avator" alt />
                         <div class="user-info-cont">
-                            <div class="user-info-name">{{name}}</div>
-                            <div>{{role}}</div>
+                            <div class="user-info-name">{{ name }}</div>
+                            <div>{{ role }}</div>
                         </div>
                     </div>
                     <div class="user-info-list">
@@ -32,7 +32,7 @@
             <el-col :span="16">
                 <el-row :gutter="20" class="mgb20">
                     <el-col :span="8">
-                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                        <el-card shadow="hover" :body-style="{ padding: '0px' }">
                             <div class="grid-content grid-con-1">
                                 <i class="el-icon-lx-people grid-con-icon"></i>
                                 <div class="grid-cont-right">
@@ -43,7 +43,7 @@
                         </el-card>
                     </el-col>
                     <el-col :span="8">
-                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                        <el-card shadow="hover" :body-style="{ padding: '0px' }">
                             <div class="grid-content grid-con-2">
                                 <i class="el-icon-lx-notice grid-con-icon"></i>
                                 <div class="grid-cont-right">
@@ -54,7 +54,7 @@
                         </el-card>
                     </el-col>
                     <el-col :span="8">
-                        <el-card shadow="hover" :body-style="{padding: '0px'}">
+                        <el-card shadow="hover" :body-style="{ padding: '0px' }">
                             <div class="grid-content grid-con-3">
                                 <i class="el-icon-lx-goods grid-con-icon"></i>
                                 <div class="grid-cont-right">
@@ -86,8 +86,8 @@
                             <template slot-scope="scope">
                                 <div
                                     class="todo-item"
-                                    :class="{'todo-item-del': scope.row.status}"
-                                >{{scope.row.title}}</div>
+                                    :class="{ 'todo-item-del': scope.row.status }"
+                                >{{ scope.row.title }}</div>
                             </template>
                         </el-table-column>
                         <el-table-column width="60">

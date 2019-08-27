@@ -1,7 +1,7 @@
 <template>
     <div class="customer">
         <div class="crumbs">
-            <el-breadcrumb separator="/">
+            <el-breadcrumb>
                 <el-breadcrumb-item>
                     <i class="el-icon-menu"></i> 基础表格
                 </el-breadcrumb-item>
@@ -22,7 +22,7 @@
                         placeholder="请输入..."
                         class="handle-input mr-10 ml-10"
                     ></el-input>
-                    <el-button type="primary" icon="el-icon-search">搜索</el-button>
+                    <el-button type="primary" icon="el-icon-search" @click="getCustData">搜索</el-button>
                 </div>
             </div>
             <div>
@@ -36,6 +36,8 @@
                             <span>{{ cityRegroup(scope.row.address) + scope.row.detailAddress }}</span>
                         </template>
                     </el-table-column>
+                    <el-table-column prop="createDate1" label="创建日期"></el-table-column>
+                    <el-table-column prop="createName" label="创建人姓名"></el-table-column>
                     <el-table-column label="首次交易日期"></el-table-column>
                     <el-table-column label="最近交易日期"></el-table-column>
                     <el-table-column label="头像"></el-table-column>
@@ -56,7 +58,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <Addcustomer :dialogFormVisible="dialogFormVisible" @dialog></Addcustomer>
+            <Addcustomer :dialogFormVisible="dialogFormVisible" @dialog="controlDialog"></Addcustomer>
         </div>
     </div>
 </template>
@@ -65,7 +67,7 @@
 import Addcustomer from '../common/Addcustomer';
 import city from '../../global/city.js';
 export default {
-    data: function() {
+    data() {
         return {
             query: {
                 address: '',
@@ -84,9 +86,28 @@ export default {
                 this.tableData = data.item;
             });
         },
-        cityRegroup (data) {
-          console.log(data)
-          return ''
+        cityRegroup(data) {
+            return '';
+        },
+        controlDialog(data) {
+            this.dialogFormVisible = false;
+            if (data) this.getCustData()
+        },
+        handleDelete(...list) {
+            this.$confirm('此操作将永久删除该客户, 是否继续?', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+                type: 'warning'
+            }).then(() => {
+                this.$post('deleteCust', { id: list[1].id }).then(data => {
+                    this.getCustData();
+                    this.$notify({
+                        title: '成功',
+                        message: '删除成功',
+                        type: 'success'
+                    });
+                });
+            });
         }
     },
     mounted() {
