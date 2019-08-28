@@ -57,7 +57,7 @@ export default {
             collapse: false,
             items: [
                 {
-                    icon: 'el-icon-lx-home',
+                    icon: 'el-icon-s-promotion',
                     index: 'dashboard',
                     title: '系统首页'
                 },

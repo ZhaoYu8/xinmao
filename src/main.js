@@ -4,12 +4,14 @@ import router from './router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css'; // 默认主题
 import http from './api/index'
+import global from './global/global'
 
 Vue.config.productionTip = false;
 Vue.use(ElementUI, {
     size: 'small'
 });
 Vue.prototype.$post = http.post
+Vue.prototype.$global = global
 //使用钩子函数对路由进行权限跳转
 router.beforeEach((to, from, next) => {
     document.title = `${to.meta.title} | 管理`;

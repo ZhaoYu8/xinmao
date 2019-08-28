@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { Notification } from 'element-ui';
+import { Loading, Notification } from 'element-ui';
 import router from '../router'
 var instance = axios.create({
   baseURL: 'http://localhost:8000',
@@ -9,8 +9,16 @@ var instance = axios.create({
     return status === 200
   }
 })
+let loading
 // 拦截请求
 instance.interceptors.request.use((config) => {
+  if (loading) loading.close()
+  loading = Loading.service({
+    lock: true,
+    text: '请求中...',
+    background: 'transparent',
+    target: '.content-box'
+  });
   let token = localStorage.getItem('token');
   if (token) {
     config.headers.token = token
@@ -21,10 +29,17 @@ instance.interceptors.request.use((config) => {
 })
 
 instance.interceptors.response.use((response) => {
+  setTimeout(()=> {
+    loading.close()
+  }, 300)
   return response
 }, (error) => {
+  setTimeout(()=> {
+    loading.close()
+  }, 300)
+  let errorMessage = '系统内部异常，请联系网站管理员'
   if (error.response) {
-    let errorMessage = error.response.data === null ? '系统内部异常，请联系网站管理员' : error.response.data.message
+    errorMessage = error.response.data === null ? '系统内部异常，请联系网站管理员' : error.response.data.message
     switch (error.response.status) {
       case 404:
         Notification.error({
@@ -50,6 +65,12 @@ instance.interceptors.response.use((response) => {
         })
         break
     }
+  } else {
+    Notification.error({
+      title: '系统提示',
+      message: errorMessage,
+      duration: 4000
+    })
   }
   return Promise.reject(error)
 })

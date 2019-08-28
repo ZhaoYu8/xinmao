@@ -13,14 +13,17 @@
                     <el-button
                         type="primary"
                         icon="el-icon-circle-plus-outline"
-                        @click="dialogFormVisible = true"
+                        @click="handleAdd"
                     >新增客户</el-button>
                 </div>
                 <div>
                     <el-input
-                        v-model="query.name"
-                        placeholder="请输入..."
+                        v-model="form.inputValue"
+                        placeholder="可根据姓名或者手机号搜索"
+                        @keyup.enter.native='getCustData'
                         class="handle-input mr-10 ml-10"
+                        clearable
+                        @clear='getCustData'
                     ></el-input>
                     <el-button type="primary" icon="el-icon-search" @click="getCustData">搜索</el-button>
                 </div>
@@ -38,7 +41,6 @@
                     </el-table-column>
                     <el-table-column prop="createDate1" label="创建日期"></el-table-column>
                     <el-table-column prop="createName" label="创建人姓名"></el-table-column>
-                    <el-table-column label="首次交易日期"></el-table-column>
                     <el-table-column label="最近交易日期"></el-table-column>
                     <el-table-column label="头像"></el-table-column>
                     <el-table-column label="操作" width="180" align="center">
@@ -58,7 +60,7 @@
                     </el-table-column>
                 </el-table>
             </div>
-            <Addcustomer :dialogFormVisible="dialogFormVisible" @dialog="controlDialog"></Addcustomer>
+            <Addcustomer :custType="custType" :dialogFormVisible="dialogFormVisible" @dialog="controlDialog" :editData="editData"></Addcustomer>
         </div>
     </div>
 </template>
@@ -69,12 +71,13 @@ import city from '../../global/city.js';
 export default {
     data() {
         return {
-            query: {
-                address: '',
-                name: ''
+            form: {
+                inputValue: ''
             },
             tableData: [],
-            dialogFormVisible: false
+            dialogFormVisible: false,
+            custType: false,
+            editData: {}
         };
     },
     components: {
@@ -82,16 +85,26 @@ export default {
     },
     methods: {
         getCustData() {
-            this.$post('queryCust', {}).then((r, data = r.data) => {
+            this.$post('queryCust', {value: this.form.inputValue}).then((r, data = r.data) => {
                 this.tableData = data.item;
             });
         },
         cityRegroup(data) {
-            return '';
+            return this.$global.getCityName(data)
         },
         controlDialog(data) {
             this.dialogFormVisible = false;
             if (data) this.getCustData()
+        },
+        handleAdd () {
+            this.editData = {}
+            this.custType = false
+            this.dialogFormVisible = true
+        },
+        handleEdit (...list) {
+            this.editData = list[1]
+            this.custType = true
+            this.dialogFormVisible = true
         },
         handleDelete(...list) {
             this.$confirm('此操作将永久删除该客户, 是否继续?', '提示', {
