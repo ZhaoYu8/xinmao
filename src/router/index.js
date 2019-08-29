@@ -1,36 +1,37 @@
-import Vue from 'vue';
-import Router from 'vue-router';
-
-Vue.use(Router);
-
-export default new Router({
+import VueRouter from 'vue-router'
+const Home = () => import('../components/common/Home.vue')
+const Dashboard = () => import('../components/page/Dashboard.vue')
+const page404 = () => import('../components/page/404.vue')
+const Customer = () => import('../components/page/Customer.vue')
+const Login = () => import('../components/page/Login.vue')
+export default new VueRouter({
   routes: [{
       path: '/',
       redirect: '/dashboard'
     },
     {
       path: '/',
-      component: () => import('../components/common/Home.vue'),
+      component: Home,
       meta: {
         title: '自述文件'
       },
       children: [{
           path: '/dashboard',
-          component: () => import('../components/page/Dashboard.vue'),
+          component: Dashboard,
           meta: {
             title: '系统首页'
           }
         },
         {
           path: '/404',
-          component: () => import('../components/page/404.vue'),
+          component: page404,
           meta: {
             title: '404'
           }
         },
         {
           path: '/customer',
-          component: () => import('../components/page/Customer.vue'),
+          component: Customer,
           meta: {
             title: '客户列表'
           }
@@ -39,7 +40,7 @@ export default new Router({
     },
     {
       path: '/login',
-      component: () => import('../components/page/Login.vue'),
+      component: Login,
       meta: {
         title: '登录页'
       }

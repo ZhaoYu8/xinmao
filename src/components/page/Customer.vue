@@ -3,7 +3,7 @@
         <div class="crumbs">
             <el-breadcrumb>
                 <el-breadcrumb-item>
-                    <i class="el-icon-menu"></i> 基础表格
+                    <i class="el-icon-menu"></i> 客户信息
                 </el-breadcrumb-item>
             </el-breadcrumb>
         </div>
@@ -20,15 +20,15 @@
                     <el-input
                         v-model="form.inputValue"
                         placeholder="可根据姓名或者手机号搜索"
-                        @keyup.enter.native='getCustData'
+                        @keyup.enter.native="getCustData"
                         class="handle-input mr-10 ml-10"
                         clearable
-                        @clear='getCustData'
+                        @clear="getCustData"
                     ></el-input>
                     <el-button type="primary" icon="el-icon-search" @click="getCustData">搜索</el-button>
                 </div>
             </div>
-            <div>
+            <div class="t-c">
                 <el-table :data="tableData" border style="width: 100%">
                     <el-table-column type="selection" width="55"></el-table-column>
                     <el-table-column prop="id" label="id" width="50"></el-table-column>
@@ -59,25 +59,40 @@
                         </template>
                     </el-table-column>
                 </el-table>
+                <div class="mt-20">
+                    <el-pagination
+                        background
+                        @current-change="currentChange"
+                        layout="total, prev, pager, next, jumper"
+                        :total="totalCount"
+                    ></el-pagination>
+                </div>
             </div>
-            <Addcustomer :custType="custType" :dialogFormVisible="dialogFormVisible" @dialog="controlDialog" :editData="editData"></Addcustomer>
+            <Addcustomer
+                :custType="custType"
+                :dialogFormVisible="dialogFormVisible"
+                @dialog="controlDialog"
+                :editData="editData"
+            ></Addcustomer>
         </div>
     </div>
 </template>
 
 <script>
 import Addcustomer from '../common/Addcustomer';
-import city from '../../global/city.js';
 export default {
     data() {
         return {
             form: {
-                inputValue: ''
+                inputValue: '',
+                pageIndex: 1,
+                pageSize: 10
             },
             tableData: [],
             dialogFormVisible: false,
             custType: false,
-            editData: {}
+            editData: {},
+            totalCount: 0
         };
     },
     components: {
@@ -85,26 +100,27 @@ export default {
     },
     methods: {
         getCustData() {
-            this.$post('queryCust', {value: this.form.inputValue}).then((r, data = r.data) => {
+            this.$post('queryCust', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
                 this.tableData = data.item;
+                this.totalCount = data.totalCount;
             });
         },
         cityRegroup(data) {
-            return this.$global.getCityName(data)
+            return this.$global.getCityName(data);
         },
         controlDialog(data) {
             this.dialogFormVisible = false;
-            if (data) this.getCustData()
+            if (data) this.getCustData();
         },
-        handleAdd () {
-            this.editData = {}
-            this.custType = false
-            this.dialogFormVisible = true
+        handleAdd() {
+            this.editData = {};
+            this.custType = false;
+            this.dialogFormVisible = true;
         },
-        handleEdit (...list) {
-            this.editData = list[1]
-            this.custType = true
-            this.dialogFormVisible = true
+        handleEdit(...list) {
+            this.editData = list[1];
+            this.custType = true;
+            this.dialogFormVisible = true;
         },
         handleDelete(...list) {
             this.$confirm('此操作将永久删除该客户, 是否继续?', '提示', {
@@ -121,6 +137,10 @@ export default {
                     });
                 });
             });
+        },
+        currentChange(val) {
+            this.form.pageIndex = val;
+            this.getCustData();
         }
     },
     mounted() {

@@ -2,7 +2,7 @@ import axios from 'axios'
 import { Loading, Notification } from 'element-ui';
 import router from '../router'
 var instance = axios.create({
-  baseURL: 'http://localhost:8000',
+  baseURL: 'http://106.13.198.174:8000',
   timeout: 3000,
   responseType: 'json',
   validateStatus (status) {

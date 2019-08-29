@@ -45,7 +45,7 @@
     </div>
 </template>
 <script>
-import city from '../../global/city.js';
+// import city from '../../global/city.js';
 export default {
     data: function() {
         return {
@@ -121,7 +121,8 @@ export default {
     },
     computed: {
         cityData() {
-            return city || [];
+            return [];
+            // return city || [];
         }
     },
     mounted() {}
