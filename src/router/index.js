@@ -1,9 +1,4 @@
 import VueRouter from 'vue-router'
-const Home = () => import('../components/common/Home.vue')
-const Dashboard = () => import('../components/page/Dashboard.vue')
-const page404 = () => import('../components/page/404.vue')
-const Customer = () => import('../components/page/Customer.vue')
-const Login = () => import('../components/page/Login.vue')
 export default new VueRouter({
   routes: [{
       path: '/',
@@ -11,36 +6,43 @@ export default new VueRouter({
     },
     {
       path: '/',
-      component: Home,
+      component: resolve => require(['@/components/common/Home'], resolve),
       meta: {
         title: '自述文件'
       },
       children: [{
           path: '/dashboard',
-          component: Dashboard,
+          component: resolve => require(['@/components/page/Dashboard'], resolve),
           meta: {
             title: '系统首页'
           }
         },
         {
           path: '/404',
-          component: page404,
+          component: resolve => require(['@/components/page/404'], resolve),
           meta: {
             title: '404'
           }
         },
         {
           path: '/customer',
-          component: Customer,
+          component: resolve => require(['@/components/page/Customer'], resolve),
           meta: {
             title: '客户列表'
+          }
+        },
+        {
+          path: '/project',
+          component: resolve => require(['@/components/page/Project'], resolve),
+          meta: {
+            title: '产品列表'
           }
         }
       ]
     },
     {
       path: '/login',
-      component: Login,
+      component: resolve => require(['@/components/page/Login'], resolve),
       meta: {
         title: '登录页'
       }

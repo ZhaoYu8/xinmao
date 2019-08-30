@@ -1,5 +1,4 @@
-// import city from './city'
-let city = []
+import city from './city'
 let obj = {
   getCookie(n, name = `${n}=`) { // 根据名称查找cookie
     let ca = document.cookie.split(';');
@@ -11,7 +10,6 @@ let obj = {
   },
   getCityName (l, list = l.split(',')) {
     let data = '', arr = []
-    return ''
     arr[0] = this.getName(city, list[0])
     arr[1] = this.getName(arr[0].children, list[1])
     arr[2] = this.getName(arr[1].children, list[2])

@@ -25,16 +25,15 @@
                         clearable
                         @clear="getCustData"
                     ></el-input>
-                    <el-button type="primary" icon="el-icon-search" @click="getCustData">搜索</el-button>
+                    <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
                 </div>
             </div>
             <div class="t-c">
-                <el-table :data="tableData" border style="width: 100%">
+                <el-table :data="tableData" border height="550" style="width: 100%">
                     <el-table-column type="selection" width="55"></el-table-column>
-                    <el-table-column prop="id" label="id" width="50"></el-table-column>
                     <el-table-column prop="name" label="姓名"></el-table-column>
                     <el-table-column prop="phone" label="联系方式"></el-table-column>
-                    <el-table-column prop="address" label="联系地址">
+                    <el-table-column prop="address" width="220" label="联系地址">
                         <template slot-scope="scope">
                             <span>{{ cityRegroup(scope.row.address) + scope.row.detailAddress }}</span>
                         </template>
@@ -65,11 +64,12 @@
                         @current-change="currentChange"
                         layout="total, prev, pager, next, jumper"
                         :total="totalCount"
+                        :current-page="form.pageIndex"
                     ></el-pagination>
                 </div>
             </div>
             <Addcustomer
-                :custType="custType"
+                :displayed="custType"
                 :dialogFormVisible="dialogFormVisible"
                 @dialog="controlDialog"
                 :editData="editData"
@@ -79,7 +79,7 @@
 </template>
 
 <script>
-import Addcustomer from '../common/Addcustomer';
+import Addcustomer from '../cust/Addcustomer';
 export default {
     data() {
         return {
@@ -99,7 +99,7 @@ export default {
         Addcustomer
     },
     methods: {
-        getCustData() {
+        getCustData(type) {
             this.$post('queryCust', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
                 this.tableData = data.item;
                 this.totalCount = data.totalCount;
@@ -110,7 +110,8 @@ export default {
         },
         controlDialog(data) {
             this.dialogFormVisible = false;
-            if (data) this.getCustData();
+            // 这里做了一下处理，新增之后调用分页方法，重置当前页
+            if (data) this.currentChange(1);
         },
         handleAdd() {
             this.editData = {};

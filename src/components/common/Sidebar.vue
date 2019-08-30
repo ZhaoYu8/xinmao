@@ -65,6 +65,11 @@ export default {
                     icon: 'el-icon-s-custom',
                     index: 'customer',
                     title: '客户列表'
+                },
+                {
+                    icon: 'el-icon-shopping-cart-full',
+                    index: 'project',
+                    title: '产品列表'
                 }
             ]
         };
