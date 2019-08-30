@@ -115,13 +115,13 @@
                 </el-tabs>
             </el-col>
             <Addproject
-                :displayed="projectType"
+                :dialogType="projectType"
                 :dialogFormVisible="projectVisible"
                 @dialog="controlDialog"
                 :editData="editData"
             ></Addproject>
             <AddProjectSort
-                :displayed="sortType"
+                :dialogType="sortType"
                 :dialogFormVisible="sortVisible"
                 @dialog="controlDialog"
                 :editData="sortEditData"

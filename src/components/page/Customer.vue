@@ -69,7 +69,7 @@
                 </div>
             </div>
             <Addcustomer
-                :displayed="custType"
+                :dialogType="custType"
                 :dialogFormVisible="dialogFormVisible"
                 @dialog="controlDialog"
                 :editData="editData"

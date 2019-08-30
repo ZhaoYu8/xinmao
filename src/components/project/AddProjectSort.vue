@@ -1,7 +1,7 @@
 <template>
     <div class="addprojectsort">
         <el-dialog
-            :title="!displayed ? '新增产品分类' : '修改产品分类'"
+            :title="!dialogType ? '新增产品分类' : '修改产品分类'"
             :visible="dialogFormVisible"
             width="30%"
             center
@@ -17,8 +17,8 @@
                 </el-row>
                 <el-row>
                     <el-col :span="20">
-                        <el-form-item label="祖先分类：" prop="name">
-                            <el-select v-model="form.name" autocomplete="off"></el-select>
+                        <el-form-item label="祖先分类：" prop="parent">
+                            <el-select v-model="form.parent" autocomplete="off"></el-select>
                         </el-form-item>
                     </el-col>
                 </el-row>
@@ -37,20 +37,12 @@ export default {
         return {
             form: {
                 name: '',
-                sort: '',
-                units: '',
-                cost: '',
-                price: '',
-                photo: ''
+                parent: ''
             },
             rules: {
                 name: [
-                    // { required: true, message: '请输入客户名称', trigger: 'blur' },
-                    //     { min: 2, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
-                    // ],
-                    // phone: [{ required: true, message: '请输入联系方式', trigger: 'change' }],
-                    // address: [{ required: true, message: '请选择省区市', trigger: 'change' }],
-                    // detailAddress: [{ required: true, message: '请输入详细地址', trigger: 'change' }
+                    { required: true, message: '请输入客户名称', trigger: 'blur' },
+                    { min: 2, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }
                 ]
             }
         };
@@ -60,11 +52,11 @@ export default {
             type: Boolean,
             default: false
         },
-        displayed: {
+        dialogType: { // 新增还是修改
             type: Boolean,
             default: false
         },
-        editData: {
+        editData: { // 修改数据
             type: Object,
             default: {}
         }
@@ -72,7 +64,7 @@ export default {
     watch: {
         editData: {
             handler(val) {
-                if (!this.displayed) {
+                if (!this.dialogType) {
                     Object.keys(this.form).map(r => {
                         this.form[r] = r === 'address' ? ['340000', '340200', '340225'] : '';
                     });
@@ -95,13 +87,13 @@ export default {
         confirm() {
             this.$refs['ruleForm'].validate(valid => {
                 if (!valid) return;
-                let location = this.displayed ? '/editCust' : '/addCust';
+                let location = this.dialogType ? '/editCust' : '/addCust';
                 this.$post(
                     location,
                     Object.assign({}, this.form, { address: this.form.address.join(','), id: this.editData.id || 0 })
                 ).then((r, data = r.data) => {
                     this.$notify({
-                        title: this.displayed ? '修改成功' : '新增成功',
+                        title: this.dialogType ? '修改成功' : '新增成功',
                         message: data.message,
                         type: 'success'
                     });
