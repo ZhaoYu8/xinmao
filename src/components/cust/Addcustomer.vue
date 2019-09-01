@@ -1,7 +1,7 @@
 <template>
     <div class="customer">
         <el-dialog
-            :title="!dialogType ? '新增客户' : '修改客户'"
+            :title="!dialogType ? '新增客户1' : '修改客户'"
             :visible="dialogFormVisible"
             width="45%"
             @close="hideDialog"
