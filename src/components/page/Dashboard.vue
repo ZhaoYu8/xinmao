@@ -21,7 +21,7 @@
         </el-card>
         <el-card shadow="hover" style="height:252px;">
           <div slot="header" class="clearfix">
-            <span>语言详情1</span>
+            <span>语言详情123456</span>
           </div>
           Vue <el-progress :percentage="71.3" color="#42b983"></el-progress>JavaScript <el-progress :percentage="24.1" color="#f1e05a"></el-progress>CSS
           <el-progress :percentage="3.7"></el-progress>HTML
