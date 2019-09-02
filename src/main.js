@@ -23,7 +23,7 @@ router.beforeEach((to, from, next) => {
         // 如果是管理员权限则可进入，这里只是简单的模拟管理员权限而已
         role === 'admin' ? next() : next('/403');
     } else {
-      next();
+        next();
     }
 });
 

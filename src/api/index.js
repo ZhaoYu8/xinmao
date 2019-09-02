@@ -5,7 +5,7 @@ var instance = axios.create({
   baseURL: 'http://localhost:8000',
   timeout: 3000,
   responseType: 'json',
-  validateStatus (status) {
+  validateStatus(status) {
     return status === 200
   }
 })
@@ -29,12 +29,12 @@ instance.interceptors.request.use((config) => {
 })
 
 instance.interceptors.response.use((response) => {
-  setTimeout(()=> {
+  setTimeout(() => {
     loading.close()
   }, 300)
   return response
 }, (error) => {
-  setTimeout(()=> {
+  setTimeout(() => {
     loading.close()
   }, 300)
   let errorMessage = '系统内部异常，请联系网站管理员'
@@ -75,14 +75,14 @@ instance.interceptors.response.use((response) => {
   return Promise.reject(error)
 })
 const request = {
-  post (url, params = {}) {
+  post(url, params = {}) {
     return instance.post(url, params, {
       headers: {
         'Content-Type': 'application/json'
       }
     })
   },
-  get (url, params) {
+  get(url, params) {
     let _params
     let _paramsarr = []
     if (Object.is(params, undefined)) {
@@ -99,19 +99,19 @@ const request = {
   },
   postJSON(url, params) {
     return instance.post(url, params, {
-        transformRequest: [(params) => {
-          let result = ''
-          Object.keys(params).forEach((key) => {
-            if (!Object.is(params[key], undefined) && !Object.is(params[key], null)) {
-              result += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
-            }
-          })
-          return result
-        }],
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      })
+      transformRequest: [(params) => {
+        let result = ''
+        Object.keys(params).forEach((key) => {
+          if (!Object.is(params[key], undefined) && !Object.is(params[key], null)) {
+            result += encodeURIComponent(key) + '=' + encodeURIComponent(params[key]) + '&'
+          }
+        })
+        return result
+      }],
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      }
+    })
   }
 }
 export default request
