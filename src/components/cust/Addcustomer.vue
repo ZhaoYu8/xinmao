@@ -83,7 +83,7 @@ export default {
             detailAddress: '',
             photo: ''
           };
-          this.$refs['ruleForm'].resetFields();
+          if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         }
       },
       deep: true

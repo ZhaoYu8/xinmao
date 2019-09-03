@@ -13,7 +13,7 @@
           <el-col :span="20">
             <el-form-item label="分类：" prop="parent"
               >{{ form.parent }}
-              <el-cascader v-model="form.parent" :options="options" :props="{ label: 'name', value: 'id', checkStrictly: true, emitPath: false }" class="w-100">
+              <el-cascader @change="ceshi" @expand-change="ceshi" v-model="form.parent" :options="options" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
                 <template slot-scope="{ node, data }">
                   <span>{{ data.name }}</span>
                   <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
@@ -70,7 +70,7 @@ export default {
         if (this.dialogType) {
           this.form = {
             name: this.editData['name'],
-            parent: this.editData['parent'] === 0 ? '0' : this.editData['parent']
+            parent: this.editData['parent'] === 0 ? [0] : this.editData['parent']
           };
         } else {
           this.form = {
@@ -84,6 +84,9 @@ export default {
     }
   },
   methods: {
+    ceshi (...list) {
+      console.log(list);
+    },
     hideDialog(type = false) {
       this.$emit('dialog', type);
     },
@@ -99,7 +102,8 @@ export default {
           return;
         }
         let location = this.dialogType ? '/editSort' : '/addSort';
-        this.$post(location, Object.assign({}, this.form, { id: this.editData.id || 0 })).then((r, data = r.data) => {
+        console.log(this.form.parent)
+        this.$post(location, Object.assign({}, this.form, { id: this.editData.id || 0, parent: Array.isArray(this.form.parent) ? this.form.parent[this.form.parent.length - 1]: this.form.parent })).then((r, data = r.data) => {
           this.$notify({
             title: this.dialogType ? '修改成功' : '新增成功',
             message: data.message,
