@@ -4,7 +4,7 @@
       <div class="ms-title">后台管理系统</div>
       <el-form :model="param" :rules="rules" ref="ms-login" label-width="0px" class="ms-content" v-show="tiggle">
         <el-form-item prop="username">
-          <el-input v-model="param.username" prefix-icon="el-icon-mobile-phone" placeholder="手机号"></el-input>
+          <el-input v-model="param.username" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitForm()"></el-input>
         </el-form-item>
         <el-form-item prop="password">
           <el-input type="password" prefix-icon="el-icon-lock" placeholder="密码" v-model="param.password" :show-password="true" @keyup.enter.native="submitForm()"></el-input>
@@ -20,22 +20,27 @@
 
       <el-form :model="register" :rules="registerRules" ref="register" label-width="0px" class="ms-content" v-show="!tiggle">
         <el-form-item prop="name">
-          <el-input v-model="register.name" prefix-icon="el-icon-office-building" placeholder="公司名称"></el-input>
+          <el-input v-model="register.name" prefix-icon="el-icon-office-building" placeholder="公司名称" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <el-form-item prop="phone">
-          <el-input v-model="register.phone" prefix-icon="el-icon-mobile-phone" placeholder="手机号"></el-input>
+          <el-input v-model="register.phone" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input type="password" prefix-icon="el-icon-lock" placeholder="密码" v-model="register.password" :show-password="true" @keyup.enter.native="submitForm()"></el-input>
+          <el-input type="password" prefix-icon="el-icon-lock" placeholder="密码" v-model="register.password" :show-password="true" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <el-form-item prop="code">
-          <el-input prefix-icon="el-icon-star-off" placeholder="4位数确认码，如不知晓，请联系作者" v-model="register.code" @keyup.enter.native="submitForm()"></el-input>
+          <el-input prefix-icon="el-icon-star-off" placeholder="4位数确认码，如不知晓，请联系作者" v-model="register.code" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <div class="login-btn">
           <el-button type="primary" @click="submitRegister()">注册</el-button>
         </div>
         <p class="login-tips">Tips : 使用遇到问题，请联系作者。13370229059</p>
       </el-form>
+    </div>
+    <div class="bruce">
+      <ul class="bubble-bgwall">
+        <li v-for="item in textArr" :key="item">{{ item }}</li>
+      </ul>
     </div>
   </div>
 </template>
@@ -65,10 +70,13 @@ export default {
         password: [{ required: true, message: '请输入密码', trigger: 'blur' }, { min: 6, max: 20, message: '最少6位数', trigger: 'blur' }],
         code: [{ required: true, message: '请输入确认码', trigger: 'blur' }, { min: 4, max: 4, message: '确认码为4位数字', trigger: 'blur' }]
       },
-      checked: false
+      checked: false,
+      textArr: ['科技', '学识', '权重', '奋斗', '联系', '以人为本', '花式', '霸气'],
+      sortData: ''
     };
   },
   mounted() {
+    this.sortText();
     let ms_username = localStorage.getItem('ms_username');
     if (ms_username) {
       this.param.username = ms_username;
@@ -79,6 +87,15 @@ export default {
     }
   },
   methods: {
+    // 切换文字排序
+    sortText() {
+      this.sortData = setInterval(() => {
+        this.textArr = this.textArr.concat().sort((a, b) => {
+          return Math.random() - 0.5;
+        });
+      }, 15000);
+    },
+    // 记住密码功能
     checkedFun(val) {
       if (!val) return;
       this.$message({
@@ -86,8 +103,8 @@ export default {
         message: '记住密码时效7天，到期需要重新登录！'
       });
     },
+    // 自定义验证
     validatePass(rule, value, callback) {
-      // 自定义验证
       if (value === '') {
         callback(new Error('请输入手机号'));
       } else if (!/^1[3456789]\d{9}$/.test(value)) {
@@ -96,8 +113,9 @@ export default {
         callback();
       }
     },
+    // 登录成功调用方法
     loginSuccess(data) {
-      // 登录成功调用方法
+      clearInterval(this.sortData);
       localStorage.setItem('ms_username', this.param.username);
       this.$message.success('登录成功');
       if (data.token) {
@@ -113,8 +131,8 @@ export default {
       }
       this.$router.push('/');
     },
+    // 点击登陆
     submitForm() {
-      // 点击登陆
       this.$refs['ms-login'].validate(valid => {
         if (!valid) return;
         this.$post('login', this.param)
@@ -145,6 +163,7 @@ export default {
           });
       });
     },
+    // 点击注册
     submitRegister() {
       this.$refs['register'].validate(valid => {
         if (!valid) return;
@@ -202,6 +221,7 @@ export default {
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
+    z-index: 1;
 
     .ms-title {
       width: 100%;
@@ -231,6 +251,118 @@ export default {
       line-height: 30px;
       color: #fff;
     }
+  }
+}
+
+.bruce {
+  height: 100vh;
+  background-image: linear-gradient(270deg, #f69ba1, #bdd0ff);
+}
+
+.bubble-bgwall {
+  overflow: hidden;
+  position: relative;
+  margin: 0 auto;
+  width: 100%;
+  height: 100%;
+
+  li {
+    display: flex;
+    position: absolute;
+    bottom: -200px;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    width: 50px;
+    height: 50px;
+    background-color: rgba(#fff, 0.15);
+    color: #fff;
+    animation: bubble 15s infinite;
+
+    &:nth-child(1) {
+      left: 10%;
+    }
+
+    &:nth-child(2) {
+      left: 20%;
+      width: 90px;
+      height: 90px;
+      animation-duration: 7s;
+      animation-delay: 2s;
+    }
+
+    &:nth-child(3) {
+      left: 25%;
+      animation-delay: 4s;
+    }
+
+    &:nth-child(4) {
+      left: 40%;
+      width: 60px;
+      height: 60px;
+      background-color: rgba(#fff, 0.3);
+      animation-duration: 8s;
+    }
+
+    &:nth-child(5) {
+      left: 70%;
+    }
+
+    &:nth-child(6) {
+      left: 80%;
+      width: 120px;
+      height: 120px;
+      background-color: rgba(#fff, 0.2);
+      animation-delay: 3s;
+    }
+
+    &:nth-child(7) {
+      left: 32%;
+      width: 160px;
+      height: 160px;
+      animation-delay: 2s;
+    }
+
+    &:nth-child(8) {
+      left: 55%;
+      width: 40px;
+      height: 40px;
+      font-size: 12px;
+      animation-duration: 15s;
+      animation-delay: 4s;
+    }
+
+    &:nth-child(9) {
+      left: 25%;
+      width: 40px;
+      height: 40px;
+      background-color: rgba(#fff, 0.3);
+      font-size: 12px;
+      animation-duration: 12s;
+      animation-delay: 2s;
+    }
+  }
+}
+
+@keyframes bubble {
+  0% {
+    opacity: 0.5;
+    transform: translateY(0) rotate(135deg);
+  }
+
+  25% {
+    opacity: 0.75;
+    transform: translateY(-400px) rotate(90deg);
+  }
+
+  50% {
+    opacity: 1;
+    transform: translateY(-600px) rotate(45deg);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-1000px) rotate(0deg);
   }
 }
 </style>

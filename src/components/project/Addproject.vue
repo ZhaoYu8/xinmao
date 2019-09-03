@@ -1,6 +1,6 @@
 <template>
   <div class="addproject">
-    <el-dialog :itle="!dialogType ? '新增产品' : '修改产品'" :visible="dialogFormVisible" width="45%" centerS @close="hideDialog">
+    <el-dialog :title="!dialogType ? '新增产品' : '修改产品'" :visible="dialogFormVisible" width="45%" center @close="hideDialog">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
         <el-row>
           <el-col :span="12">

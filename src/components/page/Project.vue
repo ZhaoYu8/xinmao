@@ -57,8 +57,8 @@
               <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>{{ node.label }}</span>
                 <span>
-                  <el-button type="text" size="mini" @click="() => append(data)">修改</el-button>
-                  <el-button type="text" size="mini" @click="() => remove(node, data)">删除</el-button>
+                  <el-button type="text" size="mini" @click.stop="editSort(node, data)">修改</el-button>
+                  <el-button type="text" size="mini" @click.stop="delSort(node, data)">删除</el-button>
                 </span>
               </span>
             </el-tree>
@@ -66,7 +66,7 @@
         </el-tabs>
       </el-col>
       <Addproject :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></Addproject>
-      <AddProjectSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="controlDialog" :editData="sortEditData"></AddProjectSort>
+      <AddProjectSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="projectSortDialog" :editData="sortEditData"></AddProjectSort>
     </div>
   </div>
 </template>
@@ -107,16 +107,19 @@ export default {
       });
     },
     getProjectSort() {
-      this.$post('queryProjectSort', {}).then((r, data = r.data) => {
-        this.treeData = data.item;
+      this.$post('querySort', {}).then((r, data = r.data) => {
+        this.treeData = this.$global.dataBase(data.item);
       });
     },
     // 子组件传递过来的方法
     controlDialog(data) {
       this.projectVisible = false;
-      this.sortVisible = false;
       // 这里做了一下处理，新增之后调用分页方法，重置当前页
       if (data) this.currentChange(1);
+    },
+    projectSortDialog(data) {
+      this.sortVisible = false;
+      if (data) this.getProjectSort();
     },
     // 新增产品
     addProject() {
@@ -145,6 +148,31 @@ export default {
       }).then(() => {
         this.$post('deleteCust', { id: list[1].id }).then(data => {
           this.getProjectData();
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success'
+          });
+        });
+      });
+    },
+    editSort (...list) {
+      this.sortEditData = list[1];
+      this.sortType = true;
+      this.sortVisible = true;
+    },
+    delSort(...list) {
+      if (list[1].children) {
+        this.$alert('此分类有子元素，必须先删除掉所有的子元素！', '提示')
+        return
+      }
+      this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$post('delSort', { id: list[1].id }).then(data => {
+          this.getProjectSort();
           this.$notify({
             title: '成功',
             message: '删除成功',

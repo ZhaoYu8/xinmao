@@ -11,10 +11,14 @@
         </el-row>
         <el-row>
           <el-col :span="20">
-            <el-form-item label="分类：" prop="parent">
-              <el-select v-model="form.parent" autocomplete="off" class="w-100">
-                <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.id"></el-option>
-              </el-select>
+            <el-form-item label="分类：" prop="parent"
+              >{{ form.parent }}
+              <el-cascader v-model="form.parent" :options="options" :props="{ label: 'name', value: 'id', checkStrictly: true, emitPath: false }" class="w-100">
+                <template slot-scope="{ node, data }">
+                  <span>{{ data.name }}</span>
+                  <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
+                </template>
+              </el-cascader>
             </el-form-item>
           </el-col>
         </el-row>
@@ -61,23 +65,23 @@ export default {
     }
   },
   watch: {
-    // editData: {
-    //     handler(val) {
-    //         if (!this.dialogType) {
-    //             Object.keys(this.form).map(r => {
-    //                 this.form[r] = r === 'address' ? ['340000', '340200', '340225'] : '';
-    //             });
-    //             this.$nextTick(() => {
-    //                 if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
-    //             });
-    //         } else {
-    //             Object.keys(this.form).map(r => {
-    //                 this.form[r] = r === 'address' ? val[r].split(',') : val[r];
-    //             });
-    //         }
-    //     },
-    //     immediate: true
-    // }
+    editData: {
+      handler(val) {
+        if (this.dialogType) {
+          this.form = {
+            name: this.editData['name'],
+            parent: this.editData['parent'] === 0 ? '0' : this.editData['parent']
+          };
+        } else {
+          this.form = {
+            name: '',
+            parent: '0'
+          };
+          if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
+        }
+      },
+      deep: true
+    }
   },
   methods: {
     hideDialog(type = false) {
@@ -86,7 +90,15 @@ export default {
     confirm() {
       this.$refs['ruleForm'].validate(valid => {
         if (!valid) return;
-        let location = this.dialogType ? '/editProjectSort' : '/addProjectSort';
+        if (this.form.parent.length > 3) {
+          this.$notify({
+            title: '警告',
+            message: '分类最多4个层级！',
+            type: 'warning'
+          });
+          return;
+        }
+        let location = this.dialogType ? '/editSort' : '/addSort';
         this.$post(location, Object.assign({}, this.form, { id: this.editData.id || 0 })).then((r, data = r.data) => {
           this.$notify({
             title: this.dialogType ? '修改成功' : '新增成功',

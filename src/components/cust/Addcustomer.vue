@@ -71,20 +71,22 @@ export default {
   watch: {
     editData: {
       handler(val) {
-        if (!this.dialogType) {
-          Object.keys(this.form).map(r => {
-            this.form[r] = r === 'address' ? ['340000', '340200', '340225'] : '';
-          });
-          this.$nextTick(() => {
-            if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
-          });
-        } else {
+        if (this.dialogType) {
           Object.keys(this.form).map(r => {
             this.form[r] = r === 'address' ? val[r].split(',') : val[r];
           });
+        } else {
+          this.form = {
+            name: '',
+            phone: '',
+            address: ['340000', '340200', '340225'],
+            detailAddress: '',
+            photo: ''
+          };
+          this.$refs['ruleForm'].resetFields();
         }
       },
-      immediate: true
+      deep: true
     }
   },
   methods: {

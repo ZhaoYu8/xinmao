@@ -26,6 +26,13 @@ let obj = {
       }
     }
     return str
+  },
+  dataBase(data, obj = {}) {
+    data.map(item =>  obj[item.id] = item)
+    data.map(item => {
+      if (item.parent !== 0) obj[item.parent].children ? obj[item.parent].children.push(item) : obj[item.parent].children = [item];
+    })
+    return data.filter(item => item.parent === 0)
   }
 }
 export default obj
