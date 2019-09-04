@@ -5,31 +5,36 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="产品名称：" prop="name">
-              <el-input v-model="form.name" autocomplete="off"></el-input>
+              <el-input v-model="form.name" autocomplete="off" placeholder="产品名称" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="产品分类：" prop="sort">
-              <el-input v-model="form.sort" autocomplete="off"></el-input>
+            <el-form-item label="分类：" prop="parent">
+              <el-cascader v-model="form.parent" :options="treeData" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
+                <template slot-scope="{ node, data }">
+                  <span>{{ data.name }}</span>
+                  <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
+                </template>
+              </el-cascader>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="产品单位：" prop="units">
-              <el-input v-model="form.units" autocomplete="off"></el-input>
+              <el-input v-model="form.units" autocomplete="off" placeholder="个/箱/件" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="成本：" prop="cost">
-              <el-input v-model="form.cost" autocomplete="off"></el-input>
+              <el-input v-model="form.cost" autocomplete="off" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="12">
             <el-form-item label="售价：" prop="price">
-              <el-input v-model="form.price" autocomplete="off"></el-input>
+              <el-input v-model="form.price" autocomplete="off" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -83,6 +88,10 @@ export default {
     editData: {
       type: Object,
       default: {}
+    },
+    treeData: {
+      type: Array,
+      default: []
     }
   },
   watch: {

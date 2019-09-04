@@ -5,12 +5,12 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="姓名：" prop="name">
-              <el-input v-model="form.name" autocomplete="off"></el-input>
+              <el-input v-model="form.name" autocomplete="off" maxlength="20" show-word-limit></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
             <el-form-item label="联系方式：" prop="phone">
-              <el-input v-model="form.phone" autocomplete="off"></el-input>
+              <el-input v-model="form.phone" autocomplete="off" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -22,7 +22,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="详细地址：" prop="detailAddress">
-              <el-input v-model="form.detailAddress" autocomplete="off"></el-input>
+              <el-input v-model="form.detailAddress" autocomplete="off" maxlength="30" show-word-limit></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -48,9 +48,9 @@ export default {
       },
       rules: {
         name: [{ required: true, message: '请输入客户名称', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 3 到 20 个字符', trigger: 'blur' }],
-        phone: [{ required: true, message: '请输入联系方式', trigger: 'change' }],
+        phone: [{ required: true, message: '请输入联系方式', trigger: 'blur' }],
         address: [{ required: true, message: '请选择省区市', trigger: 'change' }],
-        detailAddress: [{ required: true, message: '请输入详细地址', trigger: 'change' }]
+        detailAddress: [{ required: true, message: '请输入详细地址', trigger: 'blur' }]
       }
     };
   },
@@ -69,24 +69,22 @@ export default {
     }
   },
   watch: {
-    editData: {
+    dialogFormVisible: {
       handler(val) {
+        this.form = {
+          name: '',
+          phone: '',
+          address: ['340000', '340200', '340225'],
+          detailAddress: '',
+          photo: ''
+        };
+        if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         if (this.dialogType) {
           Object.keys(this.form).map(r => {
-            this.form[r] = r === 'address' ? val[r].split(',') : val[r];
+            this.form[r] = r === 'address' ? this.editData[r].split(',') : this.editData[r];
           });
-        } else {
-          this.form = {
-            name: '',
-            phone: '',
-            address: ['340000', '340200', '340225'],
-            detailAddress: '',
-            photo: ''
-          };
-          if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         }
-      },
-      deep: true
+      }
     }
   },
   methods: {

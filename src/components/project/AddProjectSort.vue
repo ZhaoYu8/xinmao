@@ -5,15 +5,14 @@
         <el-row>
           <el-col :span="20">
             <el-form-item label="分类名称：" prop="name">
-              <el-input v-model="form.name" autocomplete="off"></el-input>
+              <el-input v-model="form.name" autocomplete="off" maxlength="15" show-word-limit></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="20">
-            <el-form-item label="分类：" prop="parent"
-              >{{ form.parent }}
-              <el-cascader @change="ceshi" @expand-change="ceshi" v-model="form.parent" :options="options" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
+            <el-form-item label="分类：" prop="parent">
+              <el-cascader v-model="form.parent" :options="options" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
                 <template slot-scope="{ node, data }">
                   <span>{{ data.name }}</span>
                   <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
@@ -65,35 +64,30 @@ export default {
     }
   },
   watch: {
-    editData: {
+    dialogFormVisible: {
       handler(val) {
-        if (this.dialogType) {
+        this.form = {
+          name: '',
+          parent: '0'
+        };
+        if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
+        if (val) {
           this.form = {
-            name: this.editData['name'],
-            parent: this.editData['parent'] === 0 ? [0] : this.editData['parent']
+            name: this.editData['name'] || '',
+            parent: [0, '0', '', undefined].includes(this.editData['parent']) ? '0' : this.editData['parent']
           };
-        } else {
-          this.form = {
-            name: '',
-            parent: '0'
-          };
-          if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         }
-      },
-      deep: true
+      }
     }
   },
   methods: {
-    ceshi (...list) {
-      console.log(list);
-    },
     hideDialog(type = false) {
       this.$emit('dialog', type);
     },
     confirm() {
       this.$refs['ruleForm'].validate(valid => {
         if (!valid) return;
-        if (this.form.parent.length > 3) {
+        if (Array.isArray(this.form.parent) && this.form.parent.length > 3) {
           this.$notify({
             title: '警告',
             message: '分类最多4个层级！',
@@ -101,9 +95,19 @@ export default {
           });
           return;
         }
+        if (this.dialogType && Array.isArray(this.form.parent) && this.form.parent.includes(this.editData.parent)) {
+          this.$notify({
+            title: '警告',
+            message: '修改分类，不能修改成自己，或者自己的下属！',
+            type: 'warning'
+          });
+          return;
+        }
         let location = this.dialogType ? '/editSort' : '/addSort';
-        console.log(this.form.parent)
-        this.$post(location, Object.assign({}, this.form, { id: this.editData.id || 0, parent: Array.isArray(this.form.parent) ? this.form.parent[this.form.parent.length - 1]: this.form.parent })).then((r, data = r.data) => {
+        this.$post(
+          location,
+          Object.assign({}, this.form, { id: this.editData.id || 0, parent: Array.isArray(this.form.parent) ? this.form.parent[this.form.parent.length - 1] : this.form.parent })
+        ).then((r, data = r.data) => {
           this.$notify({
             title: this.dialogType ? '修改成功' : '新增成功',
             message: data.message,

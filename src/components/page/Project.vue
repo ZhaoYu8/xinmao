@@ -52,11 +52,12 @@
           <!-- 分类 -->
           <el-tab-pane name="second">
             <span slot="label"> <i class="el-icon-goods"></i> 分类 </span>
-            <el-button type="primary" icon="el-icon-circle-plus-outline" class="mb-10" @click="sortAdd">新增分类</el-button>
+            <el-button type="primary" icon="el-icon-circle-plus-outline" class="mb-10" @click="sortAdd({})">新增分类</el-button>
             <el-tree :data="treeData" node-key="id" default-expand-all :props="{ children: 'children', label: 'name' }" draggable :allow-drop="allowDrop" :allow-drag="allowDrag">
               <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>{{ node.label }}</span>
                 <span>
+                  <el-button type="text" size="mini" @click.stop="sortAdd(data, node)">新增</el-button>
                   <el-button type="text" size="mini" @click.stop="editSort(node, data)">修改</el-button>
                   <el-button type="text" size="mini" @click.stop="delSort(node, data)">删除</el-button>
                 </span>
@@ -65,7 +66,7 @@
           </el-tab-pane>
         </el-tabs>
       </el-col>
-      <Addproject :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></Addproject>
+      <Addproject :treeData="treeData" :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></Addproject>
       <AddProjectSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="projectSortDialog" :editData="sortEditData"></AddProjectSort>
     </div>
   </div>
@@ -127,12 +128,6 @@ export default {
       this.projectType = false;
       this.projectVisible = true;
     },
-    // 新增分类
-    sortAdd() {
-      this.sortEditData = {};
-      this.sortType = false;
-      this.sortVisible = true;
-    },
     // 修改产品
     editProject(...list) {
       this.editData = list[1];
@@ -156,15 +151,29 @@ export default {
         });
       });
     },
-    editSort (...list) {
+    // 新增分类
+    sortAdd(list = {}, node) {
+      if (node && node.level > 3) {
+        this.$notify({
+          title: '警告',
+          message: '分类最多4个层级！这是第四层！',
+          type: 'warning'
+        });
+        return;
+      }
+      this.sortEditData = list.id ? { name: '', parent: list.id } : {};
+      this.sortType = false;
+      this.sortVisible = true;
+    },
+    editSort(...list) {
       this.sortEditData = list[1];
       this.sortType = true;
       this.sortVisible = true;
     },
     delSort(...list) {
       if (list[1].children) {
-        this.$alert('此分类有子元素，必须先删除掉所有的子元素！', '提示')
-        return
+        this.$alert('此分类有子元素，必须先删除掉所有的子元素！', '提示');
+        return;
       }
       this.$confirm('此操作将永久删除该分类, 是否继续?', '提示', {
         confirmButtonText: '确定',
