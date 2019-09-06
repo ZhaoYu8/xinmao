@@ -13,7 +13,7 @@
         <div>
           <el-input
             v-model="form.inputValue"
-            placeholder="可根据姓名或者手机号搜索1"
+            placeholder="可根据姓名或者手机号搜索"
             @keyup.enter.native="getCustData"
             class="handle-input mr-10 ml-10"
             clearable

@@ -9,8 +9,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="分类：" prop="parent">
-              <el-cascader v-model="form.parent" :options="treeData" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
+            <el-form-item label="分类：" prop="sort">
+              <el-cascader v-model="form.sort" :options="treeData" :props="{ label: 'name', value: 'id', checkStrictly: true, emitPath: false }" class="w-100">
                 <template slot-scope="{ node, data }">
                   <span>{{ data.name }}</span>
                   <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
@@ -91,11 +91,7 @@ export default {
         sort: [{ required: true, message: '请选择产品分类', trigger: 'blur' }]
       },
       fileList: [],
-      fileCacheList: [],
-      xianmu: [{name: '羽毛球', value: 1}, {name: '田径', value: 2}],
-      list: [
-        { data: xianmu, data1: [], dataValue: 1, data1Value: 1 }
-      ]
+      fileCacheList: []
     };
   },
   props: {
@@ -121,7 +117,8 @@ export default {
     }
   },
   methods: {
-    uploadChange(file) {
+    // 点击上传文件的事件
+    uploadChange(file, e) {
       const format = ['image/jpeg', 'image/png'].includes(file.raw.type);
       const size = file.size / 1024 < 500;
       if (!format) {
@@ -135,27 +132,32 @@ export default {
         return;
       }
     },
+    handleRemove(...e) {
+      this.fileCacheList = e[1].filter(r => r.response).map(r => r.response.file);
+      console.log(this.fileCacheList);
+    },
     hideDialog(type = false) {
       this.$emit('dialog', type);
     },
     submitUpload() {
       this.$refs.upload.submit();
     },
-    handleAvatarSuccess(data) {
-      this.fileCacheList.push({ name: data.file.name, url: data.file.path });
-      console.log(this.fileCacheList);
+    handleAvatarSuccess(data, file, fileList) {
+      this.fileCacheList = fileList.filter(r => r.response).map(r => r.response.file);
     },
-    async confirm() {
+    confirm() {
       this.$refs['ruleForm'].validate(valid => {
         if (!valid) return;
-        let location = this.dialogType ? '/editCust' : '/addCust';
-        this.$post(
-          location,
-          Object.assign({}, this.form, {
-            address: this.form.address.join(','),
-            id: this.editData.id || 0
+        let location = this.dialogType ? '/editProject' : '/addProject';
+        let data = Object.assign({}, this.form, {
+          id: this.editData.id || 0
+        });
+        if (this.fileCacheList.length) {
+          data.photo = this.fileCacheList.map(r => {
+            return {name: r.name, address: r.path}
           })
-        ).then((r, data = r.data) => {
+        }
+        this.$post(location, data).then((r, data = r.data) => {
           this.$notify({
             title: this.dialogType ? '修改成功' : '新增成功',
             message: data.message,

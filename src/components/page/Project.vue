@@ -102,7 +102,7 @@ export default {
   methods: {
     // 查询产品列表
     getProjectData(type) {
-      this.$post('queryCust', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
+      this.$post('queryProject', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });
