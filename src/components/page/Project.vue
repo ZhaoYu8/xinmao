@@ -7,7 +7,7 @@
     </div>
     <div class="container">
       <el-col :span="24">
-        <el-tabs v-model="activeName" type="card" @tab-click="tabClick">
+        <el-tabs v-model="activeName" type="card">
           <!-- 产品 -->
           <el-tab-pane name="first">
             <span slot="label"> <i class="el-icon-shopping-cart-full"></i> 产品 </span>
@@ -31,9 +31,20 @@
               <el-table :data="tableData" border height="520" style="width: 100%">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="name" label="产品名称"></el-table-column>
-                <el-table-column prop="name" label="产品分类"></el-table-column>
-                <el-table-column prop="phone" label="单价"></el-table-column>
-                <el-table-column prop="phone" label="成本"></el-table-column>
+                <el-table-column label="产品分类">
+                  <template slot-scope="scope">
+                    <span>{{ sortStrig(scope.row.sort) }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column prop="units" label="单位"></el-table-column>
+                <el-table-column prop="cost" label="单价"></el-table-column>
+                <el-table-column prop="price" label="成本"></el-table-column>
+                <el-table-column label="产品图片">
+                  <template slot-scope="scope">
+                    <el-image v-if="scope.row.photo.length" style="width: 50px; height: 50px" :src="scope.row.photo[0].photoAddress" :preview-src-list="scope.row.photo.map(r => r.photoAddress)"> </el-image>
+                    <img v-else style="width: 50px; height: 50px" src="../../assets/img/img.jpg"/>
+                  </template>
+                </el-table-column>
                 <el-table-column prop="createDate1" label="创建日期"></el-table-column>
                 <el-table-column prop="createName" label="创建人姓名"></el-table-column>
                 <el-table-column label="操作" width="180" align="center">
@@ -92,7 +103,8 @@ export default {
       sortEditData: {},
       totalCount: 0,
       activeName: 'first',
-      treeData: []
+      treeData: [],
+      rawTreeData: [] // 原始treeData
     };
   },
   components: {
@@ -110,6 +122,7 @@ export default {
     getProjectSort() {
       this.$post('querySort', {}).then((r, data = r.data) => {
         this.treeData = this.$global.dataBase(data.item);
+        this.rawTreeData = data.item;
       });
     },
     // 子组件传递过来的方法
@@ -195,7 +208,19 @@ export default {
       this.form.pageIndex = val;
       this.getProjectData();
     },
-    tabClick(value) {}
+    sortStrig(v) {
+      // 根据id返回name
+      let arr = v.split(',');
+      if (arr.length > 1) {
+        return arr.map(r => {
+          let text = this.rawTreeData.filter(n => n.id === Number(r))[0]
+          return (text && text.name) || ''
+        }).join('/');
+      } else {
+        let text = this.rawTreeData.filter(n => n.id === Number(arr[0]))[0]
+        return (text && text.name) || ''
+      }
+    }
   },
   mounted() {
     this.getProjectData();

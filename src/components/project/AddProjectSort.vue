@@ -30,7 +30,6 @@
   </div>
 </template>
 <script>
-import city from '../../global/city.js';
 export default {
   data: function() {
     return {

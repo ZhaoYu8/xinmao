@@ -1,6 +1,6 @@
 <template>
   <div class="addproject">
-    <el-dialog :title="!dialogType ? '新增产品' : '修改产品'" :visible="dialogFormVisible" width="45%" center @close="hideDialog">
+    <el-dialog :title="!dialogType ? '新增产品' : '修改产品'" :visible="dialogFormVisible" width="45%" center @close="hideDialog" :close-on-click-modal="false">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
         <el-row>
           <el-col :span="12">
@@ -10,7 +10,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="分类：" prop="sort">
-              <el-cascader v-model="form.sort" :options="treeData" :props="{ label: 'name', value: 'id', checkStrictly: true, emitPath: false }" class="w-100">
+              <el-cascader v-model="form.sort" :options="treeData" :props="{ label: 'name', value: 'id', checkStrictly: true }" class="w-100">
                 <template slot-scope="{ node, data }">
                   <span>{{ data.name }}</span>
                   <span v-if="!node.isLeaf"> ({{ data.children.length }}) </span>
@@ -46,7 +46,7 @@
             <el-upload
               class="upload-demo"
               ref="upload"
-              action="http://localhost:8000/uploadfiles"
+              :action="gethttp.baseURL + '/uploadfiles'"
               :on-remove="handleRemove"
               :multiple="true"
               :on-change="uploadChange"
@@ -76,12 +76,13 @@
   </div>
 </template>
 <script>
+import http from '../../global/http.js';
 export default {
   data: function() {
     return {
       form: {
         name: '',
-        sort: '',
+        sort: [],
         units: '个',
         cost: 0,
         price: 0
@@ -153,9 +154,7 @@ export default {
           id: this.editData.id || 0
         });
         if (this.fileCacheList.length) {
-          data.photo = this.fileCacheList.map(r => {
-            return {name: r.name, address: r.path}
-          })
+          data.photo = this.fileCacheList
         }
         this.$post(location, data).then((r, data = r.data) => {
           this.$notify({
@@ -168,7 +167,12 @@ export default {
       });
     }
   },
-  mounted() {}
+  mounted() {},
+  computed: {
+    gethttp() {
+      return http || [];
+    }
+  }
 };
 </script>
 <style lang="stylus" scoped></style>
