@@ -79,7 +79,7 @@ export default {
           photo: ''
         };
         if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
-        if (this.dialogType) {
+        if (this.dialogType && val) {
           Object.keys(this.form).map(r => {
             this.form[r] = r === 'address' ? this.editData[r].split(',') : this.editData[r];
           });

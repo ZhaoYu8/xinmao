@@ -117,6 +117,33 @@ export default {
       default: []
     }
   },
+  watch: {
+    dialogFormVisible: {
+      handler(val) {
+        this.form = {
+          name: '',
+          sort: [],
+          units: '个',
+          cost: 0,
+          price: 0
+        };
+        if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
+        this.fileList = [];
+        this.fileCacheList = [];
+        if (this.dialogType && val) {
+          Object.keys(this.form).map(r => {
+            this.form[r] = r === 'sort' ? this.editData[r].split(',').map(r => Number(r)) : this.editData[r];
+          });
+          if (this.editData.photo.length) {
+            this.fileList = this.editData.photo.map(r => {
+              return { name: r.name, url: r.url, id: r.id };
+            });
+            this.fileCacheList = this.fileList
+          }
+        }
+      }
+    }
+  },
   methods: {
     // 点击上传文件的事件
     uploadChange(file, e) {
@@ -154,7 +181,7 @@ export default {
           id: this.editData.id || 0
         });
         if (this.fileCacheList.length) {
-          data.photo = this.fileCacheList
+          data.photo = this.fileCacheList;
         }
         this.$post(location, data).then((r, data = r.data) => {
           this.$notify({

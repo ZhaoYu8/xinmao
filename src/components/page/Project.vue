@@ -41,8 +41,16 @@
                 <el-table-column prop="price" label="成本"></el-table-column>
                 <el-table-column label="产品图片">
                   <template slot-scope="scope">
-                    <el-image v-if="scope.row.photo.length" style="width: 50px; height: 50px" :src="scope.row.photo[0].photoAddress" :preview-src-list="scope.row.photo.map(r => r.photoAddress)"> </el-image>
-                    <img v-else style="width: 50px; height: 50px" src="../../assets/img/img.jpg"/>
+                    <div class="d-f a-i-c j-c-s-a">
+                      <el-image
+                        v-if="scope.row.photo.length"
+                        style="width: 50px; height: 50px"
+                        :src="scope.row.photo[0].url"
+                        :preview-src-list="scope.row.photo.map(r => r.url)"
+                      >
+                      </el-image>
+                      <img v-else style="width: 50px; height: 50px" src="../../assets/img/img.jpg" />
+                    </div>
                   </template>
                 </el-table-column>
                 <el-table-column prop="createDate1" label="创建日期"></el-table-column>
@@ -68,9 +76,9 @@
               <span class="custom-tree-node" slot-scope="{ node, data }">
                 <span>{{ node.label }}</span>
                 <span>
-                  <el-button type="text" size="mini" @click.stop="sortAdd(data, node)">新增</el-button>
-                  <el-button type="text" size="mini" @click.stop="editSort(node, data)">修改</el-button>
-                  <el-button type="text" size="mini" @click.stop="delSort(node, data)">删除</el-button>
+                  <el-button type="text" icon="el-icon-add-location" size="mini" @click.stop="sortAdd(data, node)">新增</el-button>
+                  <el-button type="text" icon="el-icon-edit" size="mini" @click.stop="editSort(node, data)">修改</el-button>
+                  <el-button type="text" icon="el-icon-delete" size="mini" @click.stop="delSort(node, data)">删除</el-button>
                 </span>
               </span>
             </el-tree>
@@ -149,12 +157,12 @@ export default {
     },
     // 删除产品
     delProject(...list) {
-      this.$confirm('此操作将永久删除该客户, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该产品, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$post('deleteCust', { id: list[1].id }).then(data => {
+        this.$post('delProject', { id: list[1].id }).then(data => {
           this.getProjectData();
           this.$notify({
             title: '成功',
@@ -212,13 +220,15 @@ export default {
       // 根据id返回name
       let arr = v.split(',');
       if (arr.length > 1) {
-        return arr.map(r => {
-          let text = this.rawTreeData.filter(n => n.id === Number(r))[0]
-          return (text && text.name) || ''
-        }).join('/');
+        return arr
+          .map(r => {
+            let text = this.rawTreeData.filter(n => n.id === Number(r))[0];
+            return (text && text.name) || '';
+          })
+          .join('/');
       } else {
-        let text = this.rawTreeData.filter(n => n.id === Number(arr[0]))[0]
-        return (text && text.name) || ''
+        let text = this.rawTreeData.filter(n => n.id === Number(arr[0]))[0];
+        return (text && text.name) || '';
       }
     }
   },
