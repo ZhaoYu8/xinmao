@@ -62,7 +62,7 @@
               :auto-upload="false"
             >
               <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-              <el-button style="margin-left: 10px;" size="small" type="success" @click="submitUpload">上传到服务器</el-button>
+              <el-button style="margin-left: 10px;" size="small" type="success" @click="$refs.upload.submit()">上传到服务器</el-button>
               <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
             </el-upload>
           </el-col>
@@ -91,8 +91,7 @@ export default {
         name: [{ required: true, message: '请输入产品名称', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }],
         sort: [{ required: true, message: '请选择产品分类', trigger: 'blur' }]
       },
-      fileList: [],
-      fileCacheList: []
+      fileList: [] // 修改展示的产品图片数据
     };
   },
   props: {
@@ -129,16 +128,12 @@ export default {
         };
         if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         this.fileList = [];
-        this.fileCacheList = [];
         if (this.dialogType && val) {
           Object.keys(this.form).map(r => {
             this.form[r] = r === 'sort' ? this.editData[r].split(',').map(r => Number(r)) : this.editData[r];
           });
           if (this.editData.photo.length) {
-            this.fileList = this.editData.photo.map(r => {
-              return { name: r.name, url: r.url, id: r.id };
-            });
-            this.fileCacheList = this.fileList
+            this.fileList = this.editData.photo;
           }
         }
       }
@@ -160,18 +155,18 @@ export default {
         return;
       }
     },
-    handleRemove(...e) {
-      this.fileCacheList = e[1].filter(r => r.response).map(r => r.response.file);
-      console.log(this.fileCacheList);
+    handleRemove(data, file) {
+      if (data.id) {
+        this.fileList = this.fileList.filter(r => r.id !== data.id);
+      } else {
+        this.fileList = this.fileList.filter(r => r.uid !== data.uid);
+      }
     },
     hideDialog(type = false) {
       this.$emit('dialog', type);
     },
-    submitUpload() {
-      this.$refs.upload.submit();
-    },
-    handleAvatarSuccess(data, file, fileList) {
-      this.fileCacheList = fileList.filter(r => r.response).map(r => r.response.file);
+    handleAvatarSuccess(data) {
+      this.fileList.push(data.file);
     },
     confirm() {
       this.$refs['ruleForm'].validate(valid => {
@@ -180,9 +175,7 @@ export default {
         let data = Object.assign({}, this.form, {
           id: this.editData.id || 0
         });
-        if (this.fileCacheList.length) {
-          data.photo = this.fileCacheList;
-        }
+        data.photo = this.fileList;
         this.$post(location, data).then((r, data = r.data) => {
           this.$notify({
             title: this.dialogType ? '修改成功' : '新增成功',

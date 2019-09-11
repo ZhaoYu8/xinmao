@@ -49,6 +49,11 @@ export default {
           icon: 'el-icon-shopping-cart-full',
           index: 'project',
           title: '产品列表'
+        },
+        {
+          icon: 'el-icon-s-order',
+          index: 'order',
+          title: '订单管理'
         }
       ]
     };
