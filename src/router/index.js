@@ -44,6 +44,13 @@ export default new VueRouter({
       meta: {
         title: '订单管理'
       }
+    },
+    {
+      path: '/addOrder',
+      component: resolve => require(['@/components/order/AddOrder'], resolve),
+      meta: {
+        title: '新增订单'
+      }
     }
     ]
   },

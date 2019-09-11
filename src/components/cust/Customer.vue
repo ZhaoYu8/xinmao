@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="t-c">
-        <el-table :data="tableData" border height="550" style="width: 100%">
+        <el-table :data="tableData" border height="650" style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="name" label="姓名"></el-table-column>
           <el-table-column prop="phone" label="联系方式"></el-table-column>
@@ -47,13 +47,13 @@
           <el-pagination background @current-change="currentChange" layout="total, prev, pager, next, jumper" :total="totalCount" :current-page="form.pageIndex"></el-pagination>
         </div>
       </div>
-      <Addcustomer :dialogType="custType" :dialogFormVisible="dialogFormVisible" @dialog="controlDialog" :editData="editData"></Addcustomer>
+      <AddCustomer :dialogType="custType" :dialogFormVisible="dialogFormVisible" @dialog="controlDialog" :editData="editData"></AddCustomer>
     </div>
   </div>
 </template>
 
 <script>
-import Addcustomer from '../cust/Addcustomer';
+import AddCustomer from '../cust/AddCustomer';
 export default {
   data() {
     return {
@@ -70,7 +70,7 @@ export default {
     };
   },
   components: {
-    Addcustomer
+    AddCustomer
   },
   methods: {
     getCustData(type) {

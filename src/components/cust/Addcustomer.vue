@@ -1,6 +1,6 @@
 <template>
   <div class="customer">
-    <el-dialog :title="!dialogType ? '新增客户1' : '修改客户'" :visible="dialogFormVisible" width="45%" @close="hideDialog" center>
+    <el-dialog :title="!dialogType ? '新增客户' : '修改客户'" :visible="dialogFormVisible" width="45%" @close="hideDialog" center>
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
         <el-row>
           <el-col :span="12">

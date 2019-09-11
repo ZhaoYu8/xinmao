@@ -12,20 +12,17 @@
           </div>
           <div class="user-info-list">
             上次登录时间：
-            <span>2018-01-01</span>
-          </div>
-          <div class="user-info-list">
-            上次登录地点2123：
-            <span>东莞</span>
+            <span>2019-09-11</span>
           </div>
         </el-card>
         <el-card shadow="hover" style="height:252px;">
           <div slot="header" class="clearfix">
-            <span>语言详情</span>
+            <span>客户排行榜</span>
           </div>
-          Vue <el-progress :percentage="71.3" color="#42b983"></el-progress>JavaScript <el-progress :percentage="24.1" color="#f1e05a"></el-progress>CSS
-          <el-progress :percentage="3.7"></el-progress>HTML
-          <el-progress :percentage="0.9" color="#f56c6c"></el-progress>
+          赵宇 <el-progress :percentage="71.3" color="#42b983"></el-progress> 王三 <el-progress :percentage="24.1" color="#f1e05a"></el-progress> 胡绿叶<el-progress
+            :percentage="3.7"
+          ></el-progress>
+          王先生<el-progress :percentage="0.9" color="#f56c6c"></el-progress>
         </el-card>
       </el-col>
       <el-col :span="16">
@@ -36,7 +33,7 @@
                 <i class="el-icon-s-marketing grid-con-icon"></i>
                 <div class="grid-cont-right">
                   <div class="grid-num">1234</div>
-                  <div>用户访问量</div>
+                  <div>订单</div>
                 </div>
               </div>
             </el-card>
@@ -47,7 +44,7 @@
                 <i class="el-icon-s-claim grid-con-icon"></i>
                 <div class="grid-cont-right">
                   <div class="grid-num">321</div>
-                  <div>系统消息</div>
+                  <div>客户</div>
                 </div>
               </div>
             </el-card>
@@ -58,7 +55,7 @@
                 <i class="el-icon-s-data grid-con-icon"></i>
                 <div class="grid-cont-right">
                   <div class="grid-num">5000</div>
-                  <div>数量</div>
+                  <div>产品</div>
                 </div>
               </div>
             </el-card>
@@ -116,27 +113,27 @@ export default {
       name: localStorage.getItem('ms_username'),
       todoList: [
         {
-          title: '今天要修复100个bug',
+          title: '今天给泥汊的王先生送货',
           status: false
         },
         {
-          title: '今天要修复100个bug',
+          title: '今天给泥汊的王先生送货',
           status: false
         },
         {
-          title: '今天要写100行代码加几个bug吧',
+          title: '今天给泥汊的王先生送货',
           status: false
         },
         {
-          title: '今天要修复100个bug',
+          title: '今天给泥汊的王先生送货',
           status: false
         },
         {
-          title: '今天要修复100个bug',
+          title: '今天给泥汊的王先生送货',
           status: true
         },
         {
-          title: '今天要写100行代码加几个bug吧',
+          title: '今天给泥汊的王先生送货',
           status: true
         }
       ],
@@ -171,14 +168,14 @@ export default {
         }
       ],
       options: {
-        title: '最近七天每天的用户访问量',
+        title: '最近七天新增订单',
         showValue: false,
         fillColor: 'rgb(45, 140, 240)',
         bottomPadding: 30,
         topPadding: 30
       },
       options2: {
-        title: '最近七天用户访问趋势',
+        title: '最近七天新增产品',
         fillColor: '#FC6FA1',
         axisColor: '#008ACD',
         contentColor: '#EEEEEE',

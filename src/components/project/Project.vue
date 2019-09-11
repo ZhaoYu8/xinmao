@@ -28,7 +28,7 @@
               </div>
             </div>
             <div class="t-c">
-              <el-table :data="tableData" border height="520" style="width: 100%">
+              <el-table :data="tableData" border height="600" style="width: 100%">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="name" label="产品名称"></el-table-column>
                 <el-table-column label="产品分类">
@@ -85,14 +85,14 @@
           </el-tab-pane>
         </el-tabs>
       </el-col>
-      <Addproject :treeData="treeData" :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></Addproject>
+      <AddProject :treeData="treeData" :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></AddProject>
       <AddProjectSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="projectSortDialog" :editData="sortEditData"></AddProjectSort>
     </div>
   </div>
 </template>
 
 <script>
-import Addproject from '../project/Addproject';
+import AddProject from '../project/AddProject';
 import AddProjectSort from '../project/AddProjectSort';
 export default {
   data() {
@@ -116,7 +116,7 @@ export default {
     };
   },
   components: {
-    Addproject,
+    AddProject,
     AddProjectSort
   },
   methods: {

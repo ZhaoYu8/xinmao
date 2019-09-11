@@ -8,7 +8,7 @@
     <div class="container">
       <div class="d-f j-c-s-b mb-20">
         <div>
-          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleAdd">新增客户</el-button>
+          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleAdd">新增订单</el-button>
         </div>
         <div>
           <el-input
@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="t-c">
-        <el-table :data="tableData" border height="550" style="width: 100%">
+        <el-table :data="tableData" border height="650" style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="name" label="姓名"></el-table-column>
           <el-table-column prop="phone" label="联系方式"></el-table-column>
@@ -47,13 +47,11 @@
           <el-pagination background @current-change="currentChange" layout="total, prev, pager, next, jumper" :total="totalCount" :current-page="form.pageIndex"></el-pagination>
         </div>
       </div>
-      <Addcustomer :dialogType="custType" :dialogFormVisible="dialogFormVisible" @dialog="controlDialog" :editData="editData"></Addcustomer>
     </div>
   </div>
 </template>
 
 <script>
-import Addcustomer from '../cust/Addcustomer';
 export default {
   data() {
     return {
@@ -70,7 +68,6 @@ export default {
     };
   },
   components: {
-    Addcustomer
   },
   methods: {
     getCustData(type) {
@@ -88,6 +85,7 @@ export default {
       if (data) this.currentChange(1);
     },
     handleAdd() {
+      this.$router.push({path: '/addOrder'})
       this.editData = {};
       this.custType = false;
       this.dialogFormVisible = true;
