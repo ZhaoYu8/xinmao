@@ -89,6 +89,8 @@
 <script>
 import AddProject from '../project/AddProject';
 import AddProjectSort from '../project/AddProjectSort';
+import { mapState } from 'vuex';
+import { mapMutations } from 'vuex';
 export default {
   data() {
     return {
@@ -106,15 +108,18 @@ export default {
       sortEditData: {},
       totalCount: 0,
       activeName: 'first',
-      treeData: [],
-      rawTreeData: [] // 原始treeData
+      treeData: []
     };
   },
   components: {
     AddProject,
     AddProjectSort
   },
+  computed: {
+    ...mapState(['projectSort'])
+  },
   methods: {
+    ...mapMutations(['changeProjectSort']),
     // 查询产品列表
     getProjectData(type) {
       this.$post('queryProject', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
@@ -124,8 +129,8 @@ export default {
     },
     getProjectSort() {
       this.$post('querySort', {}).then((r, data = r.data) => {
+        this.changeProjectSort(data.item);
         this.treeData = this.$global.dataBase(data.item);
-        this.rawTreeData = data.item;
       });
     },
     // 子组件传递过来的方法
@@ -217,12 +222,12 @@ export default {
       if (arr.length > 1) {
         return arr
           .map(r => {
-            let text = this.rawTreeData.filter(n => n.id === Number(r))[0];
+            let text = this.projectSort.filter(n => n.id === Number(r))[0];
             return (text && text.name) || '';
           })
           .join('/');
       } else {
-        let text = this.rawTreeData.filter(n => n.id === Number(arr[0]))[0];
+        let text = this.projectSort.filter(n => n.id === Number(arr[0]))[0];
         return (text && text.name) || '';
       }
     }

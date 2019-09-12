@@ -1,5 +1,10 @@
-import Vuex from 'vuex'
-import modules from './modules'
 export default new Vuex.Store({
-  modules
+  state: {
+    projectSort: []
+  },
+  mutations: {
+    changeProjectSort (state, data) {
+      state.projectSort = data
+    }
+  }
 })
