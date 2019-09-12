@@ -33,14 +33,14 @@
         </el-row>
         <el-row>
           <el-col :span="12">
-            <el-form-item label="售价：" prop="price">
+            <el-form-item label="建议售价：" prop="price">
               <el-input v-model="form.price" autocomplete="off" maxlength="15" show-word-limit placeholder="建议售价"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="4">
-            <el-form-item label="产品图片：" prop="price"> </el-form-item>
+            <el-form-item label="产品图片："> </el-form-item>
           </el-col>
           <el-col :span="18" style="margin-left: -20px">
             <el-upload

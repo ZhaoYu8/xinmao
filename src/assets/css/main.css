@@ -124,6 +124,9 @@ body .el-table colgroup.gutter{
 .j-c-s-a {
   justify-content: space-around
 }
+.j-c-c {
+  justify-content: center
+}
 
 .f-1 {
   flex: 1
@@ -803,4 +806,7 @@ h6,
 
 .c-green {
   color: #2d8cf0;
+}
+.c-p {
+  cursor: pointer;
 }

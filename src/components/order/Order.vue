@@ -67,8 +67,7 @@ export default {
       totalCount: 0
     };
   },
-  components: {
-  },
+  components: {},
   methods: {
     getCustData(type) {
       this.$post('queryCust', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
@@ -85,7 +84,7 @@ export default {
       if (data) this.currentChange(1);
     },
     handleAdd() {
-      this.$router.push({path: '/addOrder'})
+      this.$router.push({ path: '/addOrder' });
       this.editData = {};
       this.custType = false;
       this.dialogFormVisible = true;

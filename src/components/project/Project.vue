@@ -37,17 +37,12 @@
                   </template>
                 </el-table-column>
                 <el-table-column prop="units" label="单位"></el-table-column>
-                <el-table-column prop="cost" label="单价"></el-table-column>
-                <el-table-column prop="price" label="成本"></el-table-column>
+                <el-table-column prop="cost" label="成本"></el-table-column>
+                <el-table-column prop="price" label="建议售价"></el-table-column>
                 <el-table-column label="产品图片">
                   <template slot-scope="scope">
                     <div class="d-f a-i-c j-c-s-a">
-                      <el-image
-                        v-if="scope.row.photo.length"
-                        style="width: 50px; height: 50px"
-                        :src="scope.row.photo[0].url"
-                        :preview-src-list="scope.row.photo.map(r => r.url)"
-                      >
+                      <el-image v-if="scope.row.photo.length" style="width: 50px; height: 50px" :src="scope.row.photo[0].url" :preview-src-list="scope.row.photo.map(r => r.url)">
                       </el-image>
                       <img v-else style="width: 50px; height: 50px" src="../../assets/img/img.jpg" />
                     </div>
