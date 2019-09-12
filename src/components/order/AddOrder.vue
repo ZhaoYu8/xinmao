@@ -94,7 +94,7 @@
     </el-container>
     <!-- 分割线选择产品 -->
     <el-dialog title="选择产品" :visible="dialogProjectTable" @close="dialogClose" center>
-      <el-button size="small">已选{{ dialogChangeNum }}</el-button>
+      <el-button size="small">已选{{ dialog.changeDataNum }}</el-button>
       <el-table :data="dialog.dialogData" max-height="350" @select="dialogChange" ref="dialogTable">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="name" label="产品名称"></el-table-column>
@@ -155,26 +155,19 @@ export default {
           value: ''
         },
         dialogData: [], // 选择产品
-        changeData: []
+        changeData: [],
+        changeDataNum: 0
       },
       dialogProjectTable: false // 控制选择产品table显示隐藏
     };
   },
   computed: {
-    ...mapState(['projectSort']),
-    dialogChangeNum() {
-      let num = 0
-      this.dialog.changeData.map(r => {
-        num += r.length
-      })
-      return num;
-    }
+    ...mapState(['projectSort'])
   },
   watch: {
     dialogProjectTable: {
       handler(val) {
         if (val) {
-          console.log(this.dialog.changeData);
         }
       }
     }
@@ -185,10 +178,9 @@ export default {
     }),
     dialogClose() {
       this.dialogProjectTable = false;
-      console.log(this.dialog.changeData);
     },
     dialogConfirm() {
-      this.dialog.changeData = []
+      this.dialog.changeData = [];
       this.dialogProjectTable = false;
     },
     controlDialog() {
@@ -197,6 +189,17 @@ export default {
       this.dialogProjectTable = true;
       this.$post('queryProject', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
         this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
+        let arr = this.dialog.changeData[this.dialog.form.pageIndex];
+        if (arr && arr.length) {
+          // 点击分页给已选绑定
+          this.$nextTick(() => {
+            data.item.map((row, i) => {
+              // 这里不直接给toggleRowSelection方法 row的原因，是elm ui这里有bug。不认之前确定的数据。只认新请求过来的数据。
+              let _arr = arr.map(r => r.id);
+              if (_arr.includes(row.id)) this.$refs.dialogTable.toggleRowSelection(data.item[i]);
+            });
+          });
+        }
       });
     },
     dialogCurrentChange(val) {
@@ -218,7 +221,11 @@ export default {
       });
     },
     dialogChange(val) {
-      this.$set(this.dialog.changeData, this.dialog.form.pageIndex, val)
+      this.$set(this.dialog.changeData, this.dialog.form.pageIndex, val);
+      this.dialog.changeDataNum = 0;
+      this.dialog.changeData.map(r => {
+        this.dialog.changeDataNum += r.length;
+      });
     },
     sortStrig(v) {
       // 根据id返回name
