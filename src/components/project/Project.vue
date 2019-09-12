@@ -89,8 +89,7 @@
 <script>
 import AddProject from '../project/AddProject';
 import AddProjectSort from '../project/AddProjectSort';
-import { mapState } from 'vuex';
-import { mapMutations } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
@@ -119,7 +118,7 @@ export default {
     ...mapState(['projectSort'])
   },
   methods: {
-    ...mapMutations(['changeProjectSort']),
+    ...mapActions(['changeProjectSort']),
     // 查询产品列表
     getProjectData(type) {
       this.$post('queryProject', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
@@ -128,9 +127,8 @@ export default {
       });
     },
     getProjectSort() {
-      this.$post('querySort', {}).then((r, data = r.data) => {
-        this.changeProjectSort(data.item);
-        this.treeData = this.$global.dataBase(data.item);
+      this.changeProjectSort().then(() => {
+        this.treeData = this.$global.dataBase(this.projectSort);
       });
     },
     // 子组件传递过来的方法

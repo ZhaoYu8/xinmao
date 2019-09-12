@@ -94,7 +94,8 @@
     </el-container>
     <!-- 分割线选择产品 -->
     <el-dialog title="选择产品" :visible="dialogProjectTable" @close="dialogClose" center>
-      <el-table :data="dialog.dialogData">
+      <el-button size="small">已选{{ dialogChangeNum }}</el-button>
+      <el-table :data="dialog.dialogData" max-height="350" @select="dialogChange" ref="dialogTable">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="产品分类">
@@ -120,6 +121,16 @@
           </template>
         </el-table-column>
       </el-table>
+      <div class="mt-20">
+        <el-pagination
+          background
+          @current-change="dialogCurrentChange"
+          layout="total, prev, pager, next, jumper"
+          :total="dialog.totalCount"
+          :current-page="dialog.form.pageIndex"
+          :page-size="dialog.form.pageSize"
+        ></el-pagination>
+      </div>
       <div slot="footer">
         <el-button @click="dialogClose()">取 消</el-button>
         <el-button type="primary" @click="dialogConfirm()">确 定</el-button>
@@ -128,6 +139,7 @@
   </div>
 </template>
 <script>
+import { mapState, mapActions } from 'vuex';
 export default {
   data: function() {
     return {
@@ -136,44 +148,90 @@ export default {
       },
       tableData: [], // 已选产品
       dialogTotalCount: 0,
-      dialog:{
+      dialog: {
         form: {
           pageIndex: 1,
-          pageSize: 10,
+          pageSize: 3,
           value: ''
         },
-        dialogData: [] // 选择产品
+        dialogData: [], // 选择产品
+        changeData: []
       },
       dialogProjectTable: false // 控制选择产品table显示隐藏
     };
   },
+  computed: {
+    ...mapState(['projectSort']),
+    dialogChangeNum() {
+      let num = 0
+      this.dialog.changeData.map(r => {
+        num += r.length
+      })
+      return num;
+    }
+  },
+  watch: {
+    dialogProjectTable: {
+      handler(val) {
+        if (val) {
+          console.log(this.dialog.changeData);
+        }
+      }
+    }
+  },
   methods: {
+    ...mapActions({
+      changeProjectSort: 'changeProjectSort'
+    }),
     dialogClose() {
       this.dialogProjectTable = false;
+      console.log(this.dialog.changeData);
     },
     dialogConfirm() {
+      this.dialog.changeData = []
       this.dialogProjectTable = false;
     },
     controlDialog() {
+      // 点击显示dialog
+      if (!this.projectSort.length) this.changeProjectSort();
       this.dialogProjectTable = true;
-      this.$post('queryProject', Object.assign({}, this.dialog.form )).then((r, data = r.data) => {
-        this.dialog.dialogData = data.item;
-        this.totalCount = data.totalCount;
+      this.$post('queryProject', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
+        this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
       });
     },
+    dialogCurrentChange(val) {
+      // dialog分页
+      this.dialog.form.pageIndex = val;
+      let arr = this.dialog.changeData[val];
+      this.$post('queryProject', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
+        this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
+        if (arr && arr.length) {
+          // 点击分页给已选绑定
+          this.$nextTick(() => {
+            data.item.map((row, i) => {
+              // 这里不直接给toggleRowSelection方法 row的原因，是elm ui这里有bug。不认之前确定的数据。只认新请求过来的数据。
+              let _arr = arr.map(r => r.id);
+              if (_arr.includes(row.id)) this.$refs.dialogTable.toggleRowSelection(data.item[i]);
+            });
+          });
+        }
+      });
+    },
+    dialogChange(val) {
+      this.$set(this.dialog.changeData, this.dialog.form.pageIndex, val)
+    },
     sortStrig(v) {
-      return '';
       // 根据id返回name
       let arr = v.split(',');
       if (arr.length > 1) {
         return arr
           .map(r => {
-            let text = this.rawTreeData.filter(n => n.id === Number(r))[0];
+            let text = this.projectSort.filter(n => n.id === Number(r))[0];
             return (text && text.name) || '';
           })
           .join('/');
       } else {
-        let text = this.rawTreeData.filter(n => n.id === Number(arr[0]))[0];
+        let text = this.projectSort.filter(n => n.id === Number(arr[0]))[0];
         return (text && text.name) || '';
       }
     }
