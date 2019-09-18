@@ -28,11 +28,26 @@ let obj = {
     return str
   },
   dataBase(data, obj = {}) { // 产品分类信息重组
-    data.map(item =>  obj[item.id] = item)
+    data.map(item => obj[item.id] = item)
     data.map(item => {
       if (item.parent !== 0) obj[item.parent].children ? obj[item.parent].children.push(item) : obj[item.parent].children = [item];
     })
     return data.filter(item => item.parent === 0)
+  },
+  sortStrig(v, data) {
+    // 根据id返回name
+    let arr = v.split(',');
+    if (arr.length > 1) {
+      return arr
+        .map(r => {
+          let text = data.filter(n => n.id === Number(r))[0];
+          return (text && text.name) || '';
+        })
+        .join('/');
+    } else {
+      let text = data.filter(n => n.id === Number(arr[0]))[0];
+      return (text && text.name) || '';
+    }
   }
 }
 export default obj

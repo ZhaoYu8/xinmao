@@ -13,23 +13,23 @@
       <el-main class="main">
         <!-- 客户基础信息 -->
         <el-divider class="el-icon-s-custom"> <i class="el-icon-s-custom">基础信息</i></el-divider>
-        <el-form ref="form" :model="order" :inline="true" class="box">
+        <el-form ref="form" :model="order" :inline="true" class="box" label-width="100px">
           <el-row type="flex">
             <el-col :span="6" class="d-f">
-              <el-form-item label="客户名称: " prop="name">
-                <el-select v-model="order.name" filterable :popper-append-to-body="false" :default-first-option="true">
+              <el-form-item label="客户名称：" prop="name">
+                <el-select v-model="order.name" filterable :popper-append-to-body="false" :default-first-option="true" @change="custChange">
                   <el-option v-for="item in customerData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
               <el-form-item label="联系方式：" prop="phone">
-                <el-input v-model="order.phone"></el-input>
+                <el-input v-model="order.phone" class=" width-300"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
               <el-form-item label="客户地址：" prop="address">
-                <el-input v-model="order.address"></el-input>
+                <el-input v-model="order.address" class=" width-300" disabled></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
@@ -40,7 +40,7 @@
           </el-row>
           <el-row type="flex">
             <el-col :span="6" class="d-f">
-              <el-form-item label="配送方式: " prop="radio">
+              <el-form-item label="配送方式：" prop="radio">
                 <el-radio-group v-model="order.radio">
                   <el-radio :label="1">送货上门</el-radio>
                   <el-radio :label="2">快递</el-radio>
@@ -50,12 +50,12 @@
             </el-col>
             <el-col :span="6" class="d-f">
               <el-form-item label="收货地址：" prop="shipping">
-                <el-input v-model="order.shipping"></el-input>
+                <el-input v-model="order.shipping" class=" width-300"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f" v-show="[2, 3].includes(order.radio)">
               <el-form-item label="快递单号：" prop="courier">
-                <el-input v-model="order.courier"></el-input>
+                <el-input v-model="order.courier" class=" width-300"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -72,7 +72,7 @@
           <el-table-column prop="name" label="产品名称"></el-table-column>
           <el-table-column label="产品分类">
             <template slot-scope="scope">
-              <span>{{ sortStrig(scope.row.sort) }}</span>
+              <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="units" label="单位">
@@ -231,7 +231,7 @@
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="产品分类">
           <template slot-scope="scope">
-            <span>{{ sortStrig(scope.row.sort) }}</span>
+            <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="units" label="单位"></el-table-column>
@@ -329,7 +329,7 @@ export default {
     $route: {
       handler(val) {
         if (val.path === '/addOrder') {
-          this.$post('./queryCust', { inputValue: '', pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
+          this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
           });
         }
@@ -409,27 +409,18 @@ export default {
         this.dialog.changeDataNum += r.length;
       });
     },
-    sortStrig(v) {
-      // 根据id返回name
-      let arr = v.split(',');
-      if (arr.length > 1) {
-        return arr
-          .map(r => {
-            let text = this.projectSort.filter(n => n.id === Number(r))[0];
-            return (text && text.name) || '';
-          })
-          .join('/');
-      } else {
-        let text = this.projectSort.filter(n => n.id === Number(arr[0]))[0];
-        return (text && text.name) || '';
-      }
-    },
     addPremium() {
+      // 新增额外支出
       this.premiumData.push({
         name: '支出',
         money: -1,
         remark: ''
       });
+    },
+    custChange(val) {
+      let data = this.customerData.filter(v => v.id === val)[0];
+      this.order = { ...this.order, ...{ phone: data.phone, address: this.$global.getCityName(data.address) + data.detailAddress } };
+      this.order = { ...this.order, ...{ shipping: this.order.address } };
     }
   }
 };

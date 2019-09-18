@@ -51,6 +51,13 @@ export default new VueRouter({
       meta: {
         title: '新增订单'
       }
+    },
+    {
+      path: '/user',
+      component: resolve => require(['@/components/user/User'], resolve),
+      meta: {
+        title: '员工管理'
+      }
     }
     ]
   },

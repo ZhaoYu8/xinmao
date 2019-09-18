@@ -1,6 +1,6 @@
 <template>
   <div class="addprojectsort">
-    <el-dialog :title="!dialogType ? '新增产品分类' : '修改产品分类'" :visible="dialogFormVisible" width="30%" center @close="hideDialog">
+    <el-dialog :title="!dialogType ? '新增部门' : '修改部门'" :visible="dialogFormVisible" width="30%" center @close="hideDialog">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
         <el-row>
           <el-col :span="20">
@@ -38,7 +38,7 @@ export default {
         parent: '0'
       },
       rules: {
-        name: [{ required: true, message: '请输入客户名称', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }]
+        name: [{ required: true, message: '请输入部门名称', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }]
       }
     };
   },
@@ -95,14 +95,15 @@ export default {
           return;
         }
         if (this.dialogType && Array.isArray(this.form.parent) && this.form.parent.includes(this.editData.id)) {
+          // 如果是修改
           this.$notify({
             title: '警告',
-            message: '修改分类，不能修改成自己，或者自己的下属！',
+            message: '修改分类，不能修改成自己或者自己的下属！',
             type: 'warning'
           });
           return;
         }
-        let location = this.dialogType ? '/editSort' : '/addSort';
+        let location = this.dialogType ? '/editBranch' : '/addBranch';
         this.$post(
           location,
           Object.assign({}, this.form, { id: this.editData.id || 0, parent: Array.isArray(this.form.parent) ? this.form.parent[this.form.parent.length - 1] : this.form.parent })

@@ -17,7 +17,7 @@
               </div>
               <div>
                 <el-input
-                  v-model="form.inputValue"
+                  v-model="form.value"
                   placeholder="可根据姓名或者手机号搜索"
                   @keyup.enter.native="getProjectData"
                   class="handle-input mr-10 ml-10"
@@ -33,7 +33,7 @@
                 <el-table-column prop="name" label="产品名称"></el-table-column>
                 <el-table-column label="产品分类">
                   <template slot-scope="scope">
-                    <span>{{ sortStrig(scope.row.sort) }}</span>
+                    <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="units" label="单位"></el-table-column>
@@ -94,7 +94,7 @@ export default {
   data() {
     return {
       form: {
-        inputValue: '',
+        value: '',
         pageIndex: 1,
         pageSize: 10
       },
@@ -121,7 +121,7 @@ export default {
     ...mapActions(['changeProjectSort']),
     // 查询产品列表
     getProjectData(type) {
-      this.$post('queryProject', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
+      this.$post('queryProject', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });
@@ -213,21 +213,6 @@ export default {
     currentChange(val) {
       this.form.pageIndex = val;
       this.getProjectData();
-    },
-    sortStrig(v) {
-      // 根据id返回name
-      let arr = v.split(',');
-      if (arr.length > 1) {
-        return arr
-          .map(r => {
-            let text = this.projectSort.filter(n => n.id === Number(r))[0];
-            return (text && text.name) || '';
-          })
-          .join('/');
-      } else {
-        let text = this.projectSort.filter(n => n.id === Number(arr[0]))[0];
-        return (text && text.name) || '';
-      }
     }
   },
   mounted() {

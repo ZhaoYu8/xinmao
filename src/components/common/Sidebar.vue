@@ -54,6 +54,11 @@ export default {
           icon: 'el-icon-s-order',
           index: 'order',
           title: '订单管理'
+        },
+        {
+          icon: 'el-icon-user-solid',
+          index: 'user',
+          title: '员工管理'
         }
       ]
     };

@@ -12,7 +12,7 @@
         </div>
         <div>
           <el-input
-            v-model="form.inputValue"
+            v-model="form.value"
             placeholder="可根据姓名或者手机号搜索"
             @keyup.enter.native="getCustData"
             class="handle-input mr-10 ml-10"
@@ -58,7 +58,7 @@ export default {
   data() {
     return {
       form: {
-        inputValue: '',
+        value: '',
         pageIndex: 1,
         pageSize: 10
       },
@@ -74,7 +74,7 @@ export default {
   },
   methods: {
     getCustData(type) {
-      this.$post('queryCust', Object.assign({}, this.form, { value: this.form.inputValue })).then((r, data = r.data) => {
+      this.$post('queryCust', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });
