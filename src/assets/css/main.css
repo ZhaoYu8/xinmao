@@ -13,7 +13,7 @@ body,
 }
 
 body {
-    font-family: 'PingFang SC', "Helvetica Neue", Helvetica, "microsoft yahei", arial, STHeiTi, sans-serif;
+  font-family: -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol;
 }
 
 a {
@@ -810,6 +810,8 @@ h6,
 .c-p {
   cursor: pointer;
 }
+
+ul, ol { list-style: none; }
 /* 表格里面有form,不应该有margin-bottom */
 .table-form .el-form-item{
   margin-bottom: 16px;
