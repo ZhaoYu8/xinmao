@@ -5,7 +5,7 @@
       <el-header class="p-0">
         <el-card shadow="hover" :body-style="{ padding: '10px' }" class="head">
           <el-row type="flex" justify="end">
-            <el-button type="primary">保存</el-button>
+            <el-button type="primary" @click="confirm">保存</el-button>
             <el-button>取消</el-button>
           </el-row>
         </el-card>
@@ -13,7 +13,7 @@
       <el-main class="main">
         <!-- 客户基础信息 -->
         <el-divider class="el-icon-s-custom"> <i class="el-icon-s-custom">基础信息</i></el-divider>
-        <el-form ref="form" :model="order" :inline="true" class="box" label-width="100px">
+        <el-form ref="ruleForm" :model="order" :rules="rules" :inline="true" class="box" label-width="100px">
           <el-row type="flex">
             <el-col :span="6" class="d-f">
               <el-form-item label="客户名称：" prop="name">
@@ -24,19 +24,19 @@
             </el-col>
             <el-col :span="6" class="d-f">
               <el-form-item label="联系方式：" prop="phone">
-                <el-input v-model="order.phone" class=" width-300"></el-input>
+                <el-input v-model="order.phone" class="width-260"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
               <el-form-item label="客户地址：" prop="address">
-                <el-input v-model="order.address" class=" width-300" disabled></el-input>
+                <el-input v-model="order.address" disabled class="width-260"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="6" class="d-f">
-              <el-form-item label="销售：" prop="sales">
-                <el-select v-model="order.sales" :popper-append-to-body="false" :default-first-option="true"></el-select>
-              </el-form-item>
-            </el-col>
+            <el-form-item label="销售：" prop="sales">
+              <el-select v-model="order.sales" filterable :popper-append-to-body="false" :default-first-option="true" class="width-260">
+                <el-option v-for="item in salesData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+              </el-select>
+            </el-form-item>
           </el-row>
           <el-row type="flex">
             <el-col :span="6" class="d-f">
@@ -49,13 +49,18 @@
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
-              <el-form-item label="收货地址：" prop="shipping">
-                <el-input v-model="order.shipping" class=" width-300"></el-input>
+              <el-form-item label="收货地址：" prop="address">
+                <el-cascader :options="cityData" v-model="order.address" clearable class="width-260"></el-cascader>
+              </el-form-item>
+            </el-col>
+            <el-col :span="6" class="d-f">
+              <el-form-item label="详细地址：" prop="shipping">
+                <el-input v-model="order.shipping" class="width-260"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f" v-show="[2, 3].includes(order.radio)">
               <el-form-item label="快递单号：" prop="courier">
-                <el-input v-model="order.courier" class=" width-300"></el-input>
+                <el-input v-model="order.courier" class="width-260"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -117,7 +122,7 @@
                 class="w-75"
                 @change="
                   v => {
-                    scope.row.price = Number(scope.row.price) || 0;
+                    scope.row.price = Number(scope.row.price) || 1;
                   }
                 "
               ></el-input>
@@ -133,7 +138,7 @@
                 class="w-75"
                 @change="
                   v => {
-                    scope.row.count = Number(scope.row.count) || 0;
+                    scope.row.count = Number(scope.row.count) || 1;
                   }
                 "
               ></el-input>
@@ -271,8 +276,16 @@
 </template>
 <script>
 import { mapState, mapActions } from 'vuex';
+import city from '../../global/city.js';
 export default {
   data: function() {
+    let checkCourier = (rule, value, callback) => {
+      if ([2, 3].includes(this.order.radio) && !value) {
+        return callback(new Error('快递单号不能为空！'));
+      } else {
+        callback();
+      }
+    };
     return {
       order: {
         name: '', // 客户名称
@@ -299,7 +312,15 @@ export default {
       tableData: [], // 产品清单的数据
       premiumData: [], // 额外费用数据
       activeNames: ['1', '2'],
-      customerData: [] // 客户下拉数据
+      customerData: [], // 客户下拉数据
+      salesData: [], // 销售下拉数据
+      rules: {
+        name: [{ required: true, message: '请选择客户', trigger: 'blur' }],
+        phone: [{ required: true, message: '请输入手机号', trigger: 'change' }],
+        sales: [{ required: true, message: '请选择销售', trigger: 'change' }],
+        shipping: [{ required: true, message: '请输入收货地址', trigger: 'change' }],
+        courier: [{ validator: checkCourier, trigger: 'blur' }]
+      }
     };
   },
   computed: {
@@ -323,6 +344,9 @@ export default {
     // 应收账款
     receivables() {
       return this.proMoney + this.premiumPay;
+    },
+    cityData() {
+      return city || [];
     }
   },
   watch: {
@@ -331,6 +355,9 @@ export default {
         if (val.path === '/addOrder') {
           this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
+          });
+          this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
+            this.salesData = data;
           });
         }
       },
@@ -421,6 +448,20 @@ export default {
       let data = this.customerData.filter(v => v.id === val)[0];
       this.order = { ...this.order, ...{ phone: data.phone, address: this.$global.getCityName(data.address) + data.detailAddress } };
       this.order = { ...this.order, ...{ shipping: this.order.address } };
+    },
+    confirm() {
+      this.$refs['ruleForm'].validate(valid => {
+        if (!valid) return;
+        if (!this.tableData.length) {
+          this.$notify.error({
+            title: '错误',
+            message: '产品清单为空，请选择产品!'
+          });
+          return;
+        }
+        let orderObj = { ...this.order, ...{ tableData: this.tableData, premiumData: this.premiumData } };
+        console.log(orderObj);
+      });
     }
   }
 };

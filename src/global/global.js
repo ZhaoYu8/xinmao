@@ -8,7 +8,9 @@ let obj = {
     }
     return "";
   },
-  getCityName(l, list = l.split(',')) {
+  getCityName(l) {
+    if (!l) return ''
+    let list = l.split(',')
     let data = '', arr = []
     arr[0] = this.getName(city, list[0])
     arr[1] = this.getName(arr[0].children, list[1])

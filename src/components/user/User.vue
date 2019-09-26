@@ -43,8 +43,16 @@
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column prop="name" label="员工名称"></el-table-column>
             <el-table-column prop="phone" label="手机号"></el-table-column>
-            <el-table-column prop="location" label="地址"></el-table-column>
-            <el-table-column prop="sex" label="性别"></el-table-column>
+            <el-table-column prop="address" width="220" label="地址">
+              <template slot-scope="scope">
+                <span>{{ $global.getCityName(scope.row.address) + (scope.row.detailAddress || '无') }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="sex" label="性别">
+              <template slot-scope="scope">
+                <span>{{ scope.row.sex ? '男' : '女' }}</span>
+              </template>
+            </el-table-column>
             <el-table-column label="部门">
               <template slot-scope="scope">
                 <span> {{ $global.sortStrig(scope.row.branch, branch) }}</span>
@@ -53,8 +61,8 @@
             <el-table-column prop="position" label="职位"></el-table-column>
             <el-table-column label="操作" width="180" align="center">
               <template slot-scope="scope">
-                <el-button type="text" icon="el-icon-edit" @click="editProject(scope.$index, scope.row)">编辑</el-button>
-                <el-button type="text" icon="el-icon-delete" class="red" @click="delProject(scope.$index, scope.row)">删除</el-button>
+                <el-button type="text" icon="el-icon-edit" @click="editUser(scope.row)">编辑</el-button>
+                <el-button type="text" icon="el-icon-delete" class="red" @click="delUser(scope.$index, scope.row)">删除</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -65,23 +73,21 @@
       </el-row>
     </div>
     <addBranch :treeData="baseBranch" :dialogType="branchType" :dialogFormVisible="branchVisible" @dialog="dialogConfirm" :editData="branchEditData"></addBranch>
-    <addUser :treeData="baseBranch" :dialogType="userType" :dialogFormVisible="userVisible" @dialog="userConfirm" :editData="userEditData"></addUser>
+    <addUser :treeData="baseBranch" @dialog="userConfirm"></addUser>
   </div>
 </template>
 
 <script>
 import addBranch from './addBranch';
 import addUser from './addUser';
+import bus from '../common/bus';
 import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
       branchVisible: false,
-      userVisible: false,
       branchEditData: {},
-      userEditData: {},
       branchType: false,
-      userType: false,
       tableData: [],
       form: {
         value: '',
@@ -110,7 +116,6 @@ export default {
     },
     userConfirm(val) {
       if (val) this.httpGetUser();
-      this.userVisible = false;
     },
     addBranch(list = {}, node) {
       // 新增部门
@@ -152,19 +157,32 @@ export default {
         });
       });
     },
-    addUser(list = {}, node) {
+    addUser() {
       // 新增员工
-      if (node && node.level > 3) {
-        this.$notify({
-          title: '警告',
-          message: '分类最多4个层级！这是第四层！',
-          type: 'warning'
+      bus.$emit('dialogUser', true);
+    },
+    editUser(data) {
+      bus.$emit('dialogUser', false, data);
+    },
+    delUser(i, data) {
+      this.$confirm('你正在进行删除操作，确定删除吗？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$post('/deleteUser', { dr: 0, id: data.id }).then((r, data = r.data) => {
+          this.$notify({
+            title: '成功',
+            message: '删除成功',
+            type: 'success'
+          });
+          this.httpGetUser();
         });
-        return;
-      }
-      this.userEditData = list.id ? { name: '', parent: list.id } : {};
-      this.userVisible = true;
-      this.userType = false;
+      });
+    },
+    currentChange(val) {
+      this.form.pageIndex = val;
+      this.httpGetUser();
     },
     httpGetUser() {
       this.$post('/queryUser', this.form).then((r, data = r.data) => {
