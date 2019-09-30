@@ -29,7 +29,7 @@
           <el-table-column prop="phone" label="联系方式"></el-table-column>
           <el-table-column prop="address" width="220" label="联系地址">
             <template slot-scope="scope">
-              <span>{{ cityRegroup(scope.row.address) + scope.row.detailAddress }}</span>
+              <span>{{ cityRegroup(scope.row.address) + scope.row.shipping }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="createDate1" label="创建日期"></el-table-column>
@@ -70,7 +70,7 @@ export default {
   components: {},
   methods: {
     getCustData(type) {
-      this.$post('queryCust', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
+      this.$post('queryOrder', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });

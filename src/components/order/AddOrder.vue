@@ -28,8 +28,11 @@
               </el-form-item>
             </el-col>
             <el-col :span="6" class="d-f">
-              <el-form-item label="客户地址：" prop="address">
-                <el-input v-model="order.address" disabled class="width-260"></el-input>
+              <el-form-item label="客户地址：">
+                <el-tooltip v-if="order.custAddress && order.custAddress.length > 25" effect="dark" :content="order.custAddress || '无'">
+                  <p class="text-hidden width-300">{{ order.custAddress || '无' }}</p>
+                </el-tooltip>
+                <p v-else class="text-hidden width-300">{{ order.custAddress || '无' }}</p>
               </el-form-item>
             </el-col>
             <el-form-item label="销售：" prop="sales">
@@ -40,8 +43,8 @@
           </el-row>
           <el-row type="flex">
             <el-col :span="6" class="d-f">
-              <el-form-item label="配送方式：" prop="radio">
-                <el-radio-group v-model="order.radio">
+              <el-form-item label="配送方式：">
+                <el-radio-group v-model="order.deliveryType">
                   <el-radio :label="1">送货上门</el-radio>
                   <el-radio :label="2">快递</el-radio>
                   <el-radio :label="3">送货+快递</el-radio>
@@ -58,7 +61,7 @@
                 <el-input v-model="order.shipping" class="width-260"></el-input>
               </el-form-item>
             </el-col>
-            <el-col :span="6" class="d-f" v-show="[2, 3].includes(order.radio)">
+            <el-col :span="6" class="d-f" v-show="[2, 3].includes(order.deliveryType)">
               <el-form-item label="快递单号：" prop="courier">
                 <el-input v-model="order.courier" class="width-260"></el-input>
               </el-form-item>
@@ -280,7 +283,7 @@ import city from '../../global/city.js';
 export default {
   data: function() {
     let checkCourier = (rule, value, callback) => {
-      if ([2, 3].includes(this.order.radio) && !value) {
+      if ([2, 3].includes(this.order.deliveryType) && !value) {
         return callback(new Error('快递单号不能为空！'));
       } else {
         callback();
@@ -290,9 +293,10 @@ export default {
       order: {
         name: '', // 客户名称
         phone: '', // 联系方式
+        custAddress: '', // 客户地址
         address: '', // 地址
         sales: '', // 销售
-        radio: 1, // 配送方法
+        deliveryType: 1, // 配送方法
         shipping: '', // 配送地址
         courier: '', // 快递单号
         downPayment: 0 // 已收账款
@@ -315,9 +319,10 @@ export default {
       customerData: [], // 客户下拉数据
       salesData: [], // 销售下拉数据
       rules: {
-        name: [{ required: true, message: '请选择客户', trigger: 'blur' }],
+        name: [{ required: true, message: '请选择客户', trigger: 'change' }],
         phone: [{ required: true, message: '请输入手机号', trigger: 'change' }],
         sales: [{ required: true, message: '请选择销售', trigger: 'change' }],
+        address: [{ required: true, message: '请选择省区市', trigger: 'change' }],
         shipping: [{ required: true, message: '请输入收货地址', trigger: 'change' }],
         courier: [{ validator: checkCourier, trigger: 'blur' }]
       }
@@ -446,8 +451,11 @@ export default {
     },
     custChange(val) {
       let data = this.customerData.filter(v => v.id === val)[0];
-      this.order = { ...this.order, ...{ phone: data.phone, address: this.$global.getCityName(data.address) + data.detailAddress } };
-      this.order = { ...this.order, ...{ shipping: this.order.address } };
+      this.order = {
+        ...this.order,
+        ...{ phone: data.phone, custAddress: this.$global.getCityName(data.address) + data.detailAddress, shipping: data.detailAddress, address: data.address.split(',') }
+      };
+      this.$refs['ruleForm'].clearValidate();
     },
     confirm() {
       this.$refs['ruleForm'].validate(valid => {
@@ -460,7 +468,13 @@ export default {
           return;
         }
         let orderObj = { ...this.order, ...{ tableData: this.tableData, premiumData: this.premiumData } };
-        console.log(orderObj);
+        this.$post('/addOrder', orderObj).then((r, data = r.data) => {
+          this.$notify({
+            title: '新增成功',
+            message: data.message,
+            type: 'success'
+          });
+        });
       });
     }
   }
