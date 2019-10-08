@@ -301,6 +301,7 @@ export default {
         courier: '', // 快递单号
         downPayment: 0 // 已收账款
       },
+      editData: {},
       dialog: {
         // 选择产品的数据
         form: {
@@ -358,20 +359,28 @@ export default {
     $route: {
       handler(val) {
         if (val.path === '/addOrder') {
+          console.log(3);
           this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
           });
           this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
             this.salesData = data;
           });
+          if (JSON.stringify(this.editData) === '{}' || this.editData.id !== val.query.id) {
+            this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: val.query.id }).then((r, data = r.data.item) => {
+              this.editData = data[0];
+            });
+          } else {
+            
+          }
         }
       },
       immediate: true
     }
   },
-  mounted() {
-    this.bus.$on('orderEdit', msg => {
-      console.log(1);
+  activated() {
+    this.bus.$on('orderedit', msg => {
+      this.editData = msg;
     });
   },
   methods: {

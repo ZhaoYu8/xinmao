@@ -152,9 +152,8 @@ export default {
     },
     handleEdit(...list) {
       this.editData = list[1];
-      console.log(bus);
-      // this.$router.push({ path: '/addOrder', query: { orderEdit: 1, id: list[1].id }});
-      // this.bus.$emit('orderEdit', 1);
+      this.$router.push({ path: '/addOrder', query: { orderEdit: 1, id: list[1].id } });
+      this.bus.$emit('orderedit', this.editData);
     },
     handleDelete(...list) {
       this.$confirm('此操作将永久删除该订单, 是否继续?', '提示', {
