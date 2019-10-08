@@ -369,7 +369,11 @@ export default {
       immediate: true
     }
   },
-  mounted() {},
+  mounted() {
+    this.bus.$on('orderEdit', msg => {
+      console.log(1);
+    });
+  },
   methods: {
     ...mapActions({
       changeProjectSort: 'changeProjectSort'
@@ -474,6 +478,8 @@ export default {
             message: data.message,
             type: 'success'
           });
+          this.$router.push({ path: '/order' });
+          this.bus.$emit('order', 1);
         });
       });
     }

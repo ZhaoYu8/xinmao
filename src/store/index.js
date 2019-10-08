@@ -16,7 +16,7 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async changeProjectSort ({ commit }, data = {}) { // 币种信息
+    async changeProjectSort ({ commit }, data = {}) { // 产品分类
       const res = await http.post('querySort', data)
         .then(res => res.data.item)
         .catch((e) => console.error(e))

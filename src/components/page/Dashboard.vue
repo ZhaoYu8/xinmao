@@ -52,7 +52,6 @@
 </template>
 
 <script>
-import bus from '../common/bus';
 export default {
   name: 'dashboard',
   data() {

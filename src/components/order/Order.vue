@@ -25,17 +25,78 @@
       <div class="t-c">
         <el-table :data="tableData" border height="650" style="width: 100%">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="name" label="姓名"></el-table-column>
+          <el-table-column prop="custName" label="客户信息">
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top" popper-class="name-wrapper">
+                <p>姓名: {{ scope.row.custName }}</p>
+                <p>联系地址: {{ scope.row.custAddress }}</p>
+                <div slot="reference">
+                  <el-tag>{{ scope.row.custName }}</el-tag>
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
           <el-table-column prop="phone" label="联系方式"></el-table-column>
           <el-table-column prop="address" width="220" label="联系地址">
             <template slot-scope="scope">
               <span>{{ cityRegroup(scope.row.address) + scope.row.shipping }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="createDate1" label="创建日期"></el-table-column>
-          <el-table-column prop="createName" label="创建人姓名"></el-table-column>
-          <el-table-column label="最近交易日期"></el-table-column>
-          <el-table-column label="头像"></el-table-column>
+          <el-table-column prop="salesName" label="销售"></el-table-column>
+          <el-table-column prop="project" label="产品">
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top">
+                <el-table :data="scope.row.tableData">
+                  <el-table-column width="100" property="name" label="产品名称"></el-table-column>
+                  <el-table-column width="180" property="sort" label="产品分类">
+                    <template slot-scope="scope">
+                      <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column width="100" property="units" label="单位"></el-table-column>
+                  <el-table-column width="100" property="cost" label="成本"></el-table-column>
+                  <el-table-column width="100" property="price" label="单价"></el-table-column>
+                  <el-table-column width="100" property="count" label="数量"></el-table-column>
+                  <el-table-column width="100" label="总价">
+                    <template slot-scope="scope">
+                      <span>{{ scope.row.price * scope.row.count }}</span>
+                    </template>
+                  </el-table-column>
+                </el-table>
+                <div slot="reference">
+                  <el-tag>
+                    {{ scope.row.tableData.length }} 项; 总计:
+                    {{ scope.row.tableData.map(r => r.price * r.count).reduce((prev, curr) => prev + curr) }}
+                  </el-tag>
+                </div>
+              </el-popover>
+            </template>
+          </el-table-column>
+          <el-table-column label="额外费用">
+            <template slot-scope="scope">
+              <el-popover trigger="hover" placement="top" v-if="scope.row.premiumData.length">
+                <el-table :data="scope.row.premiumData">
+                  <el-table-column width="100" property="name" label="名称"></el-table-column>
+                  <el-table-column width="100" property="money" label="金额"></el-table-column>
+                  <el-table-column width="300" property="remark" label="备注"></el-table-column>
+                </el-table>
+                <div slot="reference">
+                  <el-tag>
+                    {{ scope.row.premiumData.length }} 项; 总计:
+                    {{ scope.row.premiumData.map(r => r.money).reduce((prev, curr) => Number(prev) + Number(curr)) }}
+                  </el-tag>
+                </div>
+              </el-popover>
+              <el-tag v-else>无</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createDate1" width="200" label="创建日期">
+            <template slot-scope="scope">
+              <i class="el-icon-time"></i>
+              <span style="margin-left: 10px">{{ scope.row.createDate1 }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createName" label="创建人姓名"> </el-table-column>
           <el-table-column label="操作" width="180" align="center">
             <template slot-scope="scope">
               <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -52,6 +113,7 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
@@ -61,14 +123,16 @@ export default {
         pageSize: 10
       },
       tableData: [],
-      dialogFormVisible: false,
-      custType: false,
       editData: {},
       totalCount: 0
     };
   },
   components: {},
+  computed: {
+    ...mapState(['projectSort'])
+  },
   methods: {
+    ...mapActions(['changeProjectSort']),
     getCustData(type) {
       this.$post('queryOrder', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
@@ -79,36 +143,25 @@ export default {
       return this.$global.getCityName(data);
     },
     controlDialog(data) {
-      this.dialogFormVisible = false;
       // 这里做了一下处理，新增之后调用分页方法，重置当前页
       if (data) this.currentChange(1);
     },
     handleAdd() {
       this.$router.push({ path: '/addOrder' });
       this.editData = {};
-      this.custType = false;
-      this.dialogFormVisible = true;
     },
     handleEdit(...list) {
       this.editData = list[1];
-      this.custType = true;
-      this.dialogFormVisible = true;
+      console.log(bus);
+      // this.$router.push({ path: '/addOrder', query: { orderEdit: 1, id: list[1].id }});
+      // this.bus.$emit('orderEdit', 1);
     },
     handleDelete(...list) {
-      this.$confirm('此操作将永久删除该客户, 是否继续?', '提示', {
+      this.$confirm('此操作将永久删除该订单, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-        this.$post('deleteCust', { id: list[1].id }).then(data => {
-          this.getCustData();
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success'
-          });
-        });
-      });
+      }).then(() => {});
     },
     currentChange(val) {
       this.form.pageIndex = val;
@@ -116,7 +169,14 @@ export default {
     }
   },
   mounted() {
+    if (!this.projectSort.length) {
+      // 如果产品分类数据为空，则请求一下分类数据
+      this.changeProjectSort();
+    }
     this.getCustData();
+    this.bus.$on('order', msg => {
+      this.getCustData();
+    });
   }
 };
 </script>
@@ -124,6 +184,12 @@ export default {
 .container {
   .handle-input {
     width: 300px;
+  }
+}
+
+.name-wrapper {
+  p {
+    margin: 10px 0;
   }
 }
 </style>

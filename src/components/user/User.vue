@@ -6,8 +6,8 @@
       </el-breadcrumb>
     </div>
     <div class="container">
-      <el-row :gutter="20">
-        <el-col :span="4" class="department pb-10 pt-10">
+      <el-row>
+        <el-col :span="4" class="department p-10">
           <header class="d-f j-c-s-b a-i-c mb-10">
             <span>部门</span>
             <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="addBranch">新增部门</el-button>
@@ -23,22 +23,24 @@
             </span>
           </el-tree>
         </el-col>
-        <el-col :span="20">
-          <span slot="label"> <i class="el-icon-shopping-cart-full"></i> 产品 </span>
-          <div class="d-f j-c-s-b mb-10">
-            <el-button type="primary" icon="el-icon-circle-plus-outline" size="mini" @click="addUser">新增员工</el-button>
-            <div class="d-f">
-              <el-input
-                v-model="form.value"
-                placeholder="可根据姓名或者手机号搜索"
-                @keyup.enter.native="getProjectData"
-                class="handle-input mr-10 ml-10"
-                clearable
-                @clear="getProjectData"
-              ></el-input>
-              <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
-            </div>
+        <el-col :span="20" class="pl-20">
+          <div class="d-f j-c-f-e a-i-c">
+            状态：
+            <el-radio-group v-model="userType" size="small">
+              <el-radio-button label="1">正常</el-radio-button>
+              <el-radio-button label="0">删除</el-radio-button>
+            </el-radio-group>
+            <el-input
+              v-model="form.value"
+              placeholder="可根据姓名或者手机号搜索"
+              @keyup.enter.native="getProjectData"
+              class="handle-input mr-10 ml-10 width-300"
+              clearable
+              @clear="getProjectData"
+            ></el-input>
+            <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
           </div>
+          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addUser" class="mb-10">新增员工</el-button>
           <el-table :data="tableData" border height="650" style="width: 100%">
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column prop="name" label="员工名称"></el-table-column>
@@ -62,7 +64,7 @@
             <el-table-column label="操作" width="180" align="center">
               <template slot-scope="scope">
                 <el-button type="text" icon="el-icon-edit" @click="editUser(scope.row)">编辑</el-button>
-                <el-button type="text" icon="el-icon-delete" class="red" @click="delUser(scope.$index, scope.row)">删除</el-button>
+                <el-button type="text" icon="el-icon-delete" class="red" @click="delUser(scope.$index, scope.row)">{{ scope.row.dr === 1 ? '删除': '启用' }}</el-button>
               </template>
             </el-table-column>
           </el-table>
@@ -80,7 +82,6 @@
 <script>
 import addBranch from './addBranch';
 import addUser from './addUser';
-import bus from '../common/bus';
 import { mapState, mapActions } from 'vuex';
 export default {
   data() {
@@ -94,7 +95,8 @@ export default {
         pageIndex: 1,
         pageSize: 10
       },
-      totalCount: 0
+      totalCount: 0,
+      userType: 1
     };
   },
   components: {
@@ -159,21 +161,21 @@ export default {
     },
     addUser() {
       // 新增员工
-      bus.$emit('dialogUser', true);
+      this.bus.$emit('dialogUser', true);
     },
     editUser(data) {
-      bus.$emit('dialogUser', false, data);
+      this.bus.$emit('dialogUser', false, data);
     },
     delUser(i, data) {
-      this.$confirm('你正在进行删除操作，确定删除吗？', '提示', {
+      this.$confirm(data.dr ? '你正在进行删除操作，确定删除吗？' : '你正在进行启用操作，确定启用吗？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$post('/deleteUser', { dr: 0, id: data.id }).then((r, data = r.data) => {
+        this.$post('/deleteUser', { dr: data.dr ? 0 : 1, id: data.id }).then((r, data = r.data) => {
           this.$notify({
             title: '成功',
-            message: '删除成功',
+            message: data.dr ? '删除成功' : '启用成功',
             type: 'success'
           });
           this.httpGetUser();
@@ -185,7 +187,7 @@ export default {
       this.httpGetUser();
     },
     httpGetUser() {
-      this.$post('/queryUser', this.form).then((r, data = r.data) => {
+      this.$post('/queryUser', Object.assign({}, this.form, {dr: this.userType})).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });

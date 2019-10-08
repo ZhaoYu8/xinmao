@@ -67,7 +67,6 @@
 </template>
 <script>
 import city from '../../global/city.js';
-import bus from '../common/bus';
 export default {
   data: function() {
     return {
@@ -127,7 +126,7 @@ export default {
     }
   },
   mounted() {
-    bus.$on('dialogUser', (type, data = {}) => {
+    this.bus.$on('dialogUser', (type, data = {}) => {
       this.dialogShow = true;
       this.dialogType = type;
       if (!type) {

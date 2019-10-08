@@ -17,7 +17,7 @@ instance.interceptors.request.use((config) => {
   if (loading) loading.close()
   loading = Loading.service({
     lock: true,
-    text: '请求中...',
+    text: '玩命加载中...',
     background: 'transparent',
     target: '.content-box'
   });

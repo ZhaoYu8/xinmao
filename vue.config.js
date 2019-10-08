@@ -10,10 +10,5 @@ module.exports = {
             'axios': 'axios',
             'element-ui': 'ELEMENT'
         }
-    },
-    chainWebpack: config => {
-        config
-            .plugin('webpack-bundle-analyzer')
-            .use(require('webpack-bundle-analyzer').BundleAnalyzerPlugin)
     }
 }
