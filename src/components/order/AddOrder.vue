@@ -73,9 +73,9 @@
         <el-divider class="el-icon-s-custom"><i class="el-icon-s-claim">产品清单</i></el-divider>
         <el-row class="d-f goods">
           <i class="el-icon-menu c-p mr-10" @click="controlDialog"></i>
-          <i class="el-icon-remove-outline c-p"></i>
+          <i class="el-icon-remove-outline c-p" @click="delList('project')"></i>
         </el-row>
-        <el-table :data="tableData" border class="pb-20 w-100">
+        <el-table :data="projectData" border class="pb-20 w-100" ref="project">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="name" label="产品名称"></el-table-column>
           <el-table-column label="产品分类">
@@ -169,9 +169,9 @@
           <el-collapse-item title="额外费用" name="1">
             <el-row class="d-f goods">
               <i class="el-icon-circle-plus-outline c-p mr-10" @click="addPremium"></i>
-              <i class="el-icon-remove-outline c-p"></i>
+              <i class="el-icon-remove-outline c-p" @click="delList('premium')"></i>
             </el-row>
-            <el-table :data="premiumData" border style="width: 100%">
+            <el-table :data="premiumData" border class="w-100" ref="premium">
               <el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="name" label="费用名称" width="300">
                 <template slot-scope="scope">
@@ -314,9 +314,9 @@ export default {
         changeDataNum: 0, // 总共已选几个产品
         dialogProjectTable: false
       },
-      tableData: [], // 产品清单的数据
+      projectData: [], // 产品清单的数据
       premiumData: [], // 额外费用数据
-      activeNames: ['1', '2'],
+      activeNames: ['1', '2'], // 折叠面板数据
       customerData: [], // 客户下拉数据
       salesData: [], // 销售下拉数据
       rules: {
@@ -334,7 +334,7 @@ export default {
     // 货品金额
     proMoney() {
       let money = 0;
-      this.tableData.map(r => {
+      this.projectData.map(r => {
         money += (Number(r.price) || 0) * (Number(r.count) || 0);
       });
       return money;
@@ -359,19 +359,32 @@ export default {
     $route: {
       handler(val) {
         if (val.path === '/addOrder') {
-          console.log(3);
           this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
           });
           this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
             this.salesData = data;
           });
+          if (!val.query.id) {
+            // 新增
+            let _order = this.order;
+            for (const key in _order) {
+              _order[key] = '';
+            }
+            _order.deliveryType = 1;
+            _order.downPayment = 0;
+            this.projectData = [];
+            this.premiumData = [];
+            return; // 看是不是修改
+          }
           if (JSON.stringify(this.editData) === '{}' || this.editData.id !== val.query.id) {
+            // 区分一下。第一次和刷新的时候。都只能从后台取数据，第二次查看，只需要调用接口就可以了
             this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: val.query.id }).then((r, data = r.data.item) => {
               this.editData = data[0];
+              this.orderDataRegroup();
             });
           } else {
-            
+            this.orderDataRegroup();
           }
         }
       },
@@ -379,18 +392,37 @@ export default {
     }
   },
   activated() {
-    this.bus.$on('orderedit', msg => {
-      this.editData = msg;
+    // 每次进新增修改订单触发
+    if (this.$refs['ruleForm']) this.$refs['ruleForm'].clearValidate();
+    this.bus.$on('orderedit', data => {
+      this.editData = data;
     });
   },
   methods: {
     ...mapActions({
       changeProjectSort: 'changeProjectSort'
     }),
+    async orderDataRegroup() {
+      if (!this.projectSort.length) await this.changeProjectSort();
+      // 订单数据重组
+      let _data = this.order,
+        _editData = { ...this.editData };
+      for (const key in _data) {
+        _data[key] = _editData[key];
+        if (key === 'address') {
+          _data[key] = _data[key].split(',');
+        }
+        if (['name', 'sales', 'deliveryType'].includes(key)) _data[key] = Number(_data[key]);
+      }
+      this.projectData = _editData.projectData;
+      this.premiumData = _editData.premiumData;
+    },
     dialogClose() {
+      // 选择产品列表关闭页面
       this.dialog.dialogProjectTable = false;
     },
     dialogConfirm() {
+      // 选择产品确定
       let arr = [];
       this.dialog.changeData
         .filter(x => x) // 去除 undefined
@@ -405,10 +437,29 @@ export default {
         // 给数量默认赋值为 1
         this.$set(r, 'count', 1);
       });
-      this.tableData = [...this.tableData, ...arr];
+      this.projectData = [...this.projectData, ...arr];
       this.dialog.changeDataNum = 0;
       this.dialog.changeData = [];
       this.dialog.dialogProjectTable = false;
+    },
+    delList(type) {
+      let obj = {
+        project: () => {
+          let a = this.$refs[type].selection.map(r => {
+            return this.projectData.map((n, i) => {
+              if (r.id === n.id) {
+                return i;
+              }
+            }).filter(r => r)
+          });
+          console.log(a);
+        },
+        premium: () => {
+          console.log(this.premiumData);
+          console.log(this.$refs[type].selection);
+        }
+      };
+      obj[type]();
     },
     controlDialog() {
       // 点击显示dialog
@@ -448,6 +499,7 @@ export default {
       });
     },
     dialogChange(val) {
+      // 产品表单选中数据
       this.$set(this.dialog.changeData, this.dialog.form.pageIndex - 1, val);
       this.dialog.changeDataNum = 0;
       this.dialog.changeData.map(r => {
@@ -473,14 +525,14 @@ export default {
     confirm() {
       this.$refs['ruleForm'].validate(valid => {
         if (!valid) return;
-        if (!this.tableData.length) {
+        if (!this.projectData.length) {
           this.$notify.error({
             title: '错误',
             message: '产品清单为空，请选择产品!'
           });
           return;
         }
-        let orderObj = { ...this.order, ...{ tableData: this.tableData, premiumData: this.premiumData } };
+        let orderObj = { ...this.order, ...{ projectData: this.projectData, premiumData: this.premiumData } };
         this.$post('/addOrder', orderObj).then((r, data = r.data) => {
           this.$notify({
             title: '新增成功',

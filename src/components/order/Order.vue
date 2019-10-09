@@ -46,7 +46,7 @@
           <el-table-column prop="project" label="产品">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
-                <el-table :data="scope.row.tableData">
+                <el-table :data="scope.row.projectData">
                   <el-table-column width="100" property="name" label="产品名称"></el-table-column>
                   <el-table-column width="180" property="sort" label="产品分类">
                     <template slot-scope="scope">
@@ -65,8 +65,8 @@
                 </el-table>
                 <div slot="reference">
                   <el-tag>
-                    {{ scope.row.tableData.length }} 项; 总计:
-                    {{ scope.row.tableData.map(r => r.price * r.count).reduce((prev, curr) => prev + curr) }}
+                    {{ scope.row.projectData.length }} 项; 总计:
+                    {{ scope.row.projectData.map(r => r.price * r.count).reduce((prev, curr) => prev + curr) }}
                   </el-tag>
                 </div>
               </el-popover>

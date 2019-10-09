@@ -10,7 +10,7 @@ let obj = {
   },
   getCityName(l) {
     if (!l) return ''
-    let list = l.split(',')
+    let list = Array.isArray(l) ? l : l.split(',')
     let data = '', arr = []
     arr[0] = this.getName(city, list[0])
     arr[1] = this.getName(arr[0].children, list[1])
