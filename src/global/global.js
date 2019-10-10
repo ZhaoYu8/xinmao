@@ -50,6 +50,55 @@ let obj = {
       let text = data.filter(n => n.id === Number(arr[0]))[0];
       return (text && text.name) || '';
     }
+  },
+  Multiply(...args) { // x
+    if (args.length < 2) return args[0];
+    let m = 0;
+    let items = [];
+    for (let i = 0; i < args.length; i++) {
+      let item = args[i].toString();
+      item.split('.')[1] && (m += item.split('.')[1].length); // 计算小数总长度m
+      items.push(item.replace('.', '')); // 将数字转为整数
+    }
+    return items.reduce((prev, curr) => (prev * curr)) / 10 ** m; // 转换后的整数相乘, 再除以10的m次方
+  },
+  Add(...args) { // +
+    if (args.length < 2) return args[0];
+    let decimals = [];
+    let items = [];
+    for (let i = 0; i < args.length; i++) {
+      if (typeof Number(args[i]) === 'number') {
+        items.push(args[i]); // 将有效数字放在数组items中
+        let decimal = args[i].toString().split('.')[1];
+        decimals.push(decimal ? decimal.length : 0); // 将小数的长度放在数组decimals中
+      }
+    }
+    let m = 10 ** Math.max(...decimals); // 计算最长小数的位数m
+    return items.reduce((prev, curr) => (obj.Multiply(prev, m) + obj.Multiply(curr, m))) / m; // 将数字乘以10的m次方相加后再除以10的m次方
+  },
+  Divide(...args) { // /
+    if (args.length < 2) return args[0];
+    return args.reduce((prev, curr) => {
+      let p = `${prev}`;
+      let c = `${curr}`;
+      let r1 = p.split('.')[1] ? p.split('.')[1].length : 0;
+      let r2 = c.split('.')[1] ? c.split('.')[1].length : 0;
+      let m = p.replace('.', '') / c.replace('.', ''); // 将数字转为整数并相除,得到m
+      let n = r2 - r1; // 计算小数相差位数n
+      return obj.Multiply(m, 10 ** n); // 用m乘以10的n次方
+    });
+  },
+  Subtr(...args) { // -
+    if (args.length < 2) return args[0];
+    return args.reduce((prev, curr) => {
+      let p = `${prev}`;
+      let c = `${curr}`;
+      let r1 = p.split('.')[1] ? p.split('.')[1].length : 0;
+      let r2 = c.split('.')[1] ? c.split('.')[1].length : 0;
+      let decimal = Math.max(r2, r1);
+      let m = obj.Multiply(p, 10 ** decimal) - obj.Multiply(c, 10 ** decimal);  // 将数字乘以10的m次方相减后再除以10的m次方
+      return obj.Divide(m, 10 ** decimal);
+    });
   }
 }
 export default obj

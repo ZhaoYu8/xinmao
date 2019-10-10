@@ -17,7 +17,7 @@
           <el-row type="flex">
             <el-col :span="6" class="d-f">
               <el-form-item label="客户名称：" prop="name">
-                <el-select v-model="order.name" filterable :popper-append-to-body="false" :default-first-option="true" @change="custChange">
+                <el-select v-model="order.name" filterable :popper-append-to-body="false" :default-first-option="true" @change="custChange" :disabled="getOrderId">
                   <el-option v-for="item in customerData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
                 </el-select>
               </el-form-item>
@@ -335,7 +335,7 @@ export default {
     proMoney() {
       let money = 0;
       this.projectData.map(r => {
-        money += (Number(r.price) || 0) * (Number(r.count) || 0);
+        money = this.$global.Add(this.$global.Multiply((Number(r.price) || 0), (Number(r.count) || 0)), money)
       });
       return money;
     },
@@ -343,7 +343,7 @@ export default {
     premiumPay() {
       let money = 0;
       this.premiumData.map(r => {
-        money += Number(r.money) || 0;
+        money = this.$global.Add(Number(r.money) || 0, money)
       });
       return money;
     },
@@ -353,6 +353,10 @@ export default {
     },
     cityData() {
       return city || [];
+    },
+    // 是否是修改
+    getOrderId () {
+      return this.$route.query.id
     }
   },
   watch: {
@@ -365,7 +369,7 @@ export default {
           this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
             this.salesData = data;
           });
-          if (!val.query.id) {
+          if (!this.getOrderId) {
             // 新增
             let _order = this.order;
             for (const key in _order) {
@@ -377,9 +381,9 @@ export default {
             this.premiumData = [];
             return; // 看是不是修改
           }
-          if (JSON.stringify(this.editData) === '{}' || this.editData.id !== val.query.id) {
+          if (JSON.stringify(this.editData) === '{}' || this.editData.id !== this.getOrderId) {
             // 区分一下。第一次和刷新的时候。都只能从后台取数据，第二次查看，只需要调用接口就可以了
-            this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: val.query.id }).then((r, data = r.data.item) => {
+            this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: this.getOrderId }).then((r, data = r.data.item) => {
               this.editData = data[0];
               this.orderDataRegroup();
             });
@@ -533,9 +537,12 @@ export default {
           return;
         }
         let orderObj = { ...this.order, ...{ projectData: this.projectData, premiumData: this.premiumData } };
-        this.$post('/addOrder', orderObj).then((r, data = r.data) => {
+        if (this.getOrderId) {
+          orderObj.id = this.getOrderId
+        }
+        this.$post(this.getOrderId ? '/editOrder' : '/addOrder', orderObj).then((r, data = r.data) => {
           this.$notify({
-            title: '新增成功',
+            title: this.getOrderId ? '修改成功' : '新增成功',
             message: data.message,
             type: 'success'
           });
