@@ -43,6 +43,12 @@
             </template>
           </el-table-column>
           <el-table-column prop="salesName" label="销售"></el-table-column>
+          <el-table-column prop="orderDate"  label="下单日期">
+            <template slot-scope="scope">
+              <i class="el-icon-date"></i>
+              <span style="margin-left: 10px">{{ scope.row.orderDate }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="project" label="产品">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
@@ -97,7 +103,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="createName" label="创建人姓名"> </el-table-column>
-          <el-table-column label="操作" width="180" align="center">
+          <el-table-column label="操作" align="center">
             <template slot-scope="scope">
               <el-button type="text" icon="el-icon-edit" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
               <el-button type="text" icon="el-icon-delete" class="red" @click="handleDelete(scope.$index, scope.row)">删除</el-button>

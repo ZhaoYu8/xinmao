@@ -374,6 +374,8 @@ h6,
 
 .width-200 { width: 200px; } 
 
+.width-220 { width: 220px; } 
+
 .width-230 { width: 230px; } 
 
 .width-260 { width: 260px; } 
@@ -403,3 +405,9 @@ ul, ol { list-style: none; }
 /* 表格里面有form,不应该有margin-bottom */
 .table-form .el-form-item { margin-bottom: 16px; } 
 .text-hidden { text-overflow: ellipsis; white-space: nowrap; overflow: hidden; } 
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}

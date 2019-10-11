@@ -17,8 +17,8 @@
           <el-row type="flex">
             <el-col :span="6" class="d-f">
               <el-form-item label="客户名称：" prop="name">
-                <el-select v-model="order.name" filterable :popper-append-to-body="false" :default-first-option="true" @change="custChange" :disabled="getOrderId">
-                  <el-option v-for="item in customerData" :key="item.id" :label="item.name" :value="item.id"> </el-option>
+                <el-select v-model="order.name" class="width-220" filterable :popper-append-to-body="false" :default-first-option="true" @change="custChange" :disabled="getOrderId">
+                  <el-option v-for="item in customerData" :key="item.id" :label="item.name" :value="item.id"></el-option>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -78,6 +78,7 @@
                   value-format="yyyy-MM-dd"
                   :picker-options="$global.pickerOptions"
                   :clearable="false"
+                  class="width-220"
                 >
                 </el-date-picker>
               </el-form-item>
@@ -243,6 +244,11 @@
               </el-row>
             </el-card>
           </el-collapse-item>
+          <el-collapse-item title="备注" name="3">
+            <el-card class="box-card">
+              <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 10 }" placeholder="请输入备注！" v-model="order.remark"> </el-input>
+            </el-card>
+          </el-collapse-item>
         </el-collapse>
       </el-main>
     </el-container>
@@ -316,7 +322,8 @@ export default {
         shipping: '', // 配送地址
         courier: '', // 快递单号
         orderDate: '', // 下单日期
-        downPayment: 0 // 已收账款
+        downPayment: 0, // 已收账款
+        remark: '' // 备注
       },
       editData: {},
       dialog: {
@@ -333,7 +340,7 @@ export default {
       },
       projectData: [], // 产品清单的数据
       premiumData: [], // 额外费用数据
-      activeNames: ['1', '2'], // 折叠面板数据
+      activeNames: ['1', '2', '3'], // 折叠面板数据
       customerData: [], // 客户下拉数据
       salesData: [], // 销售下拉数据
       rules: {
