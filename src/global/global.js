@@ -99,6 +99,61 @@ let obj = {
       let m = obj.Multiply(p, 10 ** decimal) - obj.Multiply(c, 10 ** decimal);  // 将数字乘以10的m次方相减后再除以10的m次方
       return obj.Divide(m, 10 ** decimal);
     });
+  },
+  pickerOptions: {
+    shortcuts: [{
+      text: '今天',
+      onClick(picker) {
+        picker.$emit('pick', new Date());
+      }
+    }, {
+      text: '明天',
+      onClick(picker) {
+        const date = new Date();
+        date.setTime(date.getTime() + 3600 * 1000 * 24);
+        picker.$emit('pick', date);
+      }
+    }, {
+      text: '昨天',
+      onClick(picker) {
+        const date = new Date();
+        date.setTime(date.getTime() - 3600 * 1000 * 24);
+        picker.$emit('pick', date);
+      }
+    }, {
+      text: '前天',
+      onClick(picker) {
+        const date = new Date();
+        date.setTime(date.getTime() - 3600 * 1000 * 24 * 2);
+        picker.$emit('pick', date);
+      }
+    }, {
+      text: '一周前',
+      onClick(picker) {
+        const date = new Date();
+        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+        picker.$emit('pick', date);
+      }
+    }]
+  },
+  getNewDate(date = new Date()) {
+    if (typeof date === 'string' && date.includes('T')) {
+      date = date.replace('T', ' ')
+      if (isNaN(Date.parse(date))) {
+        date = date.replace(/\-/g, '/')
+      }
+    }
+    const D = new Date(date)
+    let year = (D.getFullYear()).toString(),
+      month = (D.getMonth() + 1).toString(),
+      weekday = D.getDate().toString()
+    if (parseInt(month, 10) < 10) {
+      month = '0' + month
+    }
+    if (parseInt(weekday, 10) < 10) {
+      weekday = '0' + weekday
+    }
+    return (year + '-' + month + '-' + weekday)
   }
 }
 export default obj

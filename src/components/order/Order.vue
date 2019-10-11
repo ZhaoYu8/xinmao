@@ -90,10 +90,10 @@
               <el-tag v-else>无</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="createDate1" width="200" label="创建日期">
+          <el-table-column prop="createDate" width="200" label="创建日期">
             <template slot-scope="scope">
               <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.createDate1 }}</span>
+              <span style="margin-left: 10px">{{ scope.row.createDate }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="createName" label="创建人姓名"> </el-table-column>

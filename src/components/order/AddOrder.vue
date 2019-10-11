@@ -67,6 +67,22 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row type="flex">
+            <el-col :span="6" class="d-f">
+              <el-form-item label="下单日期：" prop="orderDate">
+                <el-date-picker
+                  v-model="order.orderDate"
+                  type="date"
+                  placeholder="选择日期"
+                  format="yyyy 年 MM 月 dd 日"
+                  value-format="yyyy-MM-dd"
+                  :picker-options="$global.pickerOptions"
+                  :clearable="false"
+                >
+                </el-date-picker>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form>
 
         <!-- 分割线产品清单 -->
@@ -281,7 +297,7 @@
 import { mapState, mapActions } from 'vuex';
 import city from '../../global/city.js';
 export default {
-  data: function() {
+  data() {
     let checkCourier = (rule, value, callback) => {
       if ([2, 3].includes(this.order.deliveryType) && !value) {
         return callback(new Error('快递单号不能为空！'));
@@ -299,6 +315,7 @@ export default {
         deliveryType: 1, // 配送方法
         shipping: '', // 配送地址
         courier: '', // 快递单号
+        orderDate: '', // 下单日期
         downPayment: 0 // 已收账款
       },
       editData: {},
@@ -335,7 +352,7 @@ export default {
     proMoney() {
       let money = 0;
       this.projectData.map(r => {
-        money = this.$global.Add(this.$global.Multiply((Number(r.price) || 0), (Number(r.count) || 0)), money)
+        money = this.$global.Add(this.$global.Multiply(Number(r.price) || 0, Number(r.count) || 0), money);
       });
       return money;
     },
@@ -343,7 +360,7 @@ export default {
     premiumPay() {
       let money = 0;
       this.premiumData.map(r => {
-        money = this.$global.Add(Number(r.money) || 0, money)
+        money = this.$global.Add(Number(r.money) || 0, money);
       });
       return money;
     },
@@ -355,8 +372,8 @@ export default {
       return city || [];
     },
     // 是否是修改
-    getOrderId () {
-      return this.$route.query.id
+    getOrderId() {
+      return this.$route.query.id;
     }
   },
   watch: {
@@ -379,16 +396,17 @@ export default {
             _order.downPayment = 0;
             this.projectData = [];
             this.premiumData = [];
+            _order.orderDate = this.$global.getNewDate();
             return; // 看是不是修改
           }
           if (JSON.stringify(this.editData) === '{}' || this.editData.id !== this.getOrderId) {
             // 区分一下。第一次和刷新的时候。都只能从后台取数据，第二次查看，只需要调用接口就可以了
             this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: this.getOrderId }).then((r, data = r.data.item) => {
               this.editData = data[0];
-              this.orderDataRegroup();
+              this.orderDateRegroup();
             });
           } else {
-            this.orderDataRegroup();
+            this.orderDateRegroup();
           }
         }
       },
@@ -406,7 +424,7 @@ export default {
     ...mapActions({
       changeProjectSort: 'changeProjectSort'
     }),
-    async orderDataRegroup() {
+    async orderDateRegroup() {
       if (!this.projectSort.length) await this.changeProjectSort();
       // 订单数据重组
       let _data = this.order,
@@ -415,6 +433,9 @@ export default {
         _data[key] = _editData[key];
         if (key === 'address') {
           _data[key] = _data[key].split(',');
+        }
+        if (key === 'orderDate') {
+          _data[key] = this.$global.getNewDate(_data[key]);
         }
         if (['name', 'sales', 'deliveryType'].includes(key)) _data[key] = Number(_data[key]);
       }
@@ -447,20 +468,27 @@ export default {
       this.dialog.dialogProjectTable = false;
     },
     delList(type) {
+      let data = this.$refs[type].selection,
+        arr = data.map(r => r.id);
+      if (!data.length) {
+        this.$notify({
+          title: '提示',
+          message: '请选择需要删除的数据!'
+        });
+        return;
+      }
       let obj = {
         project: () => {
-          let a = this.$refs[type].selection.map(r => {
-            return this.projectData.map((n, i) => {
-              if (r.id === n.id) {
-                return i;
-              }
-            }).filter(r => r)
+          this.projectData.map(n => {
+            if (arr.includes(n.id)) n.dr = 1;
           });
-          console.log(a);
+          this.projectData = this.projectData.filter(r => r.dr !== 1);
         },
         premium: () => {
-          console.log(this.premiumData);
-          console.log(this.$refs[type].selection);
+          this.premiumData.map(n => {
+            if (arr.includes(n.id)) n.dr = 1;
+          });
+          this.premiumData = this.premiumData.filter(r => r.dr !== 1);
         }
       };
       obj[type]();
@@ -538,7 +566,7 @@ export default {
         }
         let orderObj = { ...this.order, ...{ projectData: this.projectData, premiumData: this.premiumData } };
         if (this.getOrderId) {
-          orderObj.id = this.getOrderId
+          orderObj.id = this.getOrderId;
         }
         this.$post(this.getOrderId ? '/editOrder' : '/addOrder', orderObj).then((r, data = r.data) => {
           this.$notify({
