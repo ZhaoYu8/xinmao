@@ -28,7 +28,7 @@
               </div>
             </div>
             <div class="t-c">
-              <el-table :data="tableData" border height="600" style="width: 100%">
+              <el-table :data="tableData" border height="600" style="width: 100%" class="table-color">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="name" label="产品名称"></el-table-column>
                 <el-table-column label="产品分类">

@@ -23,7 +23,7 @@
         </div>
       </div>
       <div class="t-c">
-        <el-table :data="tableData" border height="650" style="width: 100%">
+        <el-table :data="tableData" border height="650" style="width: 100%" class="table-color">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="name" label="姓名"></el-table-column>
           <el-table-column prop="phone" label="联系方式"></el-table-column>

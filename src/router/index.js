@@ -53,6 +53,13 @@ export default new VueRouter({
       }
     },
     {
+      path: '/orderDetail',
+      component: resolve => require(['@/components/order/OrderDetail'], resolve),
+      meta: {
+        title: '订单详情'
+      }
+    },
+    {
       path: '/user',
       component: resolve => require(['@/components/user/User'], resolve),
       meta: {

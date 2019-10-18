@@ -12,7 +12,7 @@
       </el-header>
       <el-main class="main">
         <!-- 客户基础信息 -->
-        <el-divider class="el-icon-s-custom"> <i class="el-icon-s-custom">基础信息</i></el-divider>
+        <el-divider> <i class="el-icon-s-custom">基础信息</i></el-divider>
         <el-form ref="ruleForm" :model="order" :rules="rules" :inline="true" class="box" label-width="100px">
           <el-row type="flex">
             <el-col :span="6" class="d-f">
@@ -87,12 +87,12 @@
         </el-form>
 
         <!-- 分割线产品清单 -->
-        <el-divider class="el-icon-s-custom"><i class="el-icon-s-claim">产品清单</i></el-divider>
+        <el-divider><i class="el-icon-s-claim">产品清单</i></el-divider>
         <el-row class="d-f goods">
           <i class="el-icon-menu c-p mr-10" @click="controlDialog"></i>
           <i class="el-icon-remove-outline c-p" @click="delList('project')"></i>
         </el-row>
-        <el-table :data="projectData" border class="pb-20 w-100" ref="project">
+        <el-table :data="projectData" border class="pb-20 w-100 table-color" ref="project">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="name" label="产品名称"></el-table-column>
           <el-table-column label="产品分类">
@@ -181,14 +181,14 @@
         </el-table>
 
         <!-- 分割线额外费用 -->
-        <el-divider class="el-icon-s-custom"><i class="el-icon-s-ticket">金钱</i></el-divider>
+        <el-divider><i class="el-icon-s-ticket">金钱</i></el-divider>
         <el-collapse v-model="activeNames">
           <el-collapse-item title="额外费用" name="1">
             <el-row class="d-f goods">
               <i class="el-icon-circle-plus-outline c-p mr-10" @click="addPremium"></i>
               <i class="el-icon-remove-outline c-p" @click="delList('premium')"></i>
             </el-row>
-            <el-table :data="premiumData" border class="w-100" ref="premium">
+            <el-table :data="premiumData" border class="w-100 table-color" ref="premium">
               <el-table-column type="selection" width="55"></el-table-column>
               <el-table-column prop="name" label="费用名称" width="300">
                 <template slot-scope="scope">
@@ -498,7 +498,13 @@ export default {
           this.premiumData = this.premiumData.filter(r => r.dr !== 1);
         }
       };
-      obj[type]();
+      this.$confirm('确认删除么？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        obj[type]();
+      });
     },
     controlDialog() {
       // 点击显示dialog

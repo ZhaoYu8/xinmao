@@ -41,7 +41,7 @@
             <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
           </div>
           <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addUser" class="mb-10">新增员工</el-button>
-          <el-table :data="tableData" border height="620" style="width: 100%">
+          <el-table :data="tableData" border height="620" style="width: 100%" class="table-color">
             <el-table-column type="selection" width="55"></el-table-column>
             <el-table-column prop="name" label="员工名称"></el-table-column>
             <el-table-column prop="phone" label="手机号"></el-table-column>
