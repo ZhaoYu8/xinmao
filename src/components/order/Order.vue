@@ -14,10 +14,10 @@
           <el-input
             v-model="form.value"
             placeholder="可根据姓名或者手机号搜索"
-            @keyup.enter.native="getCustData"
+            @keyup.enter.native="getOrderData"
             class="handle-input mr-10 ml-10"
             clearable
-            @clear="getCustData"
+            @clear="getOrderData"
           ></el-input>
           <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
         </div>
@@ -39,12 +39,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="salesName" label="销售"></el-table-column>
-          <el-table-column prop="orderDate" label="下单日期">
-            <template slot-scope="scope">
-              <i class="el-icon-date"></i>
-              <span style="margin-left: 10px">{{ scope.row.orderDate }}</span>
-            </template>
-          </el-table-column>
+          <el-table-column prop="orderId" label="订单编号"></el-table-column>
+          <el-table-column prop="orderDate" label="下单日期"> </el-table-column>
           <el-table-column prop="project" label="产品">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
@@ -68,7 +64,10 @@
                 <div slot="reference">
                   <el-tag>
                     {{ scope.row.projectData.length }} 项; 总计:
-                    {{ (total[scope.$index] = scope.row.projectData.map(r => r.price * r.count).reduce((prev, curr) => prev + curr)) || total[scope.$index] }}
+                    {{
+                      (total[scope.$index] = scope.row.projectData.length === 1 ? scope.row.projectData.map(r => r.price * r.count)[0] : merge(scope.row.projectData)) ||
+                        total[scope.$index]
+                    }}
                   </el-tag>
                 </div>
               </el-popover>
@@ -97,7 +96,7 @@
           <el-table-column label="总待收">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
-                <div>总待收 = 货品总额 {{total[scope.$index]}} + 额外费用 {{totalPremium[scope.$index]}} - 定金 {{scope.row.downPayment || 0}}</div>
+                <div>总待收 = 货品总额 {{ total[scope.$index] }} + 额外费用 {{ totalPremium[scope.$index] }} - 定金 {{ scope.row.downPayment || 0 }}</div>
                 <div slot="reference">
                   <el-tag>
                     {{ Number(total[scope.$index]) + Number(totalPremium[scope.$index]) - Number(scope.row.downPayment ? scope.row.downPayment : 0) }} 元; 定金：
@@ -107,12 +106,7 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column prop="createDate" width="200" label="创建日期">
-            <template slot-scope="scope">
-              <i class="el-icon-time"></i>
-              <span style="margin-left: 10px">{{ scope.row.createDate }}</span>
-            </template>
-          </el-table-column>
+          <el-table-column prop="createDate" width="160" label="创建日期"> </el-table-column>
           <el-table-column prop="createName" label="创建人姓名"> </el-table-column>
           <el-table-column prop="type" label="状态">
             <template slot-scope="scope">
@@ -183,7 +177,9 @@ export default {
   },
   methods: {
     ...mapActions(['changeProjectSort']),
-    getCustData(type) {
+    getOrderData(type) {
+      this.total = [];
+      this.totalPremium = [];
       this.$post('queryOrder', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
@@ -192,15 +188,11 @@ export default {
     cityRegroup(data) {
       return this.$global.getCityName(data);
     },
-    controlDialog(data) {
-      // 这里做了一下处理，新增之后调用分页方法，重置当前页
-      if (data) this.currentChange(1);
-    },
     handleAdd() {
       this.$router.push({ path: '/addOrder' });
       this.editData = {};
     },
-    handleDetail (...list) {
+    handleDetail(...list) {
       this.editData = list[1];
       this.$router.push({ path: '/orderDetail', query: { orderEdit: 1, id: list[1].id } });
       this.bus.$emit('orderdetail', this.editData);
@@ -219,7 +211,14 @@ export default {
     },
     currentChange(val) {
       this.form.pageIndex = val;
-      this.getCustData();
+      this.getOrderData();
+    },
+    merge(data) {
+      let count = 0;
+      data.map(r => {
+        count += r.price * r.count;
+      });
+      return count;
     }
   },
   mounted() {
@@ -227,9 +226,9 @@ export default {
       // 如果产品分类数据为空，则请求一下分类数据
       this.changeProjectSort();
     }
-    this.getCustData();
+    this.getOrderData();
     this.bus.$on('order', msg => {
-      this.getCustData();
+      this.getOrderData();
     });
   }
 };

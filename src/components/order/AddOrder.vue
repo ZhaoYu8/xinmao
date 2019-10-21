@@ -582,13 +582,21 @@ export default {
           orderObj.id = this.getOrderId;
         }
         this.$post(this.getOrderId ? '/editOrder' : '/addOrder', orderObj).then((r, data = r.data) => {
+          if (data.success) {
+            this.$notify({
+              title: this.getOrderId ? '修改成功' : '新增成功',
+              message: data.message,
+              type: 'success'
+            });
+            this.$router.push({ path: '/order' });
+            this.bus.$emit('order', 1);
+            return;
+          }
           this.$notify({
             title: this.getOrderId ? '修改成功' : '新增成功',
             message: data.message,
-            type: 'success'
+            type: 'error'
           });
-          this.$router.push({ path: '/order' });
-          this.bus.$emit('order', 1);
         });
       });
     }

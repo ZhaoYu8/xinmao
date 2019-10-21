@@ -7,6 +7,9 @@
     </div>
 
     <div class="container">
+      <div>
+        订单编号：<span style="color:#409EFF" class="f-20">{{editData.orderId}}</span>
+      </div>
       <el-steps :active="active" align-center finish-status="success" class="mt-20 mb-20">
         <el-step title="发货"></el-step>
         <el-step title="收款"></el-step>
