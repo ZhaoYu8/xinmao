@@ -12,7 +12,7 @@ export default new VueRouter({
     },
     children: [{
       path: '/dashboard',
-      component: resolve => require(['@/components/page/Dashboard'], resolve),
+      component: resolve => require(['@/components/dashboard/Dashboard'], resolve),
       meta: {
         title: '系统首页'
       }

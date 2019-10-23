@@ -11,7 +11,12 @@
               <img src="../../assets/img/Bia.png" alt="" />
             </div>
             <div class="ml-20">
-              <p class="f-20 c-666">早安，赵宇，祝你开心每一天！</p>
+              <p class="f-20 c-666">
+                <svg class="icon f-28" aria-hidden="true">
+                  <use :xlink:href='getDate.icon'></use>
+                </svg>
+                早安，{{ commonInfo.name }}，祝你开心每一天！
+              </p>
               <p class="f-18 c-999">
                 职务
                 <el-divider direction="vertical"></el-divider>
@@ -40,9 +45,20 @@
           <el-button type="text">全部项目</el-button>
         </div>
         <el-row :gutter="0">
-          <el-col :span="8" v-for="item in 3" :key="item">
+          <el-col :span="8" v-for="(item, index) in commonInfo.orderInfo" :key="index">
             <el-card shadow="hover">
-              <i class="el-icon-apple"></i>
+              <el-link :underline="false" class="f-20 number-font-family" type="primary">{{ item.orderId }}</el-link>
+              <div class="card-project">
+                {{ item.projectData.length }} 项, 总计：{{ item.projectData.length === 1 ? item.projectData.map(r => r.price * r.count)[0] : merge(item.projectData) }}
+              </div>
+              <div class="d-f j-c-s-b">
+                <span>
+                  {{ item.salesName }}
+                </span>
+                <span>
+                  {{ item.createDate }}
+                </span>
+              </div>
             </el-card>
           </el-col>
         </el-row>
@@ -52,15 +68,53 @@
 </template>
 
 <script>
+import { mapState, mapActions } from 'vuex';
 export default {
   name: 'dashboard',
   data() {
-    return {};
+    return {
+      dateArr:[
+        {icon: '#icon-zaoshang', text: '早上好'},
+        {icon: '#icon-taiyang', text: '中午好'},
+        {icon: '#icon-xiawu', text: '下午好'},
+        {icon: '#icon-tianqitubiao-', text: '晚上好'},
+        {icon: '#icon-zhishifufeiqiapianicon-', text: '夜深人静了'}
+      ]
+    };
   },
-  components: {},
-  computed: {},
-  created() {},
-  methods: {}
+  computed: {
+    ...mapState(['commonInfo']),
+    getDate() {
+      let date = new Date().getHours(),
+      index = 0
+      if (7 <= date <= 10) {
+        index = 0
+      } else if (11 <= date <= 13) {
+        index = 1
+      } else if (14 <= date <= 18) {
+        index = 2
+      } else if (19 <= date <= 22) {
+        index = 3
+      } else {
+        index = 4
+      }
+      return this.dateArr[index]
+    }
+  },
+  mounted() {
+    this.getCommonInfo();
+    this.changeDate()
+  },
+  methods: {
+    ...mapActions(['getCommonInfo']),
+    merge(data) {
+      let count = 0;
+      data.map(r => {
+        count += r.price * r.count;
+      });
+      return count;
+    }
+  }
 };
 </script>
 
@@ -98,6 +152,11 @@ export default {
 .card {
   background: #fff;
   border-radius: 5px;
+
+  .card-project {
+    color: rgba(0, 0, 0, 0.45);
+    line-height: 50px;
+  }
 }
 </style>
 <style lang="stylus">
@@ -110,7 +169,6 @@ export default {
     box-shadow: 1px 0 0 0 #e8e8e8, 0 1px 0 0 #e8e8e8, 1px 1px 0 0 #e8e8e8, inset 1px 0 0 0 #e8e8e8, inset 0 1px 0 0 #e8e8e8;
     border-radius: 0;
     border: 0;
-    padding: 24px;
   }
 }
 </style>

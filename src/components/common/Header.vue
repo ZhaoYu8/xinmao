@@ -42,19 +42,21 @@
   </div>
 </template>
 <script>
+import { mapState } from 'vuex';
 export default {
   data() {
     return {
       collapse: false,
       fullscreen: false,
-      name: 'linxin',
+      name: '',
       message: 2
     };
   },
   computed: {
+    ...mapState(['commonInfo']),
     username() {
       let username = localStorage.getItem('ms_username');
-      return username ? username : this.name;
+      return this.commonInfo ? this.commonInfo.name : username;
     }
   },
   methods: {

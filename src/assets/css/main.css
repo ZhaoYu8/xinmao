@@ -34,7 +34,6 @@ body .el-table colgroup.gutter { display: table-cell!important; }
 .el-table tr:hover { background: #f6faff; } 
 
 .mgb20 { margin-bottom: 20px; } 
-
 ::-webkit-scrollbar { width: 10px; height: 10px; } 
 ::-webkit-scrollbar-thumb { background-color: rgba(50,50,50,0.25); border: 2px solid transparent; border-radius: 10px; background-clip: padding-box; } 
 ::-webkit-scrollbar-thumb:hover { background-color: rgba(50,50,50,0.5); } 
@@ -412,3 +411,4 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; line
 .el-step__head.is-success { border-color: #1890ff; color: #1890ff; } 
 .el-step__title.is-success { color: #1890ff; } 
 .source { padding: 24px; border: 1px solid #ebebeb; border-radius: 3px; transition: .2s; margin-bottom: 20px; } 
+.number-font-family {font-family: tahoma, arial, "Hiragino Sans GB", "\\5B8B体", sans-serif;} 
