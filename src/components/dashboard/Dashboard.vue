@@ -15,7 +15,7 @@
                 <svg class="icon f-28" aria-hidden="true">
                   <use :xlink:href='getDate.icon'></use>
                 </svg>
-                早安，{{ commonInfo.name }}，祝你开心每一天！
+                {{getDate.text}}，{{ commonInfo.name }}，祝你开心每一天！
               </p>
               <p class="f-18 c-999">
                 职务
@@ -87,13 +87,13 @@ export default {
     getDate() {
       let date = new Date().getHours(),
       index = 0
-      if (7 <= date <= 10) {
+      if (7 <= date && date <= 10) { // 07:00 ~ 09:59
         index = 0
-      } else if (11 <= date <= 13) {
+      } else if (11 <= date && date <= 13) {  // 11:00 ~ 13:59
         index = 1
-      } else if (14 <= date <= 18) {
+      } else if (14 <= date && date <= 17) {  // 14:00 ~ 17:59
         index = 2
-      } else if (19 <= date <= 22) {
+      } else if (18 <= date && date <= 21) { // 18:00 ~ 21:59
         index = 3
       } else {
         index = 4
@@ -103,7 +103,6 @@ export default {
   },
   mounted() {
     this.getCommonInfo();
-    this.changeDate()
   },
   methods: {
     ...mapActions(['getCommonInfo']),

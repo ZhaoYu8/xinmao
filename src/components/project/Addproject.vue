@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="产品名称：" prop="name">
-              <el-input v-model="form.name" autocomplete="off" placeholder="产品名称" maxlength="15" show-word-limit></el-input>
+              <el-input v-model="form.name" autocomplete="off" placeholder="产品名称" maxlength="15" show-word-limit :disabled="dialogType"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -38,35 +38,33 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="4">
+        <div class="d-f">
+          <div style="width:100px;">
             <el-form-item label="产品图片："> </el-form-item>
-          </el-col>
-          <el-col :span="18" style="margin-left: -20px">
-            <el-upload
-              class="upload-demo"
-              ref="upload"
-              :action="gethttp.baseURL + '/uploadfiles'"
-              :on-remove="handleRemove"
-              :multiple="true"
-              :on-change="uploadChange"
-              :file-list="fileList"
-              list-type="picture"
-              :limit="5"
-              :on-success="handleAvatarSuccess"
-              :on-exceed="
-                () => {
-                  $alert('一个产品最多上传5张图片!', '提示');
-                }
-              "
-              :auto-upload="false"
-            >
-              <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
-              <el-button style="margin-left: 10px;" size="small" type="success" @click="$refs.upload.submit()">上传到服务器</el-button>
-              <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
-            </el-upload>
-          </el-col>
-        </el-row>
+          </div>
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            :action="gethttp.baseURL + '/uploadfiles'"
+            :on-remove="handleRemove"
+            :multiple="true"
+            :on-change="uploadChange"
+            :file-list="fileList"
+            list-type="picture"
+            :limit="5"
+            :on-success="handleAvatarSuccess"
+            :on-exceed="
+              () => {
+                $alert('一个产品最多上传5张图片!', '提示');
+              }
+            "
+            :auto-upload="false"
+          >
+            <el-button slot="trigger" size="small" type="primary">选取文件</el-button>
+            <el-button style="margin-left: 10px;" size="small" type="success" @click="$refs.upload.submit()">上传到服务器</el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div>
+          </el-upload>
+        </div>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="hideDialog()">取 消</el-button>
@@ -177,12 +175,20 @@ export default {
         });
         data.photo = this.fileList;
         this.$post(location, data).then((r, data = r.data) => {
-          this.$notify({
-            title: this.dialogType ? '修改成功' : '新增成功',
-            message: data.message,
-            type: 'success'
-          });
-          this.hideDialog(true);
+          if (data.success) {
+            this.$notify({
+              title: this.dialogType ? '修改成功' : '新增成功',
+              message: data.message,
+              type: 'success'
+            });
+            this.hideDialog(true);
+          } else {
+            this.$notify({
+              title: this.dialogType ? '修改失败' : '新增失败',
+              message: data.message,
+              type: 'error'
+            });
+          }
         });
       });
     }

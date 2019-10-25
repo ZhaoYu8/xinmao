@@ -94,6 +94,7 @@
         </el-row>
         <el-table :data="projectData" border class="pb-20 w-100 table-color" ref="project">
           <el-table-column type="selection" width="55"></el-table-column>
+          <el-table-column prop="proNumber" label="产品编号" width="120"></el-table-column>
           <el-table-column prop="name" label="产品名称"></el-table-column>
           <el-table-column label="产品分类">
             <template slot-scope="scope">
@@ -161,6 +162,17 @@
                     scope.row.count = Number(scope.row.count) || 1;
                   }
                 "
+              ></el-input>
+            </template>
+          </el-table-column>
+          <el-table-column prop="remark" label="单据备注">
+            <template slot-scope="scope">
+              <el-input
+                placeholder="备注"
+                size="small"
+                v-model="scope.row.remark"
+                clearable
+                class="w-75"
               ></el-input>
             </template>
           </el-table-column>
