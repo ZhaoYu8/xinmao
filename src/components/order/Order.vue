@@ -45,6 +45,7 @@
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
                 <el-table :data="scope.row.projectData">
+                  <el-table-column width="120" property="proNumber" label="产品编号"></el-table-column>
                   <el-table-column width="100" property="name" label="产品名称"></el-table-column>
                   <el-table-column width="180" property="sort" label="产品分类">
                     <template slot-scope="scope">

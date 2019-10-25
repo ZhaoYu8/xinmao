@@ -4,7 +4,7 @@ body,
 #app,
 .wrapper { width: 100%; height: 100%; overflow: hidden; } 
 
-body { font-family: -apple-system,BlinkMacSystemFont,Segoe UI,PingFang SC,Hiragino Sans GB,Microsoft YaHei,Helvetica Neue,Helvetica,Arial,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol; } 
+body { font-family: "Helvetica Neue",Helvetica,"PingFang SC","Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif; } 
 
 a { text-decoration: none } 
 
@@ -13,8 +13,12 @@ body .el-table colgroup.gutter { display: table-cell!important; }
 
 .el-dropdown-link { cursor: pointer; color: #409EFF; } 
 
+.el-main-text { cursor: pointer; color: #303133; } 
+.el-collapse-item__header { font-size: 18px; font-family: "PingFang SC"; } 
 .el-icon-arrow-down { font-size: 12px; } 
 
+.grid { width: 10px; height: inherit; background-color: #409EFF; margin-right: 10px; } 
+.el-collapse-item__header.is-active { border-bottom-color: #EBEEF5; } 
 .content-box { position: absolute; left: 200px; right: 0; top: 60px; bottom: 0; -webkit-transition: left .3s ease-in-out; transition: left .3s ease-in-out; background: #f0f0f0; } 
 
 .content { width: auto; height: 100%; padding: 10px; overflow-y: scroll; box-sizing: border-box; } 
@@ -411,4 +415,6 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; line
 .el-step__head.is-success { border-color: #1890ff; color: #1890ff; } 
 .el-step__title.is-success { color: #1890ff; } 
 .source { padding: 24px; border: 1px solid #ebebeb; border-radius: 3px; transition: .2s; margin-bottom: 20px; } 
-.number-font-family {font-family: tahoma, arial, "Hiragino Sans GB", "\\5B8B体", sans-serif;} 
+.number-font-family { font-family: tahoma, arial, "Hiragino Sans GB", "\\5B8B体", sans-serif; } 
+.Verdana { font-family: Verdana; } 
+.Tahoma { font-family: Tahoma; } 

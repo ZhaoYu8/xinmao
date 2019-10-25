@@ -76,6 +76,13 @@ export default new VueRouter({
     }
   },
   {
+    path: '/print',
+    component: resolve => require(['@/components/print/print'], resolve),
+    meta: {
+      title: '打印'
+    }
+  },
+  {
     path: '*',
     redirect: '/404'
   }

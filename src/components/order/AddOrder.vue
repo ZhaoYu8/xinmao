@@ -5,6 +5,7 @@
       <el-header class="p-0">
         <el-card shadow="hover" :body-style="{ padding: '10px' }" class="head">
           <el-row type="flex" justify="end">
+            <el-button type="primary" @click="print">打印</el-button>
             <el-button type="primary" @click="confirm">保存</el-button>
             <el-button>取消</el-button>
           </el-row>
@@ -89,10 +90,10 @@
         <!-- 分割线产品清单 -->
         <el-divider><i class="el-icon-s-claim">产品清单</i></el-divider>
         <el-row class="d-f goods">
-          <i class="el-icon-menu c-p mr-10" @click="controlDialog"></i>
+          <i class="el-icon-menu c-p" @click="controlDialog"></i>
           <i class="el-icon-remove-outline c-p" @click="delList('project')"></i>
         </el-row>
-        <el-table :data="projectData" border class="pb-20 w-100 table-color" ref="project">
+        <el-table :data="projectData" border class="w-100 table-color" ref="project">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="proNumber" label="产品编号" width="120"></el-table-column>
           <el-table-column prop="name" label="产品名称"></el-table-column>
@@ -165,15 +166,9 @@
               ></el-input>
             </template>
           </el-table-column>
-          <el-table-column prop="remark" label="单据备注">
+          <el-table-column prop="proRemark" label="单据备注">
             <template slot-scope="scope">
-              <el-input
-                placeholder="备注"
-                size="small"
-                v-model="scope.row.remark"
-                clearable
-                class="w-75"
-              ></el-input>
+              <el-input placeholder="备注" size="small" v-model="scope.row.proRemark" clearable class="w-75"></el-input>
             </template>
           </el-table-column>
           <el-table-column label="产品图片">
@@ -196,7 +191,10 @@
         <el-divider><i class="el-icon-s-ticket">金钱</i></el-divider>
         <el-collapse v-model="activeNames">
           <el-collapse-item title="额外费用" name="1">
-            <el-row class="d-f goods">
+            <template slot="title">
+              <i class="grid"></i>额外费用
+            </template>
+            <el-row class="d-f goods a-i-c">
               <i class="el-icon-circle-plus-outline c-p mr-10" @click="addPremium"></i>
               <i class="el-icon-remove-outline c-p" @click="delList('premium')"></i>
             </el-row>
@@ -242,21 +240,27 @@
             </el-table>
           </el-collapse-item>
 
-          <el-collapse-item title="金额统计" name="2">
+          <el-collapse-item name="2" class="f-26">
+            <template slot="title">
+              <i class="grid"></i>金额统计
+            </template>
             <el-card class="box-card">
-              <el-row class="d-f a-i-c">
+              <el-row class="d-f a-i-c f-18 j-c-c">
                 <el-col :span="2">货品金额</el-col>
-                <el-col :span="4">{{ proMoney }}</el-col>
+                <el-col :span="4" class="f-20 el-main-text">{{ proMoney }}</el-col>
                 <el-col :span="2">额外费用</el-col>
-                <el-col :span="4">{{ premiumPay }}</el-col>
+                <el-col :span="4" class="f-20 el-main-text">{{ premiumPay }}</el-col>
                 <el-col :span="2">应收账款</el-col>
-                <el-col :span="4">{{ receivables }}</el-col>
+                <el-col :span="4" class="f-20 el-main-text">{{ receivables }}</el-col>
                 <el-col :span="2">预付定金</el-col>
-                <el-col :span="4"><el-input v-model="order.downPayment" placeholder="预付定金" size="mini"></el-input></el-col>
+                <el-col :span="4"><el-input v-model="order.downPayment" placeholder="预付定金" size="small" class="f-20"></el-input></el-col>
               </el-row>
             </el-card>
           </el-collapse-item>
           <el-collapse-item title="备注" name="3">
+            <template slot="title">
+              <i class="grid"></i>备注
+            </template>
             <el-card class="box-card">
               <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 10 }" placeholder="请输入备注！" v-model="order.remark"> </el-input>
             </el-card>
@@ -270,6 +274,7 @@
       <el-button size="small" class="mb-10">已选{{ dialog.changeDataNum }}</el-button>
       <el-table :data="dialog.dialogData" max-height="350" @select="dialogChange" @select-all="dialogChange" ref="dialogTable">
         <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column prop="proNumber" label="产品编号"></el-table-column>
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="产品分类">
           <template slot-scope="scope">
@@ -611,6 +616,17 @@ export default {
           });
         });
       });
+    },
+    print() {
+      let that = this;
+      const { href } = this.$router.resolve({
+        name: '打印',
+        path: '/print',
+        query: {
+          id: that.getOrderId
+        }
+      });
+      window.open(href, '_blank');
     }
   }
 };
@@ -632,7 +648,7 @@ export default {
     .goods {
       i {
         font-size: 25px;
-        margin-bottom: 15px;
+        margin: 8px 0 8px 8px;
         color: #2d8cf0;
         transition: all 0.5s linear;
 
