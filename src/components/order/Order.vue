@@ -9,6 +9,7 @@
       <div class="d-f j-c-s-b mb-20">
         <div>
           <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleAdd">新增订单</el-button>
+          <el-button type="success" icon="el-icon-setting" @click="printSetting">打印设置</el-button>
         </div>
         <div>
           <el-input
@@ -27,7 +28,7 @@
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="custName" label="客户信息">
             <template slot-scope="scope">
-              <el-popover trigger="hover" placement="top" popper-class="name-wrapper">
+              <el-popover trigger="hover" placement="bottom" popper-class="name-wrapper">
                 <p>姓名: {{ scope.row.custName }}</p>
                 <p>联系方式: {{ scope.row.phone }}</p>
                 <p>客户地址: {{ scope.row.custAddress }}</p>
@@ -39,7 +40,7 @@
             </template>
           </el-table-column>
           <el-table-column prop="salesName" label="销售"></el-table-column>
-          <el-table-column prop="orderId" label="订单编号"></el-table-column>
+          <el-table-column prop="orderId" label="订单编号" width="170"></el-table-column>
           <el-table-column prop="orderDate" label="下单日期"> </el-table-column>
           <el-table-column prop="project" label="产品">
             <template slot-scope="scope">
@@ -152,11 +153,13 @@
         </div>
       </div>
     </div>
+    <printSetting></printSetting>
   </div>
 </template>
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import printSetting from '../print/printSetting';
 export default {
   data() {
     return {
@@ -172,7 +175,9 @@ export default {
       totalPremium: [] // 额外费用统计
     };
   },
-  components: {},
+  components: {
+    "printSetting": printSetting
+  },
   computed: {
     ...mapState(['projectSort'])
   },
@@ -220,6 +225,9 @@ export default {
         count += r.price * r.count;
       });
       return count;
+    },
+    printSetting() {
+      this.bus.$emit('printSetting');
     }
   },
   mounted() {

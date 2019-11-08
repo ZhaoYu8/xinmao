@@ -13,9 +13,9 @@
             <div class="ml-20">
               <p class="f-20 c-666">
                 <svg class="icon f-28" aria-hidden="true">
-                  <use :xlink:href='getDate.icon'></use>
+                  <use :xlink:href="getDate.icon"></use>
                 </svg>
-                {{getDate.text}}，{{ commonInfo.name }}，祝你开心每一天！
+                {{ getDate.text }}，{{ commonInfo.name }}，祝你开心每一天！
               </p>
               <p class="f-18 c-999">
                 职务
@@ -47,15 +47,23 @@
         <el-row :gutter="0">
           <el-col :span="8" v-for="(item, index) in commonInfo.orderInfo" :key="index">
             <el-card shadow="hover">
-              <el-link :underline="false" class="f-20 number-font-family" type="primary">{{ item.orderId }}</el-link>
+              <div class="d-f a-i-c j-c-s-b">
+                <el-link :underline="false" class="f-20 number-font-family" type="primary">{{ item.orderId }}</el-link>
+                <svg class="icon f-28 c-p" aria-hidden="true">
+                  <use xlink:href="#icon-model"></use>
+                </svg>
+              </div>
               <div class="card-project">
                 {{ item.projectData.length }} 项, 总计：{{ item.projectData.length === 1 ? item.projectData.map(r => r.price * r.count)[0] : merge(item.projectData) }}
               </div>
-              <div class="d-f j-c-s-b">
+              <div class="d-f j-c-s-b a-i-c">
                 <span>
                   {{ item.salesName }}
                 </span>
                 <span>
+                  <svg class="icon f-28 c-p" aria-hidden="true">
+                    <use xlink:href="#icon-shijianjiedian"></use>
+                  </svg>
                   {{ item.createDate }}
                 </span>
               </div>
@@ -73,12 +81,12 @@ export default {
   name: 'dashboard',
   data() {
     return {
-      dateArr:[
-        {icon: '#icon-zaoshang', text: '早上好'},
-        {icon: '#icon-taiyang', text: '中午好'},
-        {icon: '#icon-xiawu', text: '下午好'},
-        {icon: '#icon-tianqitubiao-', text: '晚上好'},
-        {icon: '#icon-zhishifufeiqiapianicon-', text: '夜深人静了'}
+      dateArr: [
+        { icon: '#icon-zaoshang', text: '早上好' },
+        { icon: '#icon-taiyang', text: '中午好' },
+        { icon: '#icon-xiawu', text: '下午好' },
+        { icon: '#icon-tianqitubiao-', text: '晚上好' },
+        { icon: '#icon-zhishifufeiqiapianicon-', text: '夜深人静了' }
       ]
     };
   },
@@ -86,19 +94,23 @@ export default {
     ...mapState(['commonInfo']),
     getDate() {
       let date = new Date().getHours(),
-      index = 0
-      if (7 <= date && date <= 10) { // 07:00 ~ 09:59
-        index = 0
-      } else if (11 <= date && date <= 13) {  // 11:00 ~ 13:59
-        index = 1
-      } else if (14 <= date && date <= 17) {  // 14:00 ~ 17:59
-        index = 2
-      } else if (18 <= date && date <= 21) { // 18:00 ~ 21:59
-        index = 3
+        index = 0;
+      if (7 <= date && date <= 10) {
+        // 07:00 ~ 09:59
+        index = 0;
+      } else if (11 <= date && date <= 13) {
+        // 11:00 ~ 13:59
+        index = 1;
+      } else if (14 <= date && date <= 17) {
+        // 14:00 ~ 17:59
+        index = 2;
+      } else if (18 <= date && date <= 21) {
+        // 18:00 ~ 21:59
+        index = 3;
       } else {
-        index = 4
+        index = 4;
       }
-      return this.dateArr[index]
+      return this.dateArr[index];
     }
   },
   mounted() {
