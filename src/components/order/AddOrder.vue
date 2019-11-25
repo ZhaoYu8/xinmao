@@ -111,7 +111,7 @@
                 clearable
                 class="w-75"
                 @change="
-                  v => {
+                  (v) => {
                     scope.row.units = scope.row.units || '个';
                   }
                 "
@@ -127,7 +127,7 @@
                 clearable
                 class="w-75"
                 @change="
-                  v => {
+                  (v) => {
                     scope.row.cost = Number(scope.row.cost) || 0;
                   }
                 "
@@ -143,7 +143,7 @@
                 clearable
                 class="w-75"
                 @change="
-                  v => {
+                  (v) => {
                     scope.row.price = Number(scope.row.price) || 1;
                   }
                 "
@@ -159,7 +159,7 @@
                 clearable
                 class="w-75"
                 @change="
-                  v => {
+                  (v) => {
                     scope.row.count = Number(scope.row.count) || 1;
                   }
                 "
@@ -178,7 +178,7 @@
                   v-if="scope.row.photo && scope.row.photo.length"
                   style="width: 50px; height: 50px"
                   :src="scope.row.photo[0].url"
-                  :preview-src-list="scope.row.photo.map(r => r.url)"
+                  :preview-src-list="scope.row.photo.map((r) => r.url)"
                 >
                 </el-image>
                 <img v-else style="width: 50px; height: 50px" src="../../assets/img/img.jpg" />
@@ -191,9 +191,7 @@
         <el-divider><i class="el-icon-s-ticket">金钱</i></el-divider>
         <el-collapse v-model="activeNames">
           <el-collapse-item title="额外费用" name="1">
-            <template slot="title">
-              <i class="grid"></i>额外费用
-            </template>
+            <template slot="title"> <i class="grid"></i>额外费用 </template>
             <el-row class="d-f goods a-i-c">
               <i class="el-icon-circle-plus-outline c-p mr-10" @click="addPremium"></i>
               <i class="el-icon-remove-outline c-p" @click="delList('premium')"></i>
@@ -209,7 +207,7 @@
                     clearable
                     class="w-75"
                     @change="
-                      v => {
+                      (v) => {
                         scope.row.name = scope.row.name || '支出';
                       }
                     "
@@ -225,7 +223,7 @@
                     clearable
                     class="w-75"
                     @change="
-                      v => {
+                      (v) => {
                         scope.row.money = Number(scope.row.money) || 0;
                       }
                     "
@@ -241,9 +239,7 @@
           </el-collapse-item>
 
           <el-collapse-item name="2" class="f-26">
-            <template slot="title">
-              <i class="grid"></i>金额统计
-            </template>
+            <template slot="title"> <i class="grid"></i>金额统计 </template>
             <el-card class="box-card">
               <el-row class="d-f a-i-c f-18 j-c-c">
                 <el-col :span="2">货品金额</el-col>
@@ -258,9 +254,7 @@
             </el-card>
           </el-collapse-item>
           <el-collapse-item title="备注" name="3">
-            <template slot="title">
-              <i class="grid"></i>备注
-            </template>
+            <template slot="title"> <i class="grid"></i>备注 </template>
             <el-card class="box-card">
               <el-input type="textarea" :autosize="{ minRows: 4, maxRows: 10 }" placeholder="请输入备注！" v-model="order.remark"> </el-input>
             </el-card>
@@ -291,7 +285,7 @@
                 v-if="scope.row.photo && scope.row.photo.length"
                 style="width: 30px; height: 30px"
                 :src="scope.row.photo[0].url"
-                :preview-src-list="scope.row.photo.map(r => r.url)"
+                :preview-src-list="scope.row.photo.map((r) => r.url)"
               >
               </el-image>
               <img v-else style="width: 30px; height: 30px" src="../../assets/img/img.jpg" />
@@ -375,7 +369,7 @@ export default {
     // 货品金额
     proMoney() {
       let money = 0;
-      this.projectData.map(r => {
+      this.projectData.map((r) => {
         money = this.$global.Add(this.$global.Multiply(Number(r.price) || 0, Number(r.count) || 0), money);
       });
       return money;
@@ -383,7 +377,7 @@ export default {
     // 额外费用支出
     premiumPay() {
       let money = 0;
-      this.premiumData.map(r => {
+      this.premiumData.map((r) => {
         money = this.$global.Add(Number(r.money) || 0, money);
       });
       return money;
@@ -440,7 +434,7 @@ export default {
   activated() {
     // 每次进新增修改订单触发
     if (this.$refs['ruleForm']) this.$refs['ruleForm'].clearValidate();
-    this.bus.$on('orderedit', data => {
+    this.bus.$on('orderedit', (data) => {
       this.editData = data;
     });
   },
@@ -474,11 +468,11 @@ export default {
       // 选择产品确定
       let arr = [];
       this.dialog.changeData
-        .filter(x => x) // 去除 undefined
-        .map(r => {
+        .filter((x) => x) // 去除 undefined
+        .map((r) => {
           arr = [...arr, ...r];
         });
-      arr.map(r => {
+      arr.map((r) => {
         // 字符串转换成数字
         for (const key in r) {
           if (['cost', 'price'].includes(key)) r[key] = Number(r[key]);
@@ -493,7 +487,7 @@ export default {
     },
     delList(type) {
       let data = this.$refs[type].selection,
-        arr = data.map(r => r.id);
+        arr = data.map((r) => r.id);
       if (!data.length) {
         this.$notify({
           title: '提示',
@@ -503,16 +497,16 @@ export default {
       }
       let obj = {
         project: () => {
-          this.projectData.map(n => {
+          this.projectData.map((n) => {
             if (arr.includes(n.id)) n.dr = 1;
           });
-          this.projectData = this.projectData.filter(r => r.dr !== 1);
+          this.projectData = this.projectData.filter((r) => r.dr !== 1);
         },
         premium: () => {
-          this.premiumData.map(n => {
+          this.premiumData.map((n) => {
             if (arr.includes(n.id)) n.dr = 1;
           });
-          this.premiumData = this.premiumData.filter(r => r.dr !== 1);
+          this.premiumData = this.premiumData.filter((r) => r.dr !== 1);
         }
       };
       this.$confirm('确认删除么？', '提示', {
@@ -535,7 +529,7 @@ export default {
           this.$nextTick(() => {
             data.item.map((row, i) => {
               // 这里不直接给toggleRowSelection方法 row的原因，是elm ui这里有bug。不认之前确定的数据。只认新请求过来的数据。
-              let _arr = arr.map(r => r.id);
+              let _arr = arr.map((r) => r.id);
               if (_arr.includes(row.id)) this.$refs.dialogTable.toggleRowSelection(data.item[i]);
             });
           });
@@ -553,7 +547,7 @@ export default {
           this.$nextTick(() => {
             data.item.map((row, i) => {
               // 这里不直接给toggleRowSelection方法 row的原因，是elm ui这里有bug。不认之前确定的数据。只认新请求过来的数据。
-              let _arr = arr.map(r => r.id);
+              let _arr = arr.map((r) => r.id);
               if (_arr.includes(row.id)) this.$refs.dialogTable.toggleRowSelection(data.item[i]);
             });
           });
@@ -564,7 +558,7 @@ export default {
       // 产品表单选中数据
       this.$set(this.dialog.changeData, this.dialog.form.pageIndex - 1, val);
       this.dialog.changeDataNum = 0;
-      this.dialog.changeData.map(r => {
+      this.dialog.changeData.map((r) => {
         this.dialog.changeDataNum += r.length;
       });
     },
@@ -573,11 +567,12 @@ export default {
       this.premiumData.push({
         name: '支出',
         money: -1,
-        remark: ''
+        remark: '',
+        id: this.premiumData.length
       });
     },
     custChange(val) {
-      let data = this.customerData.filter(v => v.id === val)[0];
+      let data = this.customerData.filter((v) => v.id === val)[0];
       this.order = {
         ...this.order,
         ...{ phone: data.phone, custAddress: this.$global.getCityName(data.address) + data.detailAddress, shipping: data.detailAddress, address: data.address.split(',') }
@@ -585,7 +580,7 @@ export default {
       this.$refs['ruleForm'].clearValidate();
     },
     confirm() {
-      this.$refs['ruleForm'].validate(valid => {
+      this.$refs['ruleForm'].validate((valid) => {
         if (!valid) return;
         if (!this.projectData.length) {
           this.$notify.error({

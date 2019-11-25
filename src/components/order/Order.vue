@@ -9,7 +9,12 @@
       <div class="d-f j-c-s-b mb-20">
         <div>
           <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleAdd">新增订单</el-button>
-          <el-button type="success" icon="el-icon-setting" @click="printSetting">打印设置</el-button>
+          <el-button @click="printSetting">
+            <svg class="icon" aria-hidden="true">
+              <use xlink:href="#icon-dayinyulan"></use>
+            </svg>
+            打印设置
+          </el-button>
         </div>
         <div>
           <el-input
@@ -67,7 +72,7 @@
                   <el-tag>
                     {{ scope.row.projectData.length }} 项; 总计:
                     {{
-                      (total[scope.$index] = scope.row.projectData.length === 1 ? scope.row.projectData.map(r => r.price * r.count)[0] : merge(scope.row.projectData)) ||
+                      (total[scope.$index] = scope.row.projectData.length === 1 ? scope.row.projectData.map((r) => r.price * r.count)[0] : merge(scope.row.projectData)) ||
                         total[scope.$index]
                     }}
                   </el-tag>
@@ -86,7 +91,7 @@
                 <div slot="reference">
                   <el-tag>
                     {{ scope.row.premiumData.length }} 项; 总计:
-                    {{ (totalPremium[scope.$index] = scope.row.premiumData.map(r => r.money).reduce((prev, curr) => Number(prev) + Number(curr))) || totalPremium[scope.$index] }}
+                    {{ (totalPremium[scope.$index] = scope.row.premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr))) || totalPremium[scope.$index] }}
                   </el-tag>
                 </div>
               </el-popover>
@@ -176,7 +181,7 @@ export default {
     };
   },
   components: {
-    "printSetting": printSetting
+    printSetting: printSetting
   },
   computed: {
     ...mapState(['projectSort'])
@@ -221,7 +226,7 @@ export default {
     },
     merge(data) {
       let count = 0;
-      data.map(r => {
+      data.map((r) => {
         count += r.price * r.count;
       });
       return count;
@@ -236,7 +241,7 @@ export default {
       this.changeProjectSort();
     }
     this.getOrderData();
-    this.bus.$on('order', msg => {
+    this.bus.$on('order', (msg) => {
       this.getOrderData();
     });
   }

@@ -28,7 +28,16 @@
           <el-col :span="12">
             <el-form-item label="性别：" prop="sex">
               <el-select v-model="form.sex" show-word-limit placeholder="性别" class="w-100">
-                <el-option v-for="item in [{ value: 1, label: '男' }, { value: 0, label: '女' }]" :key="item.value" :label="item.label" :value="item.value"> </el-option>
+                <el-option
+                  v-for="item in [
+                    { value: 1, label: '男' },
+                    { value: 0, label: '女' }
+                  ]"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+                >
+                </el-option>
               </el-select>
             </el-form-item>
           </el-col>
@@ -84,7 +93,10 @@ export default {
         sales: true
       },
       rules: {
-        name: [{ required: true, message: '请输入员工姓名', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }],
+        name: [
+          { required: true, message: '请输入员工姓名', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
         branch: [{ required: true, message: '请选择部门', trigger: 'blur' }],
         phone: [{ required: true, message: '请输入手机号', trigger: 'blur' }],
         address: [{ required: true, message: '请选择省区市', trigger: 'change' }],
@@ -99,8 +111,7 @@ export default {
       default: []
     }
   },
-  watch: {
-  },
+  watch: {},
   methods: {
     hideDialog(type = false) {
       this.dialogShow = false;
@@ -108,7 +119,7 @@ export default {
       this.$emit('dialog', type);
     },
     confirm() {
-      this.$refs['ruleForm'].validate(valid => {
+      this.$refs['ruleForm'].validate((valid) => {
         if (!valid) return;
         let location = this.dialogType ? '/addUser' : '/editUser';
         let data = Object.assign({}, this.form, {
@@ -132,7 +143,7 @@ export default {
       if (!type) {
         this.editData = data;
         this.form = { ...this.form, ...this.editData };
-        Object.assign(this.form, { sales: data.sales ? true : false, branch: data.branch.split(',').map(r => Number(r)), address: (data.address && data.address.split(',')) || '' });
+        Object.assign(this.form, { sales: data.sales ? true : false, branch: data.branch.split(',').map((r) => Number(r)), address: (data.address && data.address.split(',')) || '' });
       }
     });
   },

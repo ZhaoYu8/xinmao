@@ -30,8 +30,8 @@
 
         <el-row v-for="(item, index) in gathering" :key="index">
           <el-col :span="11">
-            <el-form-item label="银行：">
-              <el-input v-model="item.bank" autocomplete="off" show-word-limit></el-input>
+            <el-form-item label="支付方式：">
+              <el-input v-model="item.bank" autocomplete="off" show-word-limit placeholder="银行/支付宝/微信..."></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="11">
@@ -75,14 +75,14 @@ export default {
       },
       phone: [{ num: '' }],
       gathering: [{ bank: '', account: '' }],
-      printData: {},
       confirmError: [
         { id: 'address', data: 'form', message: '公司地址不能为空！' },
         { id: 'name', data: 'form', message: '联系人不能为空！' },
         { id: 'num', data: 'phone', type: 'arr', message: '手机号/电话不能为空！' },
         { id: 'bank', data: 'gathering', type: 'arr', message: '银行不能为空！' },
         { id: 'account', data: 'gathering', type: 'arr', message: '账号不能为空！' }
-      ]
+      ],
+      id: 0
     };
   },
   methods: {
@@ -136,19 +136,57 @@ export default {
         });
         return false;
       }
-      this.$notify({
-        title: 'yes'
+      let data = Object.assign({ id: this.id }, this.form, {
+        phone: this.phone.map((r) => r.num),
+        bank: this.gathering.map((r) => r.bank),
+        account: this.gathering.map((r) => r.account)
       });
+      this.httpEditPrint(data);
     },
-    async httpPrintData() {
+    async httpQueryPrint() {
       let data = await this.$post('queryPrint', Object.assign({}));
+      return data.data;
+    },
+    async httpEditPrint(option) {
+      let data = await this.$post('editPrint', option);
+      this.$notify({
+        title: '成功',
+        type: 'success',
+        message: this.id ? '修改成功!' : '新增成功!'
+      });
+      this.hideDialog();
     }
   },
   computed: {},
   mounted() {
-    this.bus.$on('printSetting', data => {
+    this.bus.$on('printSetting', () => {
       this.dialogFormVisible = true;
-      this.httpPrintData();
+      this.httpQueryPrint().then((data) => {
+        if (data.item.length) {
+          let item = data.item[0];
+          this.$global.each(this.form, (key, val) => {
+            if (['isCustAddress', 'isQrcode'].includes(key)) {
+              this.form[key] = item[key] === 'true' ? true : false;
+            } else {
+              this.form[key] = item[key];
+            }
+          });
+          item.phone = item.phone.split(',');
+          item.bank = item.bank.split(',');
+          item.account = item.account.split(',');
+          this.phone.splice(0, this.phone.length);
+          this.gathering.splice(0, this.gathering.length);
+          item.phone.map((r) => {
+            this.phone.push({ num: r });
+          });
+          item.bank.map((r, i) => {
+            this.gathering.push({ bank: r, account: item.account[i] });
+          });
+          this.id = item.id;
+        } else {
+          this.id = 0;
+        }
+      });
     });
   }
 };
