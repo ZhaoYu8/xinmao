@@ -8,7 +8,7 @@
 
     <div class="container">
       <div>
-        订单编号：<span style="color:#409EFF" class="f-20">{{editData.orderId}}</span>
+        订单编号：<span style="color:#409EFF" class="f-20">{{ editData.orderId }}</span>
       </div>
       <el-steps :active="active" align-center finish-status="success" class="mt-20 mb-20">
         <el-step title="发货"></el-step>
@@ -30,7 +30,7 @@
           <el-table-column width="150" property="count" label="数量"></el-table-column>
           <el-table-column prop="address" label="发货数">
             <template slot-scope="scope">
-              <el-input-number v-model="shipments[scope.$index]" :min="0" :max="Number(scope.row.count)"></el-input-number>
+              <el-input-number v-model="shipments[scope.$index]" :max="Number(scope.row.count)"></el-input-number>
             </template>
           </el-table-column>
         </el-table>
@@ -38,7 +38,6 @@
           <el-button type="primary" size="small" class="width-100" @click="next">下一步</el-button>
           <el-button type="success" size="small" class="width-100" @click="next">快速完成</el-button>
         </div>
-        <el-divider></el-divider>
         <div class="state">
           <h3>说明</h3>
           <h4><i class="el-icon-warning"></i>下一步</h4>
@@ -47,6 +46,17 @@
           <p>点击快速完成，默认全部发货完成。流程进入待收款环境。</p>
         </div>
       </div>
+      <el-divider></el-divider>
+      操作记录
+      <el-table :data="operationsData" style="width: 100%">
+        <el-table-column prop="operationUserName" label="操作人"> </el-table-column>
+        <el-table-column prop="operationType" label="操作类型">
+          <template slot-scope="scope">
+            <p :style="{ color: typeName(scope.row.operationType).color }">{{ typeName(scope.row.operationType).text }}</p>
+          </template>
+        </el-table-column>
+        <el-table-column prop="operationDate" label="操作时间"> </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
@@ -59,11 +69,15 @@ export default {
       editData: {},
       projectData: [],
       active: 0,
-      shipments: []
+      shipments: [],
+      operationsData: []
     };
   },
   computed: {
-    ...mapState(['projectSort'])
+    ...mapState(['projectSort']),
+    getOrderId() {
+      return this.$route.query.id;
+    }
   },
   watch: {
     $route: {
@@ -72,9 +86,9 @@ export default {
           this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
           });
-          this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
-            this.salesData = data;
-          });
+          // this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
+          //   this.salesData = data;
+          // });
           if (JSON.stringify(this.editData) === '{}') {
             // 区分一下。第一次和刷新的时候。都只能从后台取数据，第二次查看，只需要调用接口就可以了
             this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: this.getOrderId }).then((r, data = r.data.item) => {
@@ -90,11 +104,22 @@ export default {
     }
   },
   activated() {
-    this.bus.$on('orderdetail', data => {
+    this.bus.$on('orderdetail', (data) => {
       this.editData = data;
     });
   },
   methods: {
+    typeName(index) {
+      let arr = [
+        { text: '新增', color: '#1890ff' },
+        { text: '修改', color: '#207d46' },
+        { text: '删除', color: '#ff0000' },
+        { text: '发货中', color: '#67c23a' },
+        { text: '收款中', color: '#e6a23c' },
+        { text: '完成', color: '#3ce6e3' }
+      ];
+      return arr[index];
+    },
     ...mapActions({
       changeProjectSort: 'changeProjectSort'
     }),
@@ -110,6 +135,9 @@ export default {
     },
     async orderDateRegroup() {
       if (!this.projectSort.length) await this.changeProjectSort();
+      await this.$post('./queryOrderOperations', { id: this.getOrderId }).then((r, data = r.data.item) => {
+        this.operationsData = data;
+      });
       // 订单数据重组
       this.shipments = [];
       let _editData = { ...this.editData };

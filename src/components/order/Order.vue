@@ -8,9 +8,9 @@
     <div class="container">
       <div class="d-f j-c-s-b mb-20">
         <div>
-          <el-button type="primary" icon="el-icon-circle-plus-outline" @click="handleAdd">新增订单</el-button>
+          <el-button type="primary" icon="el-icon-circle-plus-outline f-20" @click="handleAdd">新增订单</el-button>
           <el-button @click="printSetting">
-            <svg class="icon" aria-hidden="true">
+            <svg class="icon f-20" aria-hidden="true">
               <use xlink:href="#icon-dayinyulan"></use>
             </svg>
             打印设置
@@ -38,7 +38,7 @@
                 <p>联系方式: {{ scope.row.phone }}</p>
                 <p>客户地址: {{ scope.row.custAddress }}</p>
                 <p>配送地址: {{ cityRegroup(scope.row.address) + scope.row.shipping }}</p>
-                <div slot="reference">
+                <div slot="reference" class="d-inline-block">
                   <el-tag>{{ scope.row.custName }}</el-tag>
                 </div>
               </el-popover>
@@ -68,7 +68,7 @@
                     </template>
                   </el-table-column>
                 </el-table>
-                <div slot="reference">
+                <div slot="reference" class="d-inline-block">
                   <el-tag>
                     {{ scope.row.projectData.length }} 项; 总计:
                     {{
@@ -88,7 +88,7 @@
                   <el-table-column width="100" property="money" label="金额"></el-table-column>
                   <el-table-column width="300" property="remark" label="备注"></el-table-column>
                 </el-table>
-                <div slot="reference">
+                <div slot="reference" class="d-inline-block">
                   <el-tag>
                     {{ scope.row.premiumData.length }} 项; 总计:
                     {{ (totalPremium[scope.$index] = scope.row.premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr))) || totalPremium[scope.$index] }}
@@ -104,7 +104,7 @@
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
                 <div>总待收 = 货品总额 {{ total[scope.$index] }} + 额外费用 {{ totalPremium[scope.$index] }} - 定金 {{ scope.row.downPayment || 0 }}</div>
-                <div slot="reference">
+                <div slot="reference" class="d-inline-block">
                   <el-tag>
                     {{ Number(total[scope.$index]) + Number(totalPremium[scope.$index]) - Number(scope.row.downPayment ? scope.row.downPayment : 0) }} 元; 定金：
                     {{ scope.row.downPayment }}

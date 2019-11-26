@@ -59,17 +59,21 @@ export default {
           index: 'user',
           title: '员工管理'
         }
-      ]
+      ],
+      active: 'dashboard'
     };
   },
   computed: {
     onRoutes() {
-      return this.$route.path.replace('/', '');
+      // 解决新增的时候，会导致右边失去选中
+      let name = this.$route.path.replace('/', '');
+      if (this.items.map((r) => r.index).includes(name)) this.active = name;
+      return this.active;
     }
   },
   created() {
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
-    this.bus.$on('collapse', msg => {
+    this.bus.$on('collapse', (msg) => {
       this.collapse = msg;
     });
   }
