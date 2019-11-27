@@ -7,9 +7,17 @@
     </div>
 
     <div class="container">
-      <div>
-        订单编号：<span style="color:#409EFF" class="f-20">{{ editData.orderId }}</span>
-      </div>
+      <ul class="d-f l-40">
+        <li class="d-f a-i-c">
+          订单编号：<span style="color:#409EFF" class="f-20">{{ editData.orderId }}</span>
+        </li>
+        <li class="ml-20">
+          客户名称：<span style="color:#409EFF">{{ editData.custName }}</span>
+        </li>
+        <li class="ml-20">
+          销售：<span style="color:#409EFF">{{ editData.salesName }}</span>
+        </li>
+      </ul>
       <el-steps :active="active" align-center finish-status="success" class="mt-20 mb-20">
         <el-step title="发货"></el-step>
         <el-step title="收款"></el-step>
@@ -17,25 +25,54 @@
       </el-steps>
       <div class="source d-f f-d-c">
         <el-button type="primary" @click="quick" class=" a-s-f-e width-100" size="small">一键填充</el-button>
-        <el-table :data="projectData" style="width: 80%;margin: 0 auto;">
-          <el-table-column width="150" property="name" label="产品名称"></el-table-column>
-          <el-table-column width="230" property="sort" label="产品分类">
-            <template slot-scope="scope">
-              <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column width="150" property="units" label="单位"></el-table-column>
-          <el-table-column width="150" property="cost" label="成本"></el-table-column>
-          <el-table-column width="150" property="price" label="单价"></el-table-column>
-          <el-table-column width="150" property="count" label="数量"></el-table-column>
-          <el-table-column prop="address" label="发货数">
-            <template slot-scope="scope">
-              <el-input-number v-model="shipments[scope.$index]" :max="Number(scope.row.count)"></el-input-number>
-            </template>
-          </el-table-column>
-        </el-table>
+        <div v-show="active === 0">
+          <el-table :data="projectData" style="width: 90%;margin: 0 auto;">
+            <el-table-column property="name" label="产品名称"></el-table-column>
+            <el-table-column property="sort" label="产品分类">
+              <template slot-scope="scope">
+                <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column property="units" label="单位"></el-table-column>
+            <el-table-column property="cost" label="成本"></el-table-column>
+            <el-table-column property="price" label="单价"></el-table-column>
+            <el-table-column property="count" label="数量"></el-table-column>
+            <el-table-column property="deliveryNumber" label="已发货数">
+              <template slot-scope="scope">
+                <p>{{ (scope.row.deliveryNumber || 0) + (scope.row.deliveryNumber > Number(scope.row.count) ? ` (超${scope.row.deliveryNumber - scope.row.count}) ` : ``) }}</p>
+              </template>
+            </el-table-column>
+            <el-table-column prop="address" label="发货数" width="200">
+              <template slot-scope="scope">
+                <el-input-number v-model="shipments[scope.$index]" :max="Number(scope.row.count)"></el-input-number>
+              </template>
+            </el-table-column>
+            <el-table-column prop="remark" label="发货备注">
+              <template slot-scope="scope">
+                <el-input v-model="scope.row.remark"></el-input>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+        <div v-show="active === 1">
+          <el-table :data="projectData" style="width: 90%;margin: 0 auto;">
+            <el-table-column property="name" label="产品名称"></el-table-column>
+            <el-table-column property="sort" label="产品分类">
+              <template slot-scope="scope">
+                <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column property="units" label="单位"></el-table-column>
+            <el-table-column property="cost" label="成本"></el-table-column>
+            <el-table-column property="price" label="单价"></el-table-column>
+            <el-table-column property="count" label="数量"></el-table-column>
+          </el-table>
+        </div>
         <div class="a-s-c mt-20">
-          <el-button type="primary" size="small" class="width-100" @click="next">下一步</el-button>
+          <el-button type="primary" size="small" class="width-100" @click="back" v-if="active !== 0">上一步</el-button>
+          <el-button type="warning" size="small" class="width-100" @click="active = 1" v-if="active === 0">去收款</el-button>
+          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 0">确认发货</el-button>
+          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 1">确认收款</el-button>
           <el-button type="success" size="small" class="width-100" @click="next">快速完成</el-button>
         </div>
         <div class="state">
@@ -52,7 +89,17 @@
         <el-table-column prop="operationUserName" label="操作人"> </el-table-column>
         <el-table-column prop="operationType" label="操作类型">
           <template slot-scope="scope">
-            <p :style="{ color: typeName(scope.row.operationType).color }">{{ typeName(scope.row.operationType).text }}</p>
+            <el-popover placement="right" trigger="hover" v-if="scope.row.operationType === '3'">
+              <el-table :data="scope.row.delivery">
+                <el-table-column width="150" property="name" label="产品名称"></el-table-column>
+                <el-table-column width="150" property="num" label="本次发货数"></el-table-column>
+                <el-table-column width="150" property="remark" label="发货备注"></el-table-column>
+              </el-table>
+              <div slot="reference" class="d-inline-block">
+                <el-tag :color="typeName(scope.row.operationType).color" effect="dark" class="no-border width-60 t-c">{{ typeName(scope.row.operationType).text }}</el-tag>
+              </div>
+            </el-popover>
+            <el-tag v-else :color="typeName(scope.row.operationType).color" effect="dark" class="no-border  width-60 t-c">{{ typeName(scope.row.operationType).text }}</el-tag>
           </template>
         </el-table-column>
         <el-table-column prop="operationDate" label="操作时间"> </el-table-column>
@@ -69,8 +116,9 @@ export default {
       editData: {},
       projectData: [],
       active: 0,
-      shipments: [],
-      operationsData: []
+      shipments: [], // 发货数存储的数据
+      operationsData: [],
+      deliveryData: []
     };
   },
   computed: {
@@ -111,11 +159,11 @@ export default {
   methods: {
     typeName(index) {
       let arr = [
-        { text: '新增', color: '#1890ff' },
-        { text: '修改', color: '#207d46' },
+        { text: '新增', color: '#67c23a' },
+        { text: '修改', color: '#e6a23c' },
         { text: '删除', color: '#ff0000' },
-        { text: '发货中', color: '#67c23a' },
-        { text: '收款中', color: '#e6a23c' },
+        { text: '发货中', color: '#409eff' },
+        { text: '收款中', color: '#f56c6c' },
         { text: '完成', color: '#3ce6e3' }
       ];
       return arr[index];
@@ -123,9 +171,20 @@ export default {
     ...mapActions({
       changeProjectSort: 'changeProjectSort'
     }),
-    next() {
+    async next() {
       // 下一步流转
+      if (!this.active) {
+        let arr = this.projectData.map((r, i) => {
+          return { projectId: r.projectId, num: this.shipments[i], remark: r.remark || '' };
+        });
+        await this.$post('./addOrderDelivery', { id: this.getOrderId, data: arr });
+        this.orderDateRegroup();
+      }
       this.active++;
+    },
+    back() {
+      // 回退查看上一步
+      this.active--;
     },
     quick() {
       // 快速填充
@@ -133,19 +192,33 @@ export default {
         this.$set(this.shipments, index, this.projectData[index].count);
       });
     },
-    async orderDateRegroup() {
-      if (!this.projectSort.length) await this.changeProjectSort();
-      await this.$post('./queryOrderOperations', { id: this.getOrderId }).then((r, data = r.data.item) => {
-        this.operationsData = data;
+    async operations() {
+      await this.$post('./queryOrderOperations', { id: this.getOrderId }).then((r, data = r.data) => {
+        this.operationsData = data.item;
+        this.operationsData.map((r) => {
+          if (r.operationType === '3') {
+            r.delivery = data.list.filter((n) => n.orderOperationId === r.id);
+          }
+        });
+        this.deliveryData = data.list;
       });
+    },
+    async orderDateRegroup() {
       // 订单数据重组
+      if (!this.projectSort.length) await this.changeProjectSort();
+      await this.operations();
       this.shipments = [];
       let _editData = { ...this.editData };
       _editData.projectData.map((r, i) => {
         this.shipments[i] = r.shipments || 0;
       });
       this.projectData = _editData.projectData;
-      this.premiumData = _editData.premiumData;
+      this.projectData.map((r) => {
+        r.deliveryNumber = this.deliveryData
+          .filter((n) => r.projectId === n.projectId + '' && n.operationType === '3')
+          .map((r) => r.num)
+          .reduce((prev, curr) => Number(prev) + Number(curr));
+      });
     }
   }
 };
@@ -197,5 +270,10 @@ export default {
   .el-step.is-horizontal .el-step__line {
     top: 16px;
   }
+}
+</style>
+<style lang="stylus">
+.no-border{
+  border: 0 !important
 }
 </style>
