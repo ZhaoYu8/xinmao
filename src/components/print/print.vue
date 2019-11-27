@@ -60,8 +60,8 @@
           </p>
           <p>
             联系信息：{{ printData.name }}
-            <span class="mr-20">{{ printData.phone && printData.phone.split(',')[0] }}</span>
-            <span>{{ printData.phone && printData.phone.split(',')[1] }}</span>
+            <span>{{ printData.phone && printData.phone.split(',')[0] }}</span>
+            <span class="ml-20" v-show="printData.phone.split(',')[1]">{{ printData.phone && printData.phone.split(',')[1] }}</span>
           </p>
         </li>
         <li class="w-100" v-if="printData.bank">

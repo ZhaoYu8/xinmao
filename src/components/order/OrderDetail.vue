@@ -7,7 +7,7 @@
     </div>
 
     <div class="container">
-      <ul class="d-f l-40">
+      <ul class="d-f l-40 f-18">
         <li class="d-f a-i-c">
           订单编号：<span style="color:#409EFF" class="f-20">{{ editData.orderId }}</span>
         </li>
@@ -39,7 +39,9 @@
             <el-table-column property="count" label="数量"></el-table-column>
             <el-table-column property="deliveryNumber" label="已发货数">
               <template slot-scope="scope">
-                <p>{{ (scope.row.deliveryNumber || 0) + (scope.row.deliveryNumber > Number(scope.row.count) ? ` (超${scope.row.deliveryNumber - scope.row.count}) ` : ``) }}</p>
+                <p :class="{ c3: scope.row.overruns, c4: !scope.row.overruns }" class="f-20">
+                  {{ (scope.row.deliveryNumber || 0) + (scope.row.overruns ? ` (超${scope.row.deliveryNumber - scope.row.count}) ` : ``) }}
+                </p>
               </template>
             </el-table-column>
             <el-table-column prop="address" label="发货数" width="200">
@@ -55,7 +57,10 @@
           </el-table>
         </div>
         <div v-show="active === 1">
-          <el-table :data="projectData" style="width: 90%;margin: 0 auto;">
+          <div class="label">
+            <p class="mt-10 mb-10 f-20">产品清单</p>
+          </div>
+          <el-table :data="projectData">
             <el-table-column property="name" label="产品名称"></el-table-column>
             <el-table-column property="sort" label="产品分类">
               <template slot-scope="scope">
@@ -66,7 +71,34 @@
             <el-table-column property="cost" label="成本"></el-table-column>
             <el-table-column property="price" label="单价"></el-table-column>
             <el-table-column property="count" label="数量"></el-table-column>
+            <el-table-column label="应收款">
+              <template slot-scope="scope">
+                <p class="c4 f-20">{{ scope.row.price * scope.row.count }}</p>
+              </template>
+            </el-table-column>
           </el-table>
+          <div class="label" v-if="premiumData.length">
+            <p class="mt-10 mb-10 f-20">额外费用</p>
+          </div>
+          <el-table :data="premiumData" v-if="premiumData.length">
+            <el-table-column property="name" label="名称"></el-table-column>
+            <el-table-column property="money" label="金额"></el-table-column>
+            <el-table-column property="remark" label="备注"></el-table-column>
+          </el-table>
+          <div class="label">
+            <p class="mt-10 mb-10 f-20">实际应收</p>
+          </div>
+          <ul class="d-f f-20">
+            <li>
+              产品费用合计应收：<span class="c4">{{ projectData.length && projectData.map((r) => r.price * r.count).reduce((prev, curr) => Number(prev) + Number(curr)) }} 元</span>
+            </li>
+            <li class="ml-20">
+              额外费用合计应收: <span class="c4">{{ premiumData.length && premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr)) }} 元</span>
+            </li>
+            <li class="ml-20">
+              已支付定金: <span class="c4">{{ editData.downPayment }} 元</span>
+            </li>
+          </ul>
         </div>
         <div class="a-s-c mt-20">
           <el-button type="primary" size="small" class="width-100" @click="back" v-if="active !== 0">上一步</el-button>
@@ -118,7 +150,8 @@ export default {
       active: 0,
       shipments: [], // 发货数存储的数据
       operationsData: [],
-      deliveryData: []
+      deliveryData: [],
+      premiumData: []
     };
   },
   computed: {
@@ -134,18 +167,15 @@ export default {
           this.$post('./queryCust', { pageIndex: 1, pageSize: 99999, value: '' }).then((r, data = r.data.item) => {
             this.customerData = data;
           });
-          // this.$post('./querySalesUser', {}).then((r, data = r.data.item) => {
-          //   this.salesData = data;
-          // });
           if (JSON.stringify(this.editData) === '{}') {
             // 区分一下。第一次和刷新的时候。都只能从后台取数据，第二次查看，只需要调用接口就可以了
             this.$post('./queryOrder', { value: '', pageIndex: 1, pageSize: 10, id: this.getOrderId }).then((r, data = r.data.item) => {
               this.editData = data[0];
               this.orderDateRegroup();
             });
-          } else {
-            this.orderDateRegroup();
+            return;
           }
+          this.orderDateRegroup();
         }
       },
       immediate: true
@@ -154,6 +184,7 @@ export default {
   activated() {
     this.bus.$on('orderdetail', (data) => {
       this.editData = data;
+      this.orderDateRegroup();
     });
   },
   methods: {
@@ -162,8 +193,8 @@ export default {
         { text: '新增', color: '#67c23a' },
         { text: '修改', color: '#e6a23c' },
         { text: '删除', color: '#ff0000' },
-        { text: '发货中', color: '#409eff' },
-        { text: '收款中', color: '#f56c6c' },
+        { text: '已发货', color: '#409eff' },
+        { text: '已收款', color: '#f56c6c' },
         { text: '完成', color: '#3ce6e3' }
       ];
       return arr[index];
@@ -188,8 +219,17 @@ export default {
     },
     quick() {
       // 快速填充
+      // 如果所有的产品都已经发货了。提示他不需要发货了
+      if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+        this.$notify.info({
+          title: '消息',
+          message: '已经全部发货了！'
+        });
+        return;
+      }
       this.shipments.map((r, index) => {
-        this.$set(this.shipments, index, this.projectData[index].count);
+        let num = Number(this.projectData[index].count) - Number(this.projectData[index].deliveryNumber || 0);
+        this.$set(this.shipments, index, num < 0 ? 0 : num);
       });
     },
     async operations() {
@@ -213,12 +253,19 @@ export default {
         this.shipments[i] = r.shipments || 0;
       });
       this.projectData = _editData.projectData;
+      this.premiumData = _editData.premiumData;
       this.projectData.map((r) => {
-        r.deliveryNumber = this.deliveryData
-          .filter((n) => r.projectId === n.projectId + '' && n.operationType === '3')
-          .map((r) => r.num)
-          .reduce((prev, curr) => Number(prev) + Number(curr));
+        let arr = this.deliveryData.filter((n) => r.projectId === n.projectId + '' && n.operationType === '3');
+        if (!arr.length) return;
+        r.deliveryNumber = arr.map((r) => r.num).reduce((prev, curr) => Number(prev) + Number(curr));
+        if (r.deliveryNumber > Number(r.count)) r.overruns = true;
       });
+      // 如果所有的产品都已经发货了。自动跳转到收款页面。
+      if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+        this.active = 1;
+      } else {
+        this.active = 0;
+      }
     }
   }
 };
