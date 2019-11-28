@@ -67,8 +67,14 @@ export default {
       registerRules: {
         name: [{ required: true, message: '请输入公司名称', trigger: 'blur' }],
         phone: [{ validator: this.validatePass, required: true, message: '请输入手机号', trigger: 'blur' }],
-        password: [{ required: true, message: '请输入密码', trigger: 'blur' }, { min: 6, max: 20, message: '最少6位数', trigger: 'blur' }],
-        code: [{ required: true, message: '请输入确认码', trigger: 'blur' }, { min: 4, max: 4, message: '确认码为4位数字', trigger: 'blur' }]
+        password: [
+          { required: true, message: '请输入密码', trigger: 'blur' },
+          { min: 6, max: 20, message: '最少6位数', trigger: 'blur' }
+        ],
+        code: [
+          { required: true, message: '请输入确认码', trigger: 'blur' },
+          { min: 4, max: 4, message: '确认码为4位数字', trigger: 'blur' }
+        ]
       },
       checked: false,
       textArr: ['科技', '学识', '权重', '奋斗', '联系', '以人为本', '花式', '霸气'],
@@ -133,7 +139,7 @@ export default {
     },
     // 点击登陆
     submitForm() {
-      this.$refs['ms-login'].validate(valid => {
+      this.$refs['ms-login'].validate((valid) => {
         if (!valid) return;
         this.$post('login', this.param)
           .then((r, data = r.data) => {
@@ -158,14 +164,14 @@ export default {
               }
             }
           })
-          .catch(data => {
+          .catch((data) => {
             console.log(data);
           });
       });
     },
     // 点击注册
     submitRegister() {
-      this.$refs['register'].validate(valid => {
+      this.$refs['register'].validate((valid) => {
         if (!valid) return;
         if (this.register.code !== '7896') {
           this.$notify({
@@ -196,7 +202,7 @@ export default {
               }
             }
           })
-          .catch(data => {
+          .catch((data) => {
             console.log(data);
           });
       });
@@ -209,7 +215,7 @@ export default {
   position: relative;
   width: 100%;
   height: 100%;
-  background-image: url('../../assets/img/login-bg.jpg');
+  background-image: url('../assets/img/login-bg.jpg');
   background-size: 100%;
 
   .ms-login {
