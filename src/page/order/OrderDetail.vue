@@ -58,6 +58,46 @@
         </div>
         <div v-show="active === 1">
           <div class="label">
+            <p class="mt-10 mb-10 f-20">实际应收</p>
+          </div>
+          <ul class="d-f f-20 ml-20 a-i-c l-36">
+            <li>
+              1.产品费用合计应收：<span class="c4">{{ projectTotal }} 元</span>
+            </li>
+            <li class="ml-20">
+              2.额外费用合计应收: <span class="c4">{{ premiumTotal }} 元</span>
+            </li>
+            <li class="ml-20">
+              3.已支付定金: <span class="c4">{{ editData.downPayment }} 元</span>
+            </li>
+            <li class="ml-20">
+              4.实际已收: <span class="c4">{{ 0 }} 元</span>
+            </li>
+            <li class="ml-20">
+              5.剩余应收: <span class="c4">{{ Number(projectTotal) + Number(premiumTotal) - (editData.downPayment || 0) }} 元</span>
+            </li>
+          </ul>
+          <el-form :model="moneyValidateForm" ref="moneyValidateForm" label-width="100px" class="moneyValidateForm">
+            <el-form-item
+              label="本次应收"
+              prop="num"
+              :rules="[
+                { required: true, message: '金额不能为空' },
+                { type: 'number', message: '金额必须为数字值' }
+              ]"
+            >
+              <el-input v-model.number="moneyValidateForm.num" autocomplete="off" class="f-24">
+                <i slot="prefix">
+                  <svg class="icon f-22 c-p" aria-hidden="true">
+                    <use xlink:href="#icon-xinzengshoukuan"></use></svg
+                ></i>
+              </el-input>
+            </el-form-item>
+            <el-form-item label="收款备注" prop="remark">
+              <el-input v-model.number="moneyValidateForm.remark" autocomplete="off" class="f-24"> </el-input>
+            </el-form-item>
+          </el-form>
+          <div class="label">
             <p class="mt-10 mb-10 f-20">产品清单</p>
           </div>
           <el-table :data="projectData">
@@ -85,20 +125,6 @@
             <el-table-column property="money" label="金额"></el-table-column>
             <el-table-column property="remark" label="备注"></el-table-column>
           </el-table>
-          <div class="label">
-            <p class="mt-10 mb-10 f-20">实际应收</p>
-          </div>
-          <ul class="d-f f-20">
-            <li>
-              产品费用合计应收：<span class="c4">{{ projectData.length && projectData.map((r) => r.price * r.count).reduce((prev, curr) => Number(prev) + Number(curr)) }} 元</span>
-            </li>
-            <li class="ml-20">
-              额外费用合计应收: <span class="c4">{{ premiumData.length && premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr)) }} 元</span>
-            </li>
-            <li class="ml-20">
-              已支付定金: <span class="c4">{{ editData.downPayment }} 元</span>
-            </li>
-          </ul>
         </div>
         <div class="a-s-c mt-20">
           <el-button type="primary" size="small" class="width-100" @click="back" v-if="active !== 0">上一步</el-button>
@@ -151,13 +177,23 @@ export default {
       shipments: [], // 发货数存储的数据
       operationsData: [],
       deliveryData: [],
-      premiumData: []
+      premiumData: [],
+      moneyValidateForm: {
+        num: '',
+        remark: ''
+      }
     };
   },
   computed: {
     ...mapState(['projectSort']),
     getOrderId() {
       return this.$route.query.id;
+    },
+    projectTotal() {
+      return this.projectData.length && this.projectData.map((r) => r.price * r.count).reduce((prev, curr) => Number(prev) + Number(curr));
+    },
+    premiumTotal() {
+      return this.premiumData.length && this.premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr));
     }
   },
   watch: {
@@ -210,6 +246,9 @@ export default {
         });
         await this.$post('./addOrderDelivery', { id: this.getOrderId, data: arr });
         this.orderDateRegroup();
+      } else if (this.active === 1) {
+        await this.$post('./addOrderMoney', { id: this.getOrderId, num: this.moneyValidateForm.num, remark: this.moneyValidateForm.remark });
+        this.orderDateRegroup();
       }
       this.active++;
     },
@@ -220,17 +259,21 @@ export default {
     quick() {
       // 快速填充
       // 如果所有的产品都已经发货了。提示他不需要发货了
-      if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
-        this.$notify.info({
-          title: '消息',
-          message: '已经全部发货了！'
+      if (this.active === 0) {
+        if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+          this.$notify.info({
+            title: '消息',
+            message: '已经全部发货了！'
+          });
+          return;
+        }
+        this.shipments.map((r, index) => {
+          let num = Number(this.projectData[index].count) - Number(this.projectData[index].deliveryNumber || 0);
+          this.$set(this.shipments, index, num < 0 ? 0 : num);
         });
-        return;
+      } else if (this.active === 1) {
+        this.moneyValidateForm.num = Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0);
       }
-      this.shipments.map((r, index) => {
-        let num = Number(this.projectData[index].count) - Number(this.projectData[index].deliveryNumber || 0);
-        this.$set(this.shipments, index, num < 0 ? 0 : num);
-      });
     },
     async operations() {
       await this.$post('./queryOrderOperations', { id: this.getOrderId }).then((r, data = r.data) => {
@@ -317,9 +360,16 @@ export default {
   .el-step.is-horizontal .el-step__line {
     top: 16px;
   }
+  .moneyValidateForm {
+    width: 500px
+    margin: 20px auto
+  }
+  .el-input__prefix, .el-input__suffix {
+    display flex
+    align-items center
+    line-height 100%
+  }
 }
-</style>
-<style lang="stylus">
 .no-border{
   border: 0 !important
 }
