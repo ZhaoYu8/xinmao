@@ -159,6 +159,7 @@ export default {
   },
   computed: {},
   mounted() {
+    this.bus.$off('printSetting');
     this.bus.$on('printSetting', () => {
       this.dialogFormVisible = true;
       this.httpQueryPrint().then((data) => {

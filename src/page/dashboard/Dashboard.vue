@@ -54,7 +54,7 @@
                 </svg>
               </div>
               <div class="card-project">
-                {{ item.projectData.length }} 项, 总计：{{ item.projectData.length === 1 ? item.projectData.map(r => r.price * r.count)[0] : merge(item.projectData) }}
+                {{ item.projectData.length }} 项, 总计：{{ item.projectData.length === 1 ? item.projectData.map((r) => r.price * r.count)[0] : merge(item.projectData) }}
               </div>
               <div class="d-f j-c-s-b a-i-c">
                 <span>
@@ -115,12 +115,16 @@ export default {
   },
   mounted() {
     this.getCommonInfo();
+    this.bus.$off('openDashboard');
+    this.bus.$on('openDashboard', () => {
+      this.getCommonInfo();
+    });
   },
   methods: {
     ...mapActions(['getCommonInfo']),
     merge(data) {
       let count = 0;
-      data.map(r => {
+      data.map((r) => {
         count += r.price * r.count;
       });
       return count;
@@ -128,7 +132,6 @@ export default {
   }
 };
 </script>
-
 
 <style lang="stylus" scoped>
 .page-header {

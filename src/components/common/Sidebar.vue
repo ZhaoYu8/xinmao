@@ -1,6 +1,16 @@
 <template>
   <div class="sidebar">
-    <el-menu class="sidebar-el-menu" :default-active="onRoutes" :collapse="collapse" background-color="#324157" text-color="#bfcbd9" active-text-color="#20a0ff" unique-opened router>
+    <el-menu
+      class="sidebar-el-menu"
+      @select="handleSelect"
+      :default-active="onRoutes"
+      :collapse="collapse"
+      background-color="#324157"
+      text-color="#bfcbd9"
+      active-text-color="#20a0ff"
+      unique-opened
+      router
+    >
       <template v-for="item in items">
         <template v-if="item.subs">
           <el-submenu :index="item.index" :key="item.index">
@@ -72,10 +82,16 @@ export default {
     }
   },
   created() {
+    this.bus.$off('collapse');
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     this.bus.$on('collapse', (msg) => {
       this.collapse = msg;
     });
+  },
+  methods: {
+    handleSelect(val) {
+      if (val === 'dashboard') this.bus.$emit('openDashboard'); // 单独处理了首页，希望每次进首页都是实时刷新的数据
+    }
   }
 };
 </script>

@@ -30,7 +30,8 @@ export default {
     vSidebar
   },
   created() {
-    this.bus.$on('collapse', msg => {
+    this.bus.$off('collapse');
+    this.bus.$on('collapse', (msg) => {
       this.collapse = msg;
     });
   }

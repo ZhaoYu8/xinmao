@@ -433,6 +433,7 @@ export default {
   },
   activated() {
     // 每次进新增修改订单触发
+    this.bus.$off('orderedit');
     if (this.$refs['ruleForm']) this.$refs['ruleForm'].clearValidate();
     this.bus.$on('orderedit', (data) => {
       this.editData = data;
@@ -605,7 +606,7 @@ export default {
             return;
           }
           this.$notify({
-            title: this.getOrderId ? '修改成功' : '新增成功',
+            title: this.getOrderId ? '修改' : '新增',
             message: data.message,
             type: 'error'
           });

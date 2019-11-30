@@ -1,57 +1,61 @@
-import city from './city'
+import city from './city';
 let obj = {
-  getCookie(n, name = `${n}=`) { // 根据名称查找cookie
+  getCookie(n, name = `${n}=`) {
+    // 根据名称查找cookie
     let ca = document.cookie.split(';');
     for (let i = 0; i < ca.length; i++) {
       let c = ca[i].trim();
       if (c.indexOf(name) == 0) return c.substring(name.length, c.length);
     }
-    return "";
+    return '';
   },
   getCityName(l) {
-    if (!l) return ''
-    let list = Array.isArray(l) ? l : l.split(',')
-    let data = '', arr = []
-    arr[0] = this.getName(city, list[0])
-    arr[1] = this.getName(arr[0].children, list[1])
-    arr[2] = this.getName(arr[1].children, list[2])
-    arr.map(r => data += r.label + '/')
-    return data
+    if (!l) return '';
+    let list = Array.isArray(l) ? l : l.split(',');
+    let data = '',
+      arr = [];
+    arr[0] = this.getName(city, list[0]);
+    arr[1] = this.getName(arr[0].children, list[1]);
+    arr[2] = this.getName(arr[1].children, list[2]);
+    arr.map((r) => (data += r.label + '/'));
+    return data;
   },
   getName(data, val) {
-    let str = {}
+    let str = {};
     for (let i = 0; i < data.length; i++) {
-      let n = data[i]
+      let n = data[i];
       if (n.value === val) {
-        str = n
-        break
+        str = n;
+        break;
       }
     }
-    return str
+    return str;
   },
-  dataBase(data, obj = {}) { // 产品分类信息重组
-    data.map(item => obj[item.id] = item)
-    data.map(item => {
-      if (item.parent !== 0) obj[item.parent].children ? obj[item.parent].children.push(item) : obj[item.parent].children = [item];
-    })
-    return data.filter(item => item.parent === 0)
+  dataBase(data, obj = {}) {
+    // 产品分类信息重组
+    data.map((item) => (obj[item.id] = item));
+    data.map((item) => {
+      if (item.parent !== 0) obj[item.parent].children ? obj[item.parent].children.push(item) : (obj[item.parent].children = [item]);
+    });
+    return data.filter((item) => item.parent === 0);
   },
   sortStrig(v, data) {
     // 根据id返回name
     let arr = v.split(',');
     if (arr.length > 1) {
       return arr
-        .map(r => {
-          let text = data.filter(n => n.id === Number(r))[0];
+        .map((r) => {
+          let text = data.filter((n) => n.id === Number(r))[0];
           return (text && text.name) || '';
         })
         .join('/');
     } else {
-      let text = data.filter(n => n.id === Number(arr[0]))[0];
+      let text = data.filter((n) => n.id === Number(arr[0]))[0];
       return (text && text.name) || '';
     }
   },
-  Multiply(...args) { // x
+  Multiply(...args) {
+    // x
     if (args.length < 2) return args[0];
     let m = 0;
     let items = [];
@@ -60,9 +64,10 @@ let obj = {
       item.split('.')[1] && (m += item.split('.')[1].length); // 计算小数总长度m
       items.push(item.replace('.', '')); // 将数字转为整数
     }
-    return items.reduce((prev, curr) => (prev * curr)) / 10 ** m; // 转换后的整数相乘, 再除以10的m次方
+    return items.reduce((prev, curr) => prev * curr) / 10 ** m; // 转换后的整数相乘, 再除以10的m次方
   },
-  Add(...args) { // +
+  Add(...args) {
+    // +
     if (args.length < 2) return args[0];
     let decimals = [];
     let items = [];
@@ -74,9 +79,10 @@ let obj = {
       }
     }
     let m = 10 ** Math.max(...decimals); // 计算最长小数的位数m
-    return items.reduce((prev, curr) => (obj.Multiply(prev, m) + obj.Multiply(curr, m))) / m; // 将数字乘以10的m次方相加后再除以10的m次方
+    return items.reduce((prev, curr) => obj.Multiply(prev, m) + obj.Multiply(curr, m)) / m; // 将数字乘以10的m次方相加后再除以10的m次方
   },
-  Divide(...args) { // /
+  Divide(...args) {
+    // /
     if (args.length < 2) return args[0];
     return args.reduce((prev, curr) => {
       let p = `${prev}`;
@@ -88,7 +94,8 @@ let obj = {
       return obj.Multiply(m, 10 ** n); // 用m乘以10的n次方
     });
   },
-  Subtr(...args) { // -
+  Subtr(...args) {
+    // -
     if (args.length < 2) return args[0];
     return args.reduce((prev, curr) => {
       let p = `${prev}`;
@@ -96,102 +103,109 @@ let obj = {
       let r1 = p.split('.')[1] ? p.split('.')[1].length : 0;
       let r2 = c.split('.')[1] ? c.split('.')[1].length : 0;
       let decimal = Math.max(r2, r1);
-      let m = obj.Multiply(p, 10 ** decimal) - obj.Multiply(c, 10 ** decimal);  // 将数字乘以10的m次方相减后再除以10的m次方
+      let m = obj.Multiply(p, 10 ** decimal) - obj.Multiply(c, 10 ** decimal); // 将数字乘以10的m次方相减后再除以10的m次方
       return obj.Divide(m, 10 ** decimal);
     });
   },
   pickerOptions: {
-    shortcuts: [{
-      text: '今天',
-      onClick(picker) {
-        picker.$emit('pick', new Date());
+    shortcuts: [
+      {
+        text: '今天',
+        onClick(picker) {
+          picker.$emit('pick', new Date());
+        }
+      },
+      {
+        text: '明天',
+        onClick(picker) {
+          const date = new Date();
+          date.setTime(date.getTime() + 3600 * 1000 * 24);
+          picker.$emit('pick', date);
+        }
+      },
+      {
+        text: '昨天',
+        onClick(picker) {
+          const date = new Date();
+          date.setTime(date.getTime() - 3600 * 1000 * 24);
+          picker.$emit('pick', date);
+        }
+      },
+      {
+        text: '前天',
+        onClick(picker) {
+          const date = new Date();
+          date.setTime(date.getTime() - 3600 * 1000 * 24 * 2);
+          picker.$emit('pick', date);
+        }
+      },
+      {
+        text: '一周前',
+        onClick(picker) {
+          const date = new Date();
+          date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+          picker.$emit('pick', date);
+        }
       }
-    }, {
-      text: '明天',
-      onClick(picker) {
-        const date = new Date();
-        date.setTime(date.getTime() + 3600 * 1000 * 24);
-        picker.$emit('pick', date);
-      }
-    }, {
-      text: '昨天',
-      onClick(picker) {
-        const date = new Date();
-        date.setTime(date.getTime() - 3600 * 1000 * 24);
-        picker.$emit('pick', date);
-      }
-    }, {
-      text: '前天',
-      onClick(picker) {
-        const date = new Date();
-        date.setTime(date.getTime() - 3600 * 1000 * 24 * 2);
-        picker.$emit('pick', date);
-      }
-    }, {
-      text: '一周前',
-      onClick(picker) {
-        const date = new Date();
-        date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-        picker.$emit('pick', date);
-      }
-    }]
+    ]
   },
   getNewDate(date = new Date()) {
     if (typeof date === 'string' && date.includes('T')) {
-      date = date.replace('T', ' ')
+      date = date.replace('T', ' ');
       if (isNaN(Date.parse(date))) {
-        date = date.replace(/\-/g, '/')
+        date = date.replace(/\-/g, '/');
       }
     }
-    const D = new Date(date)
-    let year = (D.getFullYear()).toString(),
+    const D = new Date(date);
+    let year = D.getFullYear().toString(),
       month = (D.getMonth() + 1).toString(),
-      weekday = D.getDate().toString()
+      weekday = D.getDate().toString();
     if (parseInt(month, 10) < 10) {
-      month = '0' + month
+      month = '0' + month;
     }
     if (parseInt(weekday, 10) < 10) {
-      weekday = '0' + weekday
+      weekday = '0' + weekday;
     }
-    return (year + '-' + month + '-' + weekday)
+    return year + '-' + month + '-' + weekday;
   },
   each(obj, callback, args) {
     // obj是需要遍历的数组或者对象
     // callback是处理数组/对象的每个元素的回调函数，它的返回值会中断循环的过程
-    var value, i = 0, length = obj.length, isArray = Array.isArray(obj);//判断是不是数组
+    var value,
+      i = 0,
+      length = obj.length,
+      isArray = Array.isArray(obj); //判断是不是数组
     if (args) {
-      if (isArray) { // 数组
+      if (isArray) {
+        // 数组
         for (; i < length; i++) {
           value = callback.apply(obj[i], args); // 若args = [arg1, arg2, arg3]，则相当于:callback(args1, args2, args3)，callback里边的this指向了obj[i]
-          if (value === false) // 当callback函数返回值会false的时候，注意是全等！循环结束
-            break;
-        }
-      }
-      else { // 非数组
-        for (i in obj) { // 遍历对象
-          value = callback.apply(obj[i], args);
           if (value === false)
+            // 当callback函数返回值会false的时候，注意是全等！循环结束
             break;
         }
+      } else {
+        // 非数组
+        for (i in obj) {
+          // 遍历对象
+          value = callback.apply(obj[i], args);
+          if (value === false) break;
+        }
       }
-    }
-    else {
+    } else {
       if (isArray) {
         for (; i < length; i++) {
           value = callback.call(obj[i], i, obj[i]); // 相当于callback(i, obj[i])。然后callback里边的this指向了obj[i]
-          if (value === false)
-            break;
+          if (value === false) break;
         }
-      }
-      else {
+      } else {
         for (i in obj) {
           value = callback.call(obj[i], i, obj[i]);
-          if (value === false)
-            break;
+          if (value === false) break;
         }
       }
     }
     return obj;
   }
-}
-export default obj
+};
+export default obj;

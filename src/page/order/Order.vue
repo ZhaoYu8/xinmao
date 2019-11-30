@@ -241,6 +241,7 @@ export default {
       this.changeProjectSort();
     }
     this.getOrderData();
+    this.bus.$off('order');
     this.bus.$on('order', (msg) => {
       this.getOrderData();
     });

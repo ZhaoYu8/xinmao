@@ -137,6 +137,7 @@ export default {
     }
   },
   mounted() {
+    this.bus.$off('dialogUser');
     this.bus.$on('dialogUser', (type, data = {}) => {
       this.dialogShow = true;
       this.dialogType = type;
