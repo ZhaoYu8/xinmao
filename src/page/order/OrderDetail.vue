@@ -18,10 +18,31 @@
           销售：<span style="color:#409EFF">{{ editData.salesName }}</span>
         </li>
       </ul>
-      <el-steps :active="active" align-center finish-status="success" class="mt-20 mb-20">
-        <el-step title="发货"></el-step>
-        <el-step title="收款"></el-step>
-        <el-step title="完成"></el-step>
+      <el-steps :active="active" align-center class="mt-20 mb-20">
+        <el-step
+          title="发货"
+          @click.native="
+            () => {
+              active = 0;
+            }
+          "
+        ></el-step>
+        <el-step
+          title="收款"
+          @click.native="
+            () => {
+              active = 1;
+            }
+          "
+        ></el-step>
+        <el-step
+          title="完成"
+          @click.native="
+            () => {
+              active = 2;
+            }
+          "
+        ></el-step>
       </el-steps>
       <div class="source d-f f-d-c">
         <!-- 这是发货页面 -->
@@ -74,10 +95,10 @@
               3. 已支付定金: <span class="c4">{{ editData.downPayment }} 元</span>
             </li>
             <li class="ml-20">
-              4. 实际已收: <span class="c4">{{ moneyNumTotal }} 元</span>
+              4. 实际已收: <span class="c4">{{ Number(moneyNumTotal) + Number(editData.downPayment) }} 元</span>
             </li>
             <li class="ml-20">
-              5. 剩余应收: <span class="c4">{{ Number(projectTotal) + Number(premiumTotal) - (editData.downPayment || 0) - moneyNumTotal }} 元</span>
+              5. 剩余应收: <span :class="balanceAccounts < 0 ? 'c3' : 'c4'">{{ balanceAccounts }} 元</span>
             </li>
           </ul>
           <el-form :model="moneyValidateForm" ref="moneyValidateForm" label-width="100px" class="moneyValidateForm">
@@ -86,12 +107,12 @@
                 v-model="moneyValidateForm.num"
                 class="f-24"
                 @input="
-                  (value) => {
-                    if (value[value.length - 1] === '.' && value.split('.').length < 3) {
-                      moneyValidateForm.num = value;
-                      return;
-                    }
-                    moneyValidateForm.num = parseFloat(value);
+                  (val) => {
+                    moneyValidateForm.num = val
+                      .replace(/[^0-9.]/g, '')
+                      .replace('.', '#*')
+                      .replace(/\./g, '')
+                      .replace('#*', '.');
                   }
                 "
               >
@@ -138,19 +159,88 @@
             <el-table-column property="remark" label="备注"></el-table-column>
           </el-table>
         </div>
+        <div v-show="active === 2" class="f-26">
+          <div class="label">
+            <p class="f-20 ">待确认</p>
+          </div>
+          <div class="w-50 m-0-a">
+            <div v-if="projectData && projectData.length" class="d-f a-i-c">
+              <div class="f-1">
+                <p class="width-150 text-last">应发货数</p>
+                <span class="c4 ml-10"> {{ projectData.map((r) => r.count).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
+              </div>
+              <div class="f-1">
+                <p class="width-150 text-last">实际发货数</p>
+                <span class="c4 ml-10"> {{ projectData.map((r) => r.deliveryNumber).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
+              </div>
+            </div>
+            <div v-if="projectData && projectData.length" class="d-f a-i-c">
+              <div class="f-1">
+                <p class="width-150 text-last">应收货款</p>
+                <span class="c4 ml-10"> {{ Number(projectTotal) + Number(premiumTotal) }} 元</span>
+              </div>
+              <div class="f-1">
+                <p class="width-150 text-last">实际收货款</p>
+                <span class="c4 ml-10"> {{ Number(moneyNumTotal) + Number(editData.downPayment) }} 元</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-show="active === 3" class="f-26">
+          <div class="t-c mt-10 mb-10 c5">本次订单流程已经全部结束了、恭喜你，你的事业又进了一步！</div>
+        </div>
         <div class="a-s-c mt-20">
           <el-button type="primary" size="small" class="width-100" @click="back" v-if="active !== 0">上一步</el-button>
-          <el-button type="warning" size="small" class="width-100" @click="active = 1" v-if="active === 0">去收款</el-button>
-          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 0">确认发货</el-button>
-          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 1">确认收款</el-button>
-          <el-button type="success" size="small" class="width-100" @click="next">快速完成</el-button>
+          <el-button
+            type="primary"
+            size="small"
+            class="width-100"
+            @click="
+              () => {
+                active++;
+              }
+            "
+            v-if="![2, 3].includes(active) || (isDisabled && active === 2)"
+            >下一步</el-button
+          >
+          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 0" :disabled="isDisabled">确认发货</el-button>
+          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 1" :disabled="isDisabled">确认收款</el-button>
+          <el-button type="primary" size="small" class="width-100" @click="next" v-if="active === 2" :disabled="isDisabled">确认完成</el-button>
+          <el-button type="success" size="small" class="width-100" @click="next" v-if="![2, 3].includes(active)" :disabled="isDisabled">快速完成</el-button>
         </div>
-        <div class="state">
+        <div class="state" v-if="active === 0">
           <h3>说明</h3>
-          <h4><i class="el-icon-warning"></i>下一步</h4>
-          <p>点击下一步，会让流程进入代收款环境。可发货多次。</p>
+          <h4><i class="el-icon-warning"></i>去收款</h4>
+          <p>去收款节点，允许先收款，后发货！</p>
+          <h4><i class="el-icon-warning"></i>确认发货</h4>
+          <p>可以多次发货，允许超发！</p>
           <h4><i class="el-icon-warning"></i>快速完成</h4>
-          <p>点击快速完成，默认全部发货完成。流程进入待收款环境。</p>
+          <p>点击快速完成，默认全部发货完成。流程进入待收款节点。</p>
+        </div>
+
+        <div class="state" v-else-if="active === 1">
+          <h3>说明</h3>
+          <h4><i class="el-icon-warning"></i>上一步</h4>
+          <p>返回上个节点。</p>
+          <h4><i class="el-icon-warning"></i>下一步</h4>
+          <p>进入下个节点</p>
+          <h4><i class="el-icon-warning"></i>确认收款</h4>
+          <p>可以多次收款，允许超收！</p>
+          <h4><i class="el-icon-warning"></i>快速完成</h4>
+          <p>点击快速完成，默认全部收款完成。流程进入待完成确认节点。</p>
+        </div>
+
+        <div class="state" v-else-if="active === 2">
+          <h3>说明</h3>
+          <h4><i class="el-icon-warning"></i>上一步</h4>
+          <p>返回上个节点。</p>
+          <h4><i class="el-icon-warning"></i>确认完成</h4>
+          <p>订单流程全部结束，不允许修改订单任何信息！</p>
+        </div>
+        <div class="state" v-else>
+          <h3>说明</h3>
+          <h4><i class="el-icon-warning"></i>上一步</h4>
+          <p>返回上个节点。</p>
         </div>
       </div>
       <el-divider></el-divider>
@@ -159,7 +249,7 @@
         <el-table-column prop="operationUserName" label="操作人"> </el-table-column>
         <el-table-column prop="operationType" label="操作类型">
           <template slot-scope="scope">
-            <el-popover placement="right" trigger="hover" v-if="scope.row.operationType === '3'">
+            <el-popover placement="right" trigger="hover" v-if="scope.row.operationType === 3">
               <el-table :data="[scope.row]">
                 <el-table-column width="150" property="name" label="产品名称"></el-table-column>
                 <el-table-column width="150" property="num" label="本次发货数"></el-table-column>
@@ -169,7 +259,7 @@
                 <el-tag :color="typeName(scope.row.operationType).color" effect="dark" class="no-border width-60 t-c">{{ typeName(scope.row.operationType).text }}</el-tag>
               </div>
             </el-popover>
-            <el-popover placement="right" trigger="hover" v-else-if="scope.row.operationType === '4'">
+            <el-popover placement="right" trigger="hover" v-else-if="scope.row.operationType === 4">
               <el-table :data="[scope.row]">
                 <el-table-column width="150" property="moneyNum" label="本次收入"></el-table-column>
                 <el-table-column width="300" property="moneyRemark" label="收款备注"></el-table-column>
@@ -217,7 +307,17 @@ export default {
       return this.premiumData.length && this.premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr));
     },
     moneyNumTotal() {
-      return this.operationsListData['4'] && this.operationsListData['4'].map((r) => r.moneyNum).reduce((prev, curr) => Number(prev) + Number(curr));
+      if (this.operationsListData['4'] && this.operationsListData['4'].length) {
+        return this.operationsListData['4'].map((r) => r.moneyNum).reduce((prev, curr) => Number(prev) + Number(curr));
+      }
+      return 0;
+    },
+    balanceAccounts() {
+      return Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal;
+    },
+    isDisabled() {
+      let arr = ['5'];
+      return this.operationsData.filter((r) => arr.includes(r.operationType)).length;
     }
   },
   watch: {
@@ -244,9 +344,6 @@ export default {
     });
   },
   methods: {
-    ceshi(val) {
-      console.log(val);
-    },
     typeName(index) {
       let arr = [
         { text: '新增', color: '#67c23a' },
@@ -262,24 +359,35 @@ export default {
       changeProjectSort: 'changeProjectSort'
     }),
     async next() {
-      // 下一步流转
-      if (!this.active) {
-        let arr = this.projectData.map((r, i) => {
-          return { projectId: r.projectId, num: this.shipments[i], remark: r.remark || '' };
-        });
-        await this.$post('./addOrderDelivery', { id: this.getOrderId, data: arr });
-        this.orderDateRegroup();
-      } else if (this.active === 1) {
-        this.$refs['moneyValidateForm'].validate((valid) => {
-          if (valid) {
-            this.$post('./addOrderMoney', { id: this.getOrderId, num: this.moneyValidateForm.num, remark: this.moneyValidateForm.remark }).then(() => {
-              this.orderDateRegroup();
-            });
-          } else {
-            return false;
-          }
-        });
-      }
+      this.$confirm('确定操作么, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 下一步流转
+        if (!this.active) {
+          let arr = this.projectData.map((r, i) => {
+            return { projectId: r.projectId, num: this.shipments[i], remark: r.remark || '' };
+          });
+          this.$post('./addOrderDelivery', { id: this.getOrderId, data: arr }).then(() => {
+            this.orderDateRegroup();
+          });
+        } else if (this.active === 1) {
+          this.$refs['moneyValidateForm'].validate((valid) => {
+            if (valid) {
+              this.$post('./addOrderMoney', { id: this.getOrderId, num: this.moneyValidateForm.num, remark: this.moneyValidateForm.remark }).then(() => {
+                this.orderDateRegroup();
+              });
+            } else {
+              return false;
+            }
+          });
+        } else {
+          this.$post('./addOrderOver', { id: this.getOrderId }).then(() => {
+            this.orderDateRegroup();
+          });
+        }
+      });
     },
     back() {
       // 回退查看上一步
@@ -301,14 +409,14 @@ export default {
           this.$set(this.shipments, index, num < 0 ? 0 : num);
         });
       } else if (this.active === 1) {
-        if (Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal <= 0) {
+        if (this.balanceAccounts <= 0) {
           this.$notify.info({
             title: '消息',
             message: '已经全部收款完成了!'
           });
           return;
         }
-        this.moneyValidateForm.num = Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal;
+        this.moneyValidateForm.num = this.balanceAccounts;
       }
     },
     async operations() {
@@ -317,12 +425,12 @@ export default {
         this.$set(
           this.operationsListData,
           '3',
-          this.operationsData.filter((r) => r.operationType === '3')
+          this.operationsData.filter((r) => r.operationType === 3)
         ); // 把发货的数据筛选出来
         this.$set(
           this.operationsListData,
           '4',
-          this.operationsData.filter((r) => r.operationType === '4')
+          this.operationsData.filter((r) => r.operationType === 4)
         ); // 把发货的数据筛选出来
       });
     },
@@ -346,15 +454,19 @@ export default {
       this.premiumData = _editData.premiumData;
       this.projectData.map((r) => {
         // 产品数据 匹配 操作记录
-        let arr = this.operationsListData['3'].filter((n) => r.projectId === n.projectId + '' && n.operationType === '3');
+        let arr = this.operationsListData['3'].filter((n) => r.projectId === n.projectId + '' && n.operationType === 3);
         if (!arr.length) return;
         // 单条产品已发货数统计
         r.deliveryNumber = arr.map((r) => r.num).reduce((prev, curr) => Number(prev) + Number(curr));
         // 已发货数 是否 超过 发货数
         if (r.deliveryNumber > Number(r.count)) r.overruns = true;
       });
-      // 如果所有的产品都已经发货了。自动跳转到收款页面。
-      if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+      // 如果所有的收款都完成，跳转到待确认。产品都已经发货了。自动跳转到收款页面。如果确认了，跳转到确认
+      if (this.isDisabled) {
+        this.active = 3;
+      } else if (this.balanceAccounts <= 0) {
+        this.active = 2;
+      } else if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
         this.active = 1;
       } else {
         this.active = 0;

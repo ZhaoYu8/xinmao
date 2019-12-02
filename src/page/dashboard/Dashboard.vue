@@ -48,7 +48,7 @@
           <el-col :span="8" v-for="(item, index) in commonInfo.orderInfo" :key="index">
             <el-card shadow="hover">
               <div class="d-f a-i-c j-c-s-b">
-                <el-link :underline="false" class="f-20 number-font-family" type="primary">{{ item.orderId }}</el-link>
+                <el-link :underline="false" @click="link(item)" class="f-20 number-font-family" type="primary">{{ item.orderId }}</el-link>
                 <svg class="icon f-28 c-p" aria-hidden="true">
                   <use xlink:href="#icon-model"></use>
                 </svg>
@@ -128,6 +128,10 @@ export default {
         count += r.price * r.count;
       });
       return count;
+    },
+    link(item) {
+      this.$router.push({ path: '/orderDetail', query: { orderEdit: 1, id: item.id } });
+      this.bus.$emit('orderdetail', item);
     }
   }
 };

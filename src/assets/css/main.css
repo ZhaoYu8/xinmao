@@ -915,3 +915,8 @@ textarea {
 .Tahoma {
   font-family: Tahoma;
 }
+.text-last {
+  display: inline-block;
+  text-align: justify;
+  text-align-last: justify;
+}

@@ -118,7 +118,9 @@
           <el-table-column prop="type" label="状态">
             <template slot-scope="scope">
               <div class="d-f a-i-c j-c-c">
-                <el-button type="primary" round size="small" @click="handleDetail(scope.$index, scope.row)">待发货</el-button>
+                <el-button size="small" @click="handleDetail(scope.$index, scope.row)" :style="{ backgroundColor: typeName(scope.row.operationType).color, color: '#fff' }">{{
+                  typeName(scope.row.operationType).text
+                }}</el-button>
               </div>
             </template>
           </el-table-column>
@@ -187,6 +189,17 @@ export default {
     ...mapState(['projectSort'])
   },
   methods: {
+    typeName(index) {
+      let arr = [
+        { text: '新增', color: '#67c23a' },
+        { text: '修改', color: '#e6a23c' },
+        { text: '删除', color: '#ff0000' },
+        { text: '发货', color: '#409eff' },
+        { text: '收款', color: '#f56c6c' },
+        { text: '完成', color: '#3ce6e3' }
+      ];
+      return arr[index];
+    },
     ...mapActions(['changeProjectSort']),
     getOrderData(type) {
       this.total = [];
@@ -218,7 +231,9 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {});
+      })
+        .then(() => {})
+        .catch(() => {});
     },
     currentChange(val) {
       this.form.pageIndex = val;
