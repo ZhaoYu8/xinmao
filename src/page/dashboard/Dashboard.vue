@@ -11,16 +11,15 @@
               <img src="../../assets/img/Bia.png" alt="" />
             </div>
             <div class="ml-20">
-              <p class="f-20 c-666">
+              <p class="f-20 c-666 f-w mb-10">
                 <svg class="icon f-28" aria-hidden="true">
                   <use :xlink:href="getDate.icon"></use>
                 </svg>
                 {{ getDate.text }}，{{ commonInfo.name }}，祝你开心每一天！
               </p>
-              <p class="f-18 c-999">
-                职务
-                <el-divider direction="vertical"></el-divider>
-                总经理
+              <p class="header-tip-desc" v-if="weather_1">
+                {{ weather.city + `今天天气` + '，' + weather_0.wea + '，' + weather_0.tem2 + ' ~ ' + weather_0.tem1 + ' ' + weather_0.air_tips
+                }}{{ `明天天气 ` + '，' + weather_1.wea + '，' + weather_1.tem2 + ' ~ ' + weather_1.tem1 }}
               </p>
             </div>
           </el-col>
@@ -87,7 +86,8 @@ export default {
         { icon: '#icon-xiawu', text: '下午好' },
         { icon: '#icon-tianqitubiao-', text: '晚上好' },
         { icon: '#icon-zhishifufeiqiapianicon-', text: '夜深人静了' }
-      ]
+      ],
+      weather: {}
     };
   },
   computed: {
@@ -111,10 +111,19 @@ export default {
         index = 4;
       }
       return this.dateArr[index];
+    },
+    weather_0() {
+      return this.weather.data && this.weather.data[0];
+    },
+    weather_1() {
+      return this.weather.data && this.weather.data[1];
     }
   },
   mounted() {
     this.getCommonInfo();
+    this.$post('./weather').then((data) => {
+      this.weather = data.data.item;
+    });
     this.bus.$off('openDashboard');
     this.bus.$on('openDashboard', () => {
       this.getCommonInfo();
@@ -163,6 +172,10 @@ export default {
         width: 100%;
         height: 100%;
       }
+    }
+    .header-tip-desc {
+      color :#808695
+      font-size 16px
     }
   }
 }
