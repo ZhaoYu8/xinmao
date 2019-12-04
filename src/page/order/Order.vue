@@ -47,7 +47,7 @@
           <el-table-column prop="salesName" label="销售"></el-table-column>
           <el-table-column prop="orderId" label="订单编号" width="170"></el-table-column>
           <el-table-column prop="orderDate" label="下单日期"> </el-table-column>
-          <el-table-column prop="project" label="产品">
+          <el-table-column prop="project" label="产品" width="150">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
                 <el-table :data="scope.row.projectData">
@@ -80,7 +80,7 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column label="额外费用">
+          <el-table-column label="额外费用" width="150">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top" v-if="scope.row.premiumData.length">
                 <el-table :data="scope.row.premiumData">
@@ -100,7 +100,7 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="总待收">
+          <el-table-column label="总待收" width="150">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
                 <div>总待收 = 货品总额 {{ total[scope.$index] }} + 额外费用 {{ totalPremium[scope.$index] }} - 定金 {{ scope.row.downPayment || 0 }}</div>

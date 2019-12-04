@@ -316,7 +316,7 @@ export default {
       return Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal;
     },
     isDisabled() {
-      let arr = ['5'];
+      let arr = [5];
       return this.operationsData.filter((r) => arr.includes(r.operationType)).length;
     }
   },

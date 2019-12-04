@@ -270,7 +270,7 @@
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="proNumber" label="产品编号"></el-table-column>
         <el-table-column prop="name" label="产品名称"></el-table-column>
-        <el-table-column label="产品分类">
+        <el-table-column label="产品分类" :width="170">
           <template slot-scope="scope">
             <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
           </template>
@@ -341,7 +341,7 @@ export default {
         // 选择产品的数据
         form: {
           pageIndex: 1,
-          pageSize: 3,
+          pageSize: 5,
           value: ''
         },
         dialogData: [], // 选择产品table的数据

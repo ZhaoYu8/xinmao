@@ -8,7 +8,8 @@ module.exports = {
       vuex: 'Vuex',
       'vue-router': 'VueRouter',
       axios: 'axios',
-      'element-ui': 'ELEMENT'
+      'element-ui': 'ELEMENT',
+      antv: 'antv'
     }
   },
   devServer: {

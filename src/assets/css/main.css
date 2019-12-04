@@ -78,7 +78,7 @@ body .el-table colgroup.gutter {
   bottom: 0;
   -webkit-transition: left 0.3s ease-in-out;
   transition: left 0.3s ease-in-out;
-  background: #f0f0f0;
+  background: #f3f3f3;
 }
 
 .content {
@@ -827,6 +827,9 @@ h6,
 .width-230 {
   width: 230px;
 }
+.width-240 {
+  width: 240px;
+}
 
 .width-260 {
   width: 260px;
@@ -924,4 +927,24 @@ textarea {
   display: inline-block;
   text-align: justify;
   text-align-last: justify;
+}
+.circle {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  color: rgb(24, 144, 255);
+  background-color: rgb(230, 247, 255);
+  text-align: center;
+}
+.circle-darkly {
+  display: inline-block;
+  width: 30px;
+  height: 30px;
+  line-height: 30px;
+  border-radius: 50%;
+  color: rgb(140, 140, 140);
+  background-color: rgb(245, 245, 245);
+  text-align: center;
 }
