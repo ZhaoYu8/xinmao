@@ -56,7 +56,7 @@
                 </svg>
               </div>
               <div class="card-project">
-                {{ item.projectData.length }} 项, 总计：{{ item.projectData.length === 1 ? item.projectData.map((r) => r.price * r.count)[0] : merge(item.projectData) }}
+                {{ item.projectData.length }} 项, 总计：{{ $global.format(item.projectData.length === 1 ? item.projectData.map((r) => r.price * r.count)[0] : merge(item.projectData)) }}
               </div>
               <div class="d-f j-c-s-b a-i-c">
                 <span>
@@ -76,24 +76,24 @@
     </el-row>
     <el-card class="mt-10">
       <div slot="header" class="d-f j-c-s-b">
-        <p><i class="el-icon-s-data circle"></i><span class="ml-10">销售额 2019</span></p>
+        <p><i class="el-icon-s-data circle"></i><span class="ml-10">销售额</span></p>
         <div>
-          <el-date-picker v-model="pickerData" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" class="dashboardDate"> </el-date-picker>
+          <el-date-picker v-model="pickerData" :clearable="false" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" class="dashboardDate"> </el-date-picker>
         </div>
       </div>
       <el-row class=" b-c-1">
         <el-col :span="15"> <div id="c1"></div></el-col>
         <el-col :span="9" :style="{ height: tableHeight + 'px' }" class="d-f f-d-c">
-          <p class="mb-10">客户销售额排行榜</p>
-          <ul class="f-1 d-f j-c-s-b f-d-c">
-            <li v-for="(item, index) in 7" :key="index">
+          <p class="f-18">客户销售额排行榜</p>
+          <ul class="f-1 f-20">
+            <li v-for="(item, index) in custSalesList" :key="index" class="mb-10">
               <el-row>
                 <el-col :span="18">
-                  <span :class="index < 3 ? 'circle' : 'circle-darkly'" class="mr-10">{{ item }}</span>
-                  <span>{{ '王记茶行 ' + index + ' 号店' }}</span>
+                  <span :class="index < 3 ? 'circle' : 'circle-darkly'" class="mr-10">{{ index + 1 }}</span>
+                  <span class="f-18">{{ item.custname }}</span>
                 </el-col>
                 <el-col :span="6" class="t-r">
-                  12345
+                  {{ $global.format(item.num) }}
                 </el-col>
               </el-row>
             </li>
@@ -106,28 +106,17 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
+import moment from 'moment';
 export default {
   name: 'dashboard',
   data() {
     return {
       dateArr: ['早上好', '中午好', '下午好', '晚上好', '夜深人静了'],
       weather: {},
-      G2Data: [
-        { month: '1月', sold: 130000 },
-        { month: '2月', sold: 110000 },
-        { month: '3月', sold: 90000 },
-        { month: '4月', sold: 40000 },
-        { month: '5月', sold: 50000 },
-        { month: '6月', sold: 60000 },
-        { month: '7月', sold: 70000 },
-        { month: '8月', sold: 80000 },
-        { month: '9月', sold: 90000 },
-        { month: '10月', sold: 100000 },
-        { month: '11月', sold: 110000 },
-        { month: '12月', sold: 120000 }
-      ],
+      G2Data: [],
       pickerData: '',
-      tableHeight: 300
+      tableHeight: 300,
+      custSalesList: []
     };
   },
   computed: {
@@ -182,18 +171,38 @@ export default {
     this.bus.$on('openDashboard', () => {
       this.getCommonInfo();
     });
+
+    let date = [
+      moment()
+        .month(moment().month() - 1)
+        .startOf('month')
+        .format('YYYY-MM-DD'),
+      moment().format('YYYY-MM-DD')
+    ];
+    this.pickerData = date;
+    this.httpCustSalesList([date[0], date[1]]).then((data) => {
+      this.custSalesList = data;
+    });
+    this.httpCustMonthList([
+      moment()
+        .subtract(11, 'month')
+        .format('YYYY-MM'),
+      moment().format('YYYY-MM')
+    ]).then((data) => {
+      this.G2Data = data;
+      chart.source(this.G2Data);
+      chart.interval().position('month*num');
+      chart.scale('num', {
+        alias: '销售额(元)'
+      });
+      chart.render();
+    });
     const chart = new G2.Chart({
       container: 'c1',
       forceFit: true,
       height: this.tableHeight,
       padding: [20, 20, 20, 60]
     });
-    chart.source(this.G2Data);
-    chart.interval().position('month*sold');
-    chart.scale('sold', {
-      alias: '销售额(元)'
-    });
-    chart.render();
   },
   methods: {
     ...mapActions(['getCommonInfo']),
@@ -207,6 +216,18 @@ export default {
     link(item) {
       this.$router.push({ path: '/orderDetail', query: { orderEdit: 1, id: item.id } });
       this.bus.$emit('orderdetail', item);
+    },
+    async httpCustSalesList(date, pageSize = 7) {
+      let data = await this.$post('./custSalesList', { startDate: date[0], endDate: date[1], pageSize: pageSize }).then((data, row = data.data.item) => {
+        return row;
+      });
+      return data;
+    },
+    async httpCustMonthList(date) {
+      let data = await this.$post('./custMonthList', { startDate: date[0], endDate: date[1] }).then((data, row = data.data.item) => {
+        return row;
+      });
+      return data;
     }
   }
 };
