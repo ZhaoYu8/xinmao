@@ -26,7 +26,7 @@
               </p>
             </div>
           </el-col>
-          <el-col :span="6" class="d-f a-i-c j-c-f-e mr-20">
+          <!-- <el-col :span="6" class="d-f a-i-c j-c-f-e mr-20">
             <ul class="mr-10">
               <li class="f-20">订单数</li>
               <li class="f-20 f-w t-c">321</li>
@@ -36,13 +36,13 @@
               <li class="f-20">销售排名</li>
               <li class="f-20 f-w t-c">8/24</li>
             </ul>
-          </el-col>
+          </el-col> -->
         </el-row>
       </div>
     </div>
-    <el-row class="mt-10">
+    <el-row class="d-f mt-10">
       <el-col :span="15" class="card">
-        <div class="d-f j-c-s-b a-i-c mlr-10">
+        <div class="d-f j-c-s-b a-i-c plr-10 b-c-1">
           <span class="pt-15 pb-15">进行中的项目</span>
           <el-button type="text">全部项目</el-button>
         </div>
@@ -73,20 +73,41 @@
           </el-col>
         </el-row>
       </el-col>
+      <el-col :span="9" class="d-f pl-10 card f-d-c">
+        <div class="d-f j-c-s-b a-i-c plr-10 b-c-1">
+          <span class="pt-15 pb-15">本月新增订单</span>
+        </div>
+        <div id="ceshi" class="w-100"></div>
+      </el-col>
     </el-row>
     <el-card class="mt-10">
       <div slot="header" class="d-f j-c-s-b">
-        <p><i class="el-icon-s-data circle"></i><span class="ml-10">销售额</span></p>
         <div>
-          <el-date-picker v-model="pickerData" :clearable="false" type="daterange" start-placeholder="开始日期" end-placeholder="结束日期" class="dashboardDate"> </el-date-picker>
+          <i class="el-icon-s-data circle"></i><span class="ml-10 mr-20">销售额</span>
+          <el-date-picker
+            v-model="monthPickerData"
+            :clearable="false"
+            type="monthrange"
+            @change="monthDateChange"
+            start-placeholder="开始月份"
+            end-placeholder="结束月份"
+            class="dashboardDate"
+          >
+          </el-date-picker>
         </div>
+        <el-date-picker v-model="pickerData" :clearable="false" type="daterange" @change="dateChange" start-placeholder="开始日期" end-placeholder="结束日期" class="dashboardDate">
+        </el-date-picker>
       </div>
       <el-row class=" b-c-1">
         <el-col :span="15"> <div id="c1"></div></el-col>
         <el-col :span="9" :style="{ height: tableHeight + 'px' }" class="d-f f-d-c">
-          <p class="f-18">客户销售额排行榜</p>
+          <p class="f-18">
+            <svg class="icon f-28" aria-hidden="true">
+              <use xlink:href="#icon-shuju"></use></svg
+            >客户销售额排行榜
+          </p>
           <ul class="f-1 f-20">
-            <li v-for="(item, index) in custSalesList" :key="index" class="mb-10">
+            <li v-for="(item, index) in custSalesList" :key="index" class="mt-10 height-30">
               <el-row>
                 <el-col :span="18">
                   <span :class="index < 3 ? 'circle' : 'circle-darkly'" class="mr-10">{{ index + 1 }}</span>
@@ -115,8 +136,10 @@ export default {
       weather: {},
       G2Data: [],
       pickerData: '',
+      monthPickerData: '',
       tableHeight: 300,
-      custSalesList: []
+      custSalesList: [],
+      chart: ''
     };
   },
   computed: {
@@ -172,39 +195,123 @@ export default {
       this.getCommonInfo();
     });
 
-    let date = [
+    this.pickerData = [
       moment()
-        .month(moment().month() - 1)
+        .month(moment().month() - 6)
         .startOf('month')
         .format('YYYY-MM-DD'),
       moment().format('YYYY-MM-DD')
     ];
-    this.pickerData = date;
-    this.httpCustSalesList([date[0], date[1]]).then((data) => {
+    this.httpCustSalesList(this.pickerData).then((data) => {
       this.custSalesList = data;
     });
-    this.httpCustMonthList([
+    this.monthPickerData = [
       moment()
         .subtract(11, 'month')
         .format('YYYY-MM'),
       moment().format('YYYY-MM')
-    ]).then((data) => {
+    ];
+    this.httpCustMonthList(this.monthPickerData).then((data) => {
       this.G2Data = data;
-      chart.source(this.G2Data);
-      chart.interval().position('month*num');
-      chart.scale('num', {
-        alias: '销售额(元)'
+      this.chart.source(this.G2Data);
+      this.chart.scale({
+        num: {
+          alias: '销售额', // 为属性定义别名
+          formatter: (x) => {
+            return this.$global.format(x) + '元';
+          }
+        },
+        listNum: {
+          alias: '订单数' // 为属性定义别名
+        }
       });
-      chart.render();
+      this.chart
+        .interval()
+        .position('month*num')
+        .tooltip('num*listNum')
+        .label('listNum')
+        .size(50);
+
+      this.$nextTick(() => {
+        this.chart.render();
+      });
     });
-    const chart = new G2.Chart({
+    this.chart = new G2.Chart({
       container: 'c1',
       forceFit: true,
       height: this.tableHeight,
       padding: [20, 20, 20, 60]
     });
+    this.init();
+    this.bus.$on('collapse', () => {
+      setTimeout(() => {
+        let e = document.createEvent('Event');
+        e.initEvent('resize', true, true);
+        window.dispatchEvent(e);
+      }, 100);
+    });
   },
   methods: {
+    init() {
+      const data = [
+        { item: '发货中', count: 40, percent: 0.4 },
+        { item: '收款中', count: 21, percent: 0.21 },
+        { item: '已完成', count: 17, percent: 0.17 }
+      ];
+      let chart = new G2.Chart({
+        container: 'ceshi',
+        forceFit: true,
+        height: 242,
+        padding: [0, 80],
+        background: {
+          fill: '#fff', // 图表背景色
+          radius: 2
+        }
+      });
+      chart.legend({
+        position: 'right' // 设置图例的显示位置
+      });
+      chart.source(data, {
+        percent: {
+          formatter: (val) => {
+            val = val * 100 + '%';
+            return val;
+          }
+        }
+      });
+      chart.coord('theta', {
+        radius: 0.75,
+        innerRadius: 0.6
+      });
+      chart.tooltip({
+        showTitle: false
+      });
+      // 辅助文本
+      chart.guide().html({
+        position: ['50%', '50%'],
+        html: '<div style="color:#8c8c8c;font-size: 14px;text-align: center;width: 10em;">本月新增<br><span style="color:#8c8c8c;font-size:20px">100</span></div>',
+        alignX: 'middle',
+        alignY: 'middle'
+      });
+      chart
+        .intervalStack()
+        .position('percent')
+        .color('item')
+        .label('percent', {
+          formatter: (val, item) => {
+            return item.point.item + ': ' + val;
+          }
+        })
+        .tooltip('item*percent', (item, percent) => {
+          percent = percent * 100 + '%';
+          return {
+            name: item,
+            value: percent
+          };
+        });
+      chart.render();
+      return chart;
+    },
     ...mapActions(['getCommonInfo']),
     merge(data) {
       let count = 0;
@@ -228,6 +335,22 @@ export default {
         return row;
       });
       return data;
+    },
+    monthDateChange(val) {
+      let date = this.monthPickerData;
+      date = [moment(date[0]).format('YYYY-MM'), moment(date[1]).format('YYYY-MM')];
+      this.httpCustMonthList(date).then((data) => {
+        this.G2Data = data;
+        this.chart.source(this.G2Data);
+        this.chart.render();
+      });
+    },
+    dateChange(val) {
+      let date = this.pickerData;
+      date = [moment(date[0]).format('YYYY-MM-DD'), moment(date[1]).format('YYYY-MM-DD')];
+      this.httpCustSalesList(date).then((data) => {
+        this.custSalesList = data;
+      });
     }
   }
 };
@@ -268,9 +391,7 @@ export default {
 }
 
 .card {
-  background: #fff;
   border-radius: 5px;
-
   .card-project {
     color: rgba(0, 0, 0, 0.45);
     line-height: 30px;
@@ -289,11 +410,14 @@ export default {
     border: 0;
   }
   .dashboardDate {
-    width: 240px;
+    width: 220px;
     height: 30px;
     line-height: 30px;
     .el-range-separator,.el-range__icon {
       line-height 22px
+    }
+    .el-range__close-icon{
+      display none
     }
   }
   .el-card__body {

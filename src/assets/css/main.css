@@ -328,7 +328,9 @@ h6,
 .h-100 {
   height: 100%;
 }
-
+.height-30 {
+  height: 30px;
+}
 .mw-100 {
   max-width: 100%;
 }
@@ -472,7 +474,9 @@ h6,
 .mlr-20 {
   margin: 0 20px;
 }
-
+.plr-10 {
+  padding: 0 10px;
+}
 .plr-16 {
   padding: 0 16px;
 }

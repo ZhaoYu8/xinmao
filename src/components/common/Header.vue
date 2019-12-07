@@ -100,10 +100,21 @@ export default {
       this.fullscreen = !this.fullscreen;
     }
   },
-  mounted() {
-    if (document.body.clientWidth < 1500) {
+  created() {
+    if (document.body.clientWidth < 1450) {
       this.collapseChage();
     }
+    // this.bus.$on('onresize', () => {
+    //   if (document.body.clientWidth < 1450) {
+    //     if (this.collapse) return;
+    //     this.collapse = true;
+    //     this.bus.$emit('collapse', this.collapse);
+    //   } else {
+    //     if (!this.collapse) return;
+    //     this.collapse = false;
+    //     this.bus.$emit('collapse', this.collapse);
+    //   }
+    // });
   }
 };
 </script>

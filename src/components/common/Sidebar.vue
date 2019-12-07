@@ -82,7 +82,6 @@ export default {
     }
   },
   created() {
-    this.bus.$off('collapse');
     // 通过 Event Bus 进行组件间通信，来折叠侧边栏
     this.bus.$on('collapse', (msg) => {
       this.collapse = msg;
