@@ -5,7 +5,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="产品名称：" prop="name">
-              <el-input v-model="form.name" autocomplete="off" placeholder="产品名称" maxlength="15" show-word-limit :disabled="dialogType"></el-input>
+              <el-input v-model="form.name" autocomplete="off" placeholder="产品名称" maxlength="20" show-word-limit :disabled="dialogType"></el-input>
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -35,6 +35,11 @@
           <el-col :span="12">
             <el-form-item label="建议售价：" prop="price">
               <el-input v-model="form.price" autocomplete="off" maxlength="15" show-word-limit placeholder="建议售价"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="testUrl：" prop="testUrl">
+              <el-input v-model="form.testUrl" autocomplete="off" show-word-limit placeholder="测试连接"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -83,10 +88,14 @@ export default {
         sort: [],
         units: '个',
         cost: 0,
-        price: 0
+        price: 0,
+        testUrl: ''
       },
       rules: {
-        name: [{ required: true, message: '请输入产品名称', trigger: 'blur' }, { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }],
+        name: [
+          { required: true, message: '请输入产品名称', trigger: 'blur' },
+          { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+        ],
         sort: [{ required: true, message: '请选择产品分类', trigger: 'blur' }]
       },
       fileList: [] // 修改展示的产品图片数据
@@ -122,13 +131,14 @@ export default {
           sort: [],
           units: '个',
           cost: 0,
-          price: 0
+          price: 0,
+          testUrl: ''
         };
         if (this.$refs['ruleForm']) this.$refs['ruleForm'].resetFields();
         this.fileList = [];
         if (this.dialogType && val) {
-          Object.keys(this.form).map(r => {
-            this.form[r] = r === 'sort' ? this.editData[r].split(',').map(r => Number(r)) : this.editData[r];
+          Object.keys(this.form).map((r) => {
+            this.form[r] = r === 'sort' ? this.editData[r].split(',').map((r) => Number(r)) : this.editData[r];
           });
           if (this.editData.photo.length) {
             this.fileList = this.editData.photo;
@@ -155,9 +165,9 @@ export default {
     },
     handleRemove(data, file) {
       if (data.id) {
-        this.fileList = this.fileList.filter(r => r.id !== data.id);
+        this.fileList = this.fileList.filter((r) => r.id !== data.id);
       } else {
-        this.fileList = this.fileList.filter(r => r.uid !== data.uid);
+        this.fileList = this.fileList.filter((r) => r.uid !== data.uid);
       }
     },
     hideDialog(type = false) {
@@ -167,7 +177,7 @@ export default {
       this.fileList.push(data.file);
     },
     confirm() {
-      this.$refs['ruleForm'].validate(valid => {
+      this.$refs['ruleForm'].validate((valid) => {
         if (!valid) return;
         let location = this.dialogType ? '/editProject' : '/addProject';
         let data = Object.assign({}, this.form, {

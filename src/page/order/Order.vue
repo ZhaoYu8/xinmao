@@ -31,7 +31,7 @@
       <div class="t-c">
         <el-table :data="tableData" border height="650" style="width: 100%" class="table-color">
           <el-table-column type="selection" width="55"></el-table-column>
-          <el-table-column prop="custName" label="客户信息">
+          <el-table-column prop="custName" width="200" label="客户信息">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="bottom" popper-class="name-wrapper">
                 <p>姓名: {{ scope.row.custName }}</p>
