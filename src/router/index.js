@@ -34,8 +34,8 @@ export default new VueRouter({
           }
         },
         {
-          path: '/project',
-          component: (resolve) => require(['@/page/project/Project'], resolve),
+          path: '/product',
+          component: (resolve) => require(['@/page/product/Product'], resolve),
           meta: {
             title: '产品列表'
           }

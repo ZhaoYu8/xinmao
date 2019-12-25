@@ -1,5 +1,5 @@
 <template>
-  <div class="addprojectsort">
+  <div class="addproductsort">
     <el-dialog :title="!dialogType ? '新增部门' : '修改部门'" :visible="dialogFormVisible" width="30%" center @close="hideDialog">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="100px">
         <el-row>

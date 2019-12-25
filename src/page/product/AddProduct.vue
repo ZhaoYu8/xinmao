@@ -1,5 +1,5 @@
 <template>
-  <div class="addproject">
+  <div class="addproduct">
     <el-dialog :title="!dialogType ? '新增产品' : '修改产品'" :visible="dialogFormVisible" width="60%" center @close="hideDialog" :close-on-click-modal="false">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="120px">
         <el-row>
@@ -211,7 +211,7 @@ export default {
     confirm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (!valid) return;
-        let location = this.dialogType ? '/editProject' : '/addProject';
+        let location = this.dialogType ? '/editProduct' : '/addProduct';
         let data = Object.assign({}, this.form, {
           id: this.editData.id || 0
         });

@@ -47,15 +47,15 @@
           <el-table-column prop="salesName" label="销售"></el-table-column>
           <el-table-column prop="orderId" label="订单编号" width="170"></el-table-column>
           <el-table-column prop="orderDate" label="下单日期"> </el-table-column>
-          <el-table-column prop="project" label="产品" width="150">
+          <el-table-column prop="product" label="产品" width="150">
             <template slot-scope="scope">
               <el-popover trigger="hover" placement="top">
-                <el-table :data="scope.row.projectData">
+                <el-table :data="scope.row.productData">
                   <el-table-column width="120" property="proNumber" label="产品编号"></el-table-column>
                   <el-table-column width="100" property="name" label="产品名称"></el-table-column>
                   <el-table-column width="180" property="sort" label="产品分类">
                     <template slot-scope="scope">
-                      <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+                      <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
                     </template>
                   </el-table-column>
                   <el-table-column width="100" property="units" label="单位"></el-table-column>
@@ -70,9 +70,9 @@
                 </el-table>
                 <div slot="reference" class="d-inline-block">
                   <el-tag>
-                    {{ scope.row.projectData.length }} 项; 总计:
+                    {{ scope.row.productData.length }} 项; 总计:
                     {{
-                      (total[scope.$index] = scope.row.projectData.length === 1 ? scope.row.projectData.map((r) => r.price * r.count)[0] : merge(scope.row.projectData)) ||
+                      (total[scope.$index] = scope.row.productData.length === 1 ? scope.row.productData.map((r) => r.price * r.count)[0] : merge(scope.row.productData)) ||
                         total[scope.$index]
                     }}
                   </el-tag>
@@ -186,7 +186,7 @@ export default {
     printSetting: printSetting
   },
   computed: {
-    ...mapState(['projectSort'])
+    ...mapState(['productSort'])
   },
   methods: {
     typeName(index) {
@@ -200,7 +200,7 @@ export default {
       ];
       return arr[index];
     },
-    ...mapActions(['changeProjectSort']),
+    ...mapActions(['changeProductSort']),
     getOrderData(type) {
       this.total = [];
       this.totalPremium = [];
@@ -251,9 +251,9 @@ export default {
     }
   },
   mounted() {
-    if (!this.projectSort.length) {
+    if (!this.productSort.length) {
       // 如果产品分类数据为空，则请求一下分类数据
-      this.changeProjectSort();
+      this.changeProductSort();
     }
     this.getOrderData();
     this.bus.$off('order');

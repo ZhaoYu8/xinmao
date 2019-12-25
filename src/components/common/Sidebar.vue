@@ -56,7 +56,7 @@ export default {
         },
         {
           icon: 'el-icon-shopping-cart-full',
-          index: 'project',
+          index: 'product',
           title: '产品列表'
         },
         {

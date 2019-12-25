@@ -1,5 +1,5 @@
 <template>
-  <div class="project">
+  <div class="product">
     <div class="crumbs">
       <el-breadcrumb>
         <el-breadcrumb-item> <i class="el-icon-menu"></i> 产品信息 </el-breadcrumb-item>
@@ -13,16 +13,16 @@
             <span slot="label"> <i class="el-icon-shopping-cart-full"></i> 产品 </span>
             <div class="d-f j-c-s-b mb-20">
               <div>
-                <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addProject">新增产品</el-button>
+                <el-button type="primary" icon="el-icon-circle-plus-outline" @click="addProduct">新增产品</el-button>
               </div>
               <div>
                 <el-input
                   v-model="form.value"
                   placeholder="可根据姓名或者手机号搜索"
-                  @keyup.enter.native="getProjectData"
+                  @keyup.enter.native="getProductData"
                   class="handle-input mr-10 ml-10"
                   clearable
-                  @clear="getProjectData"
+                  @clear="getProductData"
                 ></el-input>
                 <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
               </div>
@@ -34,7 +34,7 @@
                 <el-table-column prop="name" label="产品名称"></el-table-column>
                 <el-table-column label="产品分类">
                   <template slot-scope="scope">
-                    <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+                    <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
                   </template>
                 </el-table-column>
                 <el-table-column prop="units" label="单位"></el-table-column>
@@ -53,8 +53,8 @@
                 <el-table-column prop="createName" label="创建人姓名"></el-table-column>
                 <el-table-column label="操作" width="180" align="center">
                   <template slot-scope="scope">
-                    <el-button type="text" icon="el-icon-edit" @click="editProject(scope.$index, scope.row)">编辑</el-button>
-                    <el-button type="text" icon="el-icon-delete" class="red" @click="delProject(scope.$index, scope.row)">删除</el-button>
+                    <el-button type="text" icon="el-icon-edit" @click="editProduct(scope.$index, scope.row)">编辑</el-button>
+                    <el-button type="text" icon="el-icon-delete" class="red" @click="delProduct(scope.$index, scope.row)">删除</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -81,15 +81,15 @@
           </el-tab-pane>
         </el-tabs>
       </el-col>
-      <AddProject :treeData="treeData" :dialogType="projectType" :dialogFormVisible="projectVisible" @dialog="controlDialog" :editData="editData"></AddProject>
-      <AddProjectSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="projectSortDialog" :editData="sortEditData"></AddProjectSort>
+      <AddProduct :treeData="treeData" :dialogType="productType" :dialogFormVisible="productVisible" @dialog="controlDialog" :editData="editData"></AddProduct>
+      <AddProductSort :treeData="treeData" :dialogType="sortType" :dialogFormVisible="sortVisible" @dialog="productSortDialog" :editData="sortEditData"></AddProductSort>
     </div>
   </div>
 </template>
 
 <script>
-import AddProject from '../project/AddProject';
-import AddProjectSort from '../project/AddProjectSort';
+import AddProduct from './AddProduct';
+import AddProductSort from './AddProductSort';
 import { mapState, mapActions } from 'vuex';
 export default {
   data() {
@@ -100,9 +100,9 @@ export default {
         pageSize: 10
       },
       tableData: [],
-      projectVisible: false, // 产品显示
+      productVisible: false, // 产品显示
       sortVisible: false, // 分类显示
-      projectType: false, // 产品新增修改
+      productType: false, // 产品新增修改
       sortType: false, // 分类新增修改
       editData: {},
       sortEditData: {},
@@ -112,57 +112,57 @@ export default {
     };
   },
   components: {
-    AddProject,
-    AddProjectSort
+    AddProduct,
+    AddProductSort
   },
   computed: {
-    ...mapState(['projectSort'])
+    ...mapState(['productSort'])
   },
   methods: {
-    ...mapActions(['changeProjectSort']),
+    ...mapActions(['changeProductSort']),
     // 查询产品列表
-    getProjectData(type) {
-      this.$post('queryProject', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
+    getProductData(type) {
+      this.$post('queryProduct', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });
     },
-    getProjectSort() {
-      this.changeProjectSort().then(() => {
-        this.treeData = this.$global.dataBase(this.projectSort);
+    getProductSort() {
+      this.changeProductSort().then(() => {
+        this.treeData = this.$global.dataBase(this.productSort);
       });
     },
     // 子组件传递过来的方法
     controlDialog(data) {
-      this.projectVisible = false;
+      this.productVisible = false;
       // 这里做了一下处理，新增之后调用分页方法，重置当前页
       if (data) this.currentChange(1);
     },
-    projectSortDialog(data) {
+    productSortDialog(data) {
       this.sortVisible = false;
-      if (data) this.getProjectSort();
+      if (data) this.getProductSort();
     },
     // 新增产品
-    addProject() {
+    addProduct() {
       this.editData = {};
-      this.projectType = false;
-      this.projectVisible = true;
+      this.productType = false;
+      this.productVisible = true;
     },
     // 修改产品
-    editProject(...list) {
+    editProduct(...list) {
       this.editData = list[1];
-      this.projectType = true;
-      this.projectVisible = true;
+      this.productType = true;
+      this.productVisible = true;
     },
     // 删除产品
-    delProject(...list) {
+    delProduct(...list) {
       this.$confirm('此操作将永久删除该产品, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.$post('delProject', { id: list[1].id }).then(data => {
-          this.getProjectData();
+        this.$post('delProduct', { id: list[1].id }).then(data => {
+          this.getProductData();
           this.$notify({
             title: '成功',
             message: '删除成功',
@@ -201,7 +201,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$post('delSort', { id: list[1].id }).then(data => {
-          this.getProjectSort();
+          this.getProductSort();
           this.$notify({
             title: '成功',
             message: '删除成功',
@@ -213,12 +213,12 @@ export default {
     // 点击分页
     currentChange(val) {
       this.form.pageIndex = val;
-      this.getProjectData();
+      this.getProductData();
     }
   },
   mounted() {
-    this.getProjectData();
-    this.getProjectSort();
+    this.getProductData();
+    this.getProductSort();
   }
 };
 </script>

@@ -48,11 +48,11 @@
         <!-- 这是发货页面 -->
         <div v-show="active === 0">
           <el-button type="primary" @click="quick" class="fr width-100" size="small">一键填充</el-button>
-          <el-table :data="projectData" style="width: 90%;margin: 0 auto;">
+          <el-table :data="productData" style="width: 90%;margin: 0 auto;">
             <el-table-column property="name" label="产品名称"></el-table-column>
             <el-table-column property="sort" label="产品分类">
               <template slot-scope="scope">
-                <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+                <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
               </template>
             </el-table-column>
             <el-table-column property="units" label="单位"></el-table-column>
@@ -86,7 +86,7 @@
           </div>
           <ul class="d-f f-20 ml-20 a-i-c l-36">
             <li>
-              1. 产品费用合计应收：<span class="c4">{{ projectTotal }} 元</span>
+              1. 产品费用合计应收：<span class="c4">{{ productTotal }} 元</span>
             </li>
             <li class="ml-20">
               2. 额外费用合计应收: <span class="c4">{{ premiumTotal }} 元</span>
@@ -133,11 +133,11 @@
           <div class="label">
             <p class="f-20">产品清单</p>
           </div>
-          <el-table :data="projectData">
+          <el-table :data="productData">
             <el-table-column property="name" label="产品名称"></el-table-column>
             <el-table-column property="sort" label="产品分类">
               <template slot-scope="scope">
-                <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+                <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
               </template>
             </el-table-column>
             <el-table-column property="units" label="单位"></el-table-column>
@@ -164,20 +164,20 @@
             <p class="f-20 ">待确认</p>
           </div>
           <div class="w-50 m-0-a">
-            <div v-if="projectData && projectData.length" class="d-f a-i-c">
+            <div v-if="productData && productData.length" class="d-f a-i-c">
               <div class="f-1">
                 <p class="width-150 text-last">应发货数</p>
-                <span class="c4 ml-10"> {{ projectData.map((r) => r.count).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
+                <span class="c4 ml-10"> {{ productData.map((r) => r.count).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
               </div>
               <div class="f-1">
                 <p class="width-150 text-last">实际发货数</p>
-                <span class="c4 ml-10"> {{ projectData.map((r) => r.deliveryNumber).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
+                <span class="c4 ml-10"> {{ productData.map((r) => r.deliveryNumber).reduce((prev, curr) => Number(prev) + Number(curr)) }} 个</span>
               </div>
             </div>
-            <div v-if="projectData && projectData.length" class="d-f a-i-c">
+            <div v-if="productData && productData.length" class="d-f a-i-c">
               <div class="f-1">
                 <p class="width-150 text-last">应收货款</p>
-                <span class="c4 ml-10"> {{ Number(projectTotal) + Number(premiumTotal) }} 元</span>
+                <span class="c4 ml-10"> {{ Number(productTotal) + Number(premiumTotal) }} 元</span>
               </div>
               <div class="f-1">
                 <p class="width-150 text-last">实际收货款</p>
@@ -283,7 +283,7 @@ export default {
   data() {
     return {
       editData: {},
-      projectData: [],
+      productData: [],
       active: 0,
       shipments: [], // 发货数存储的数据
       operationsData: [],
@@ -296,12 +296,12 @@ export default {
     };
   },
   computed: {
-    ...mapState(['projectSort']),
+    ...mapState(['productSort']),
     getOrderId() {
       return this.$route.query.id;
     },
-    projectTotal() {
-      return this.projectData.length && this.projectData.map((r) => r.price * r.count).reduce((prev, curr) => Number(prev) + Number(curr));
+    productTotal() {
+      return this.productData.length && this.productData.map((r) => r.price * r.count).reduce((prev, curr) => Number(prev) + Number(curr));
     },
     premiumTotal() {
       return this.premiumData.length && this.premiumData.map((r) => r.money).reduce((prev, curr) => Number(prev) + Number(curr));
@@ -313,7 +313,7 @@ export default {
       return 0;
     },
     balanceAccounts() {
-      return Number(this.projectTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal;
+      return Number(this.productTotal) + Number(this.premiumTotal) - (this.editData.downPayment || 0) - this.moneyNumTotal;
     },
     isDisabled() {
       let arr = [5];
@@ -356,7 +356,7 @@ export default {
       return arr[index];
     },
     ...mapActions({
-      changeProjectSort: 'changeProjectSort'
+      changeProductSort: 'changeProductSort'
     }),
     async next() {
       this.$confirm('确定操作么, 是否继续?', '提示', {
@@ -366,8 +366,8 @@ export default {
       }).then(() => {
         // 下一步流转
         if (!this.active) {
-          let arr = this.projectData.map((r, i) => {
-            return { projectId: r.projectId, num: this.shipments[i], remark: r.remark || '' };
+          let arr = this.productData.map((r, i) => {
+            return { productId: r.productId, num: this.shipments[i], remark: r.remark || '' };
           });
           this.$post('./addOrderDelivery', { id: this.getOrderId, data: arr }).then(() => {
             this.orderDateRegroup();
@@ -397,7 +397,7 @@ export default {
       // 快速填充
       // 如果所有的产品都已经发货了。提示他不需要发货了
       if (this.active === 0) {
-        if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+        if (this.productData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.productData.length) {
           this.$notify.info({
             title: '消息',
             message: '已经全部发货了！'
@@ -405,7 +405,7 @@ export default {
           return;
         }
         this.shipments.map((r, index) => {
-          let num = Number(this.projectData[index].count) - Number(this.projectData[index].deliveryNumber || 0);
+          let num = Number(this.productData[index].count) - Number(this.productData[index].deliveryNumber || 0);
           this.$set(this.shipments, index, num < 0 ? 0 : num);
         });
       } else if (this.active === 1) {
@@ -436,11 +436,11 @@ export default {
     },
     async orderDateRegroup() {
       // 订单数据重组
-      if (!this.projectSort.length) await this.changeProjectSort();
+      if (!this.productSort.length) await this.changeProductSort();
       await this.operations();
       let _editData = { ...this.editData };
       // 重置发货数
-      _editData.projectData.map((r, i) => {
+      _editData.productData.map((r, i) => {
         this.shipments[i] = 0;
       });
       // 重置已收款
@@ -450,11 +450,11 @@ export default {
       };
       // 清除验证信息
       this.$refs['moneyValidateForm'].resetFields();
-      this.projectData = _editData.projectData;
+      this.productData = _editData.productData;
       this.premiumData = _editData.premiumData;
-      this.projectData.map((r) => {
+      this.productData.map((r) => {
         // 产品数据 匹配 操作记录
-        let arr = this.operationsListData['3'].filter((n) => r.projectId === n.projectId + '' && n.operationType === 3);
+        let arr = this.operationsListData['3'].filter((n) => r.productId === n.productId + '' && n.operationType === 3);
         if (!arr.length) return;
         // 单条产品已发货数统计
         r.deliveryNumber = arr.map((r) => r.num).reduce((prev, curr) => Number(prev) + Number(curr));
@@ -466,7 +466,7 @@ export default {
         this.active = 3;
       } else if (this.balanceAccounts <= 0) {
         this.active = 2;
-      } else if (this.projectData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.projectData.length) {
+      } else if (this.productData.map((r) => r.deliveryNumber >= Number(r.count)).filter((r) => r).length === this.productData.length) {
         this.active = 1;
       } else {
         this.active = 0;

@@ -91,15 +91,15 @@
         <el-divider><i class="el-icon-s-claim">产品清单</i></el-divider>
         <el-row class="d-f goods">
           <i class="el-icon-menu c-p" @click="controlDialog"></i>
-          <i class="el-icon-remove-outline c-p" @click="delList('project')"></i>
+          <i class="el-icon-remove-outline c-p" @click="delList('product')"></i>
         </el-row>
-        <el-table :data="projectData" border class="w-100 table-color" ref="project">
+        <el-table :data="productData" border class="w-100 table-color" ref="product">
           <el-table-column type="selection" width="55"></el-table-column>
           <el-table-column prop="proNumber" label="产品编号" width="120"></el-table-column>
           <el-table-column prop="name" label="产品名称"></el-table-column>
           <el-table-column label="产品分类">
             <template slot-scope="scope">
-              <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+              <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
             </template>
           </el-table-column>
           <el-table-column prop="units" label="单位">
@@ -264,7 +264,7 @@
     </el-container>
 
     <!-- 分割线选择产品 -->
-    <el-dialog title="选择产品" :visible="dialog.dialogProjectTable" @close="dialogClose" center>
+    <el-dialog title="选择产品" :visible="dialog.dialogProductTable" @close="dialogClose" center>
       <el-button size="small" class="mb-10">已选{{ dialog.changeDataNum }}</el-button>
       <el-table :data="dialog.dialogData" max-height="350" @select="dialogChange" @select-all="dialogChange" ref="dialogTable">
         <el-table-column type="selection" width="55"></el-table-column>
@@ -272,7 +272,7 @@
         <el-table-column prop="name" label="产品名称"></el-table-column>
         <el-table-column label="产品分类" :width="170">
           <template slot-scope="scope">
-            <span>{{ $global.sortStrig(scope.row.sort, projectSort) }}</span>
+            <span>{{ $global.sortStrig(scope.row.sort, productSort) }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="units" label="单位"></el-table-column>
@@ -347,9 +347,9 @@ export default {
         dialogData: [], // 选择产品table的数据
         changeData: [], // 已选的数据
         changeDataNum: 0, // 总共已选几个产品
-        dialogProjectTable: false
+        dialogProductTable: false
       },
-      projectData: [], // 产品清单的数据
+      productData: [], // 产品清单的数据
       premiumData: [], // 额外费用数据
       activeNames: ['1', '2', '3'], // 折叠面板数据
       customerData: [], // 客户下拉数据
@@ -365,11 +365,11 @@ export default {
     };
   },
   computed: {
-    ...mapState(['projectSort']),
+    ...mapState(['productSort']),
     // 货品金额
     proMoney() {
       let money = 0;
-      this.projectData.map((r) => {
+      this.productData.map((r) => {
         money = this.$global.Add(this.$global.Multiply(Number(r.price) || 0, Number(r.count) || 0), money);
       });
       return money;
@@ -412,7 +412,7 @@ export default {
             }
             _order.deliveryType = 1;
             _order.downPayment = 0;
-            this.projectData = [];
+            this.productData = [];
             this.premiumData = [];
             _order.orderDate = this.$global.getNewDate();
             return; // 看是不是修改
@@ -441,10 +441,10 @@ export default {
   },
   methods: {
     ...mapActions({
-      changeProjectSort: 'changeProjectSort'
+      changeProductSort: 'changeProductSort'
     }),
     async orderDateRegroup() {
-      if (!this.projectSort.length) await this.changeProjectSort();
+      if (!this.productSort.length) await this.changeProductSort();
       // 订单数据重组
       let _data = this.order,
         _editData = { ...this.editData };
@@ -458,12 +458,12 @@ export default {
         }
         if (['name', 'sales', 'deliveryType'].includes(key)) _data[key] = Number(_data[key]);
       }
-      this.projectData = _editData.projectData;
+      this.productData = _editData.productData;
       this.premiumData = _editData.premiumData;
     },
     dialogClose() {
       // 选择产品列表关闭页面
-      this.dialog.dialogProjectTable = false;
+      this.dialog.dialogProductTable = false;
     },
     dialogConfirm() {
       // 选择产品确定
@@ -481,10 +481,10 @@ export default {
         // 给数量默认赋值为 1
         this.$set(r, 'count', 1);
       });
-      this.projectData = [...this.projectData, ...arr];
+      this.productData = [...this.productData, ...arr];
       this.dialog.changeDataNum = 0;
       this.dialog.changeData = [];
-      this.dialog.dialogProjectTable = false;
+      this.dialog.dialogProductTable = false;
     },
     delList(type) {
       let data = this.$refs[type].selection,
@@ -497,11 +497,11 @@ export default {
         return;
       }
       let obj = {
-        project: () => {
-          this.projectData.map((n) => {
+        product: () => {
+          this.productData.map((n) => {
             if (arr.includes(n.id)) n.dr = 1;
           });
-          this.projectData = this.projectData.filter((r) => r.dr !== 1);
+          this.productData = this.productData.filter((r) => r.dr !== 1);
         },
         premium: () => {
           this.premiumData.map((n) => {
@@ -520,9 +520,9 @@ export default {
     },
     controlDialog() {
       // 点击显示dialog
-      if (!this.projectSort.length) this.changeProjectSort();
-      this.dialog.dialogProjectTable = true;
-      this.$post('queryProject', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
+      if (!this.productSort.length) this.changeProductSort();
+      this.dialog.dialogProductTable = true;
+      this.$post('queryProduct', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
         this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
         let arr = this.dialog.changeData[this.dialog.form.pageIndex];
         if (arr && arr.length) {
@@ -541,7 +541,7 @@ export default {
       // dialog分页
       this.dialog.form.pageIndex = val;
       let arr = this.dialog.changeData[val];
-      this.$post('queryProject', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
+      this.$post('queryProduct', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
         this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
         if (arr && arr.length) {
           // 点击分页给已选绑定
@@ -583,14 +583,14 @@ export default {
     confirm() {
       this.$refs['ruleForm'].validate((valid) => {
         if (!valid) return;
-        if (!this.projectData.length) {
+        if (!this.productData.length) {
           this.$notify.error({
             title: '错误',
             message: '产品清单为空，请选择产品!'
           });
           return;
         }
-        let orderObj = { ...this.order, ...{ projectData: this.projectData, premiumData: this.premiumData } };
+        let orderObj = { ...this.order, ...{ productData: this.productData, premiumData: this.premiumData } };
         if (this.getOrderId) {
           orderObj.id = this.getOrderId;
         }

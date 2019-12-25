@@ -55,8 +55,8 @@
                   <use xlink:href="#icon-model"></use>
                 </svg>
               </div>
-              <div class="card-project">
-                {{ item.projectData.length }} 项, 总计：{{ $global.format(item.projectData.length === 1 ? item.projectData.map((r) => r.price * r.count)[0] : merge(item.projectData)) }}
+              <div class="card-product">
+                {{ item.productData.length }} 项, 总计：{{ $global.format(item.productData.length === 1 ? item.productData.map((r) => r.price * r.count)[0] : merge(item.productData)) }}
               </div>
               <div class="d-f j-c-s-b a-i-c">
                 <span>
@@ -392,7 +392,7 @@ export default {
 
 .card {
   border-radius: 5px;
-  .card-project {
+  .card-product {
     color: rgba(0, 0, 0, 0.45);
     line-height: 30px;
   }

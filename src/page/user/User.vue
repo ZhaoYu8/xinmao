@@ -33,10 +33,10 @@
             <el-input
               v-model="form.value"
               placeholder="可根据姓名或者手机号搜索"
-              @keyup.enter.native="getProjectData"
+              @keyup.enter.native="getProductData"
               class="handle-input mr-10 ml-10 width-300"
               clearable
-              @clear="getProjectData"
+              @clear="getProductData"
             ></el-input>
             <el-button type="primary" icon="el-icon-search" @click="currentChange(1)">搜索</el-button>
           </div>

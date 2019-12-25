@@ -30,7 +30,7 @@
         <td>金额</td>
         <td style="width:18%">单据备注</td>
       </tr>
-      <tr v-for="(item, index) in data.projectData">
+      <tr v-for="(item, index) in data.productData">
         <td>{{ index + 1 }}</td>
         <td>{{ item.proNumber }}</td>
         <td>{{ item.name }}</td>
@@ -142,16 +142,16 @@ export default {
     },
     numberTotal() {
       let count = 0;
-      if (!this.data.projectData) return count;
-      this.data.projectData.map((r) => {
+      if (!this.data.productData) return count;
+      this.data.productData.map((r) => {
         count += Number(r.count);
       });
       return count;
     },
     priceTotal() {
       let count = 0;
-      if (!this.data.projectData) return count;
-      this.data.projectData.map((r) => {
+      if (!this.data.productData) return count;
+      this.data.productData.map((r) => {
         count += Number(r.count) * Number(r.price);
       });
       return count;

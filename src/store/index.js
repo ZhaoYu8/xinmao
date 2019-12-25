@@ -2,14 +2,14 @@ import http from '../api/index'
 import global from '../global/global'
 export default new Vuex.Store({
   state: {
-    projectSort: [],
+    productSort: [],
     branch: [],
     baseBranch: [],
     commonInfo: {} // 公共信息,首页调用
   },
   mutations: {
-    changeProjectSort(state, data) {
-      state.projectSort = data
+    changeProductSort(state, data) {
+      state.productSort = data
     },
     changeBranch(state, data) {
       state.branch = data
@@ -20,12 +20,12 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async changeProjectSort({ commit }, data = {}) { // 产品分类
+    async changeProductSort({ commit }, data = {}) { // 产品分类
       const res = await http.post('querySort', data)
         .then(res => res.data.item)
         .catch((e) => console.error(e))
       if (res) {
-        commit("changeProjectSort", res)
+        commit("changeProductSort", res)
       }
     },
     async getBranch({ commit }, data = {}) { // 部门

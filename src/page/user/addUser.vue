@@ -1,5 +1,5 @@
 <template>
-  <div class="addproject">
+  <div class="addproduct">
     <el-dialog :title="dialogType ? '新增员工' : '修改员工'" :visible="dialogShow" width="45%" center @close="hideDialog" :close-on-click-modal="false">
       <el-form :model="form" :rules="rules" ref="ruleForm" label-width="110px">
         <el-row>
