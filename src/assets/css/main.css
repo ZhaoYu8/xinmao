@@ -957,3 +957,6 @@ textarea {
   text-align: center;
   font-size: 16px;
 }
+.el-dialog{
+  border-radius: 20px;
+}
