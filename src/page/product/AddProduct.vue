@@ -19,12 +19,11 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <el-row class="d-f goods a-i-c">
+        <!-- <el-row class="d-f goods a-i-c">
           <i class="el-icon-circle-plus-outline c-p mr-10" @click="addPremium"></i>
           <i class="el-icon-remove-outline c-p" @click="delList"></i>
-        </el-row>
-        {{ productDet }}
-        <el-table :data="productDet" class="w-100 mb-20" border ref="product">
+        </el-row> -->
+        <!-- <el-table :data="productDet" class="w-100 mb-20" border ref="product">
           <el-table-column type="selection" width="55"> </el-table-column>
           <el-table-column prop="capacity" label="容量" width="140">
             <template slot-scope="scope">
@@ -67,8 +66,8 @@
               <el-input v-model="scope.row.remark" placeholder=""></el-input>
             </template>
           </el-table-column>
-        </el-table>
-        <!-- <el-row>
+        </el-table> -->
+        <el-row>
           <el-col :span="12">
             <el-form-item label="产品单位：" prop="units">
               <el-input v-model="form.units" autocomplete="off" placeholder="个/箱/件..." maxlength="15" show-word-limit></el-input>
@@ -79,25 +78,25 @@
               <el-input v-model="form.cost" autocomplete="off" maxlength="15" show-word-limit placeholder="成本"></el-input>
             </el-form-item>
           </el-col>
-        </el-row> -->
+        </el-row>
         <el-row>
-          <!-- <el-col :span="12">
+          <el-col :span="12">
             <el-form-item label="建议售价：" prop="price">
               <el-input v-model="form.price" autocomplete="off" maxlength="15" show-word-limit placeholder="建议售价"></el-input>
             </el-form-item>
-          </el-col> -->
+          </el-col>
           <el-col :span="12">
             <el-form-item label="分类展示主图：" prop="sortNum">
               <el-input v-model="form.sortNum" autocomplete="off" show-word-limit placeholder="默认第一张图片为分类展示主图"></el-input>
             </el-form-item>
           </el-col>
+        </el-row>
+        <el-row>
           <el-col :span="12">
             <el-form-item label="详情页轮播图：" prop="detailNum">
               <el-input v-model="form.detailNum" autocomplete="off" show-word-limit placeholder="默认第二张为主图，可自定义。例如：2,3,4"></el-input>
             </el-form-item>
           </el-col>
-        </el-row>
-        <el-row>
           <el-col :span="12">
             <el-form-item label="详情页图片：" prop="detailNumB">
               <el-input v-model="form.detailNumB" autocomplete="off" show-word-limit placeholder="默认第二张后的图片，都为详情页图片，可自定义。例如：2,3,4"></el-input>
@@ -145,8 +144,6 @@ import http from '../../global/http.js';
 export default {
   data: function() {
     return {
-      productDetInit: { capacity: '', money: 0, suttle: '', size: '', color: [], remark: '' },
-      productDet: [],
       form: {
         name: '',
         sort: [],
@@ -172,6 +169,7 @@ export default {
                   callback(new Error('只允许输入正整数!'));
                 }
               }
+              callback();
             },
             trigger: 'blur'
           }
@@ -185,6 +183,7 @@ export default {
                   callback(new Error('只允许输入正整数和逗号!'));
                 }
               }
+              callback();
             },
             trigger: 'blur'
           }
@@ -198,6 +197,7 @@ export default {
                   callback(new Error('只允许输入正整数和逗号!'));
                 }
               }
+              callback();
             },
             trigger: 'blur'
           }
@@ -232,8 +232,6 @@ export default {
   watch: {
     dialogFormVisible: {
       handler(val) {
-        this.productDet = [];
-        this.productDet.push(JSON.parse(JSON.stringify({ ...this.productDetInit, ...{ index: 0 } })));
         this.form = {
           name: '',
           sort: [],
@@ -249,54 +247,16 @@ export default {
         this.fileList = [];
         if (this.dialogType && val) {
           Object.keys(this.form).map((r) => {
-            this.form[r] = r === 'sort' ? this.editData[r].split(',').map((r) => Number(r)) : this.editData[r];
+            this.form[r] = r === 'sort' ? data[r].split(',').map((r) => Number(r)) : data[r];
           });
-          if (this.editData.photo.length) {
-            this.fileList = this.editData.photo;
+          if (data.photo.length) {
+            this.fileList = data.photo;
           }
         }
       }
     }
   },
   methods: {
-    addPremium() {
-      this.productDet.push(JSON.parse(JSON.stringify({ ...this.productDetInit, ...{ index: this.productDet.length } })));
-    },
-    // 删除产品list
-    delList() {
-      let data = this.$refs.product.selection;
-      if (!data.length) {
-        this.$notify({
-          title: '提示',
-          type: 'info',
-          message: '请选择需要删除的数据!'
-        });
-        return;
-      }
-      let obj = {
-        product: () => {
-          let arr = data.map((n) => n.index);
-          if (arr.length === data.length) {
-            arr = arr.splice(1);
-            this.$notify({
-              title: '提示',
-              type: 'info',
-              message: '至少留下一项!'
-            });
-            this.productDet = this.productDet.filter((r) => !arr.includes(r.index));
-          } else {
-            this.productDet = this.productDet.filter((r) => !arr.includes(r.index));
-          }
-        }
-      };
-      this.$confirm('确认删除么？', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        obj['product'].bind(this)();
-      });
-    },
     // 点击上传文件的事件
     uploadChange(file, e) {
       const format = ['image/jpeg', 'image/png'].includes(file.raw.type);
@@ -338,11 +298,8 @@ export default {
           id: this.editData.id || 0
         });
         data.photo = this.fileList.concat(this.newFileList || []);
-        data.list = this.productDet;
         data.detailNum.replace('，', ',');
         data.detailNumB.replace('，', ',');
-        console.log(data);
-        return;
         this.$post(location, data).then((r, data = r.data) => {
           if (data.success) {
             this.$notify({

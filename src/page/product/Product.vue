@@ -122,7 +122,7 @@ export default {
     ...mapActions(['changeProductSort']),
     // 查询产品列表
     getProductData(type) {
-      this.$post('queryProduct', Object.assign({}, this.form, { value: this.form.value })).then((r, data = r.data) => {
+      this.$post('queryProduct', Object.assign({}, this.form, { value: this.form.value.trim() })).then((r, data = r.data) => {
         this.tableData = data.item;
         this.totalCount = data.totalCount;
       });
@@ -136,7 +136,7 @@ export default {
     controlDialog(data) {
       this.productVisible = false;
       // 这里做了一下处理，新增之后调用分页方法，重置当前页
-      if (data) this.currentChange(1);
+      if (data) this.getProductData();
     },
     productSortDialog(data) {
       this.sortVisible = false;
