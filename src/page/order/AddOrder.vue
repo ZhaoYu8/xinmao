@@ -487,8 +487,7 @@ export default {
       this.dialog.dialogProductTable = false;
     },
     delList(type) {
-      let data = this.$refs[type].selection,
-        arr = data.map((r) => r.id);
+      let data = this.$refs[type].selection;
       if (!data.length) {
         this.$notify({
           title: '提示',
@@ -498,16 +497,16 @@ export default {
       }
       let obj = {
         product: () => {
-          this.productData.map((n) => {
-            if (arr.includes(n.id)) n.dr = 1;
+          this.productData.map((n, i) => {
+            n._i = i;
           });
-          this.productData = this.productData.filter((r) => r.dr !== 1);
+          this.productData = this.productData.filter((r, i) => !data.map(n => n._i).includes(i));
         },
         premium: () => {
-          this.premiumData.map((n) => {
-            if (arr.includes(n.id)) n.dr = 1;
+          this.premiumData.map((n, i) => {
+            n._i = i;
           });
-          this.premiumData = this.premiumData.filter((r) => r.dr !== 1);
+          this.premiumData = this.premiumData.filter((r, i) => !data.map(n => n._i).includes(i));
         }
       };
       this.$confirm('确认删除么？', '提示', {
@@ -540,7 +539,7 @@ export default {
     dialogCurrentChange(val) {
       // dialog分页
       this.dialog.form.pageIndex = val;
-      let arr = this.dialog.changeData[val];
+      let arr = this.dialog.changeData[val - 1];
       this.$post('queryProduct', Object.assign({}, this.dialog.form)).then((r, data = r.data) => {
         this.dialog = { ...this.dialog, ...{ dialogData: data.item, totalCount: data.totalCount } };
         if (arr && arr.length) {

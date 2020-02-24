@@ -232,6 +232,7 @@ export default {
   watch: {
     dialogFormVisible: {
       handler(val) {
+        let data = JSON.parse(JSON.stringify(this.editData));
         this.form = {
           name: '',
           sort: [],

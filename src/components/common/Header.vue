@@ -42,7 +42,7 @@
   </div>
 </template>
 <script>
-import { mapState } from 'vuex';
+import { mapState, mapActions } from 'vuex';
 export default {
   data() {
     return {
@@ -56,10 +56,11 @@ export default {
     ...mapState(['commonInfo']),
     username() {
       let username = localStorage.getItem('ms_username');
-      return this.commonInfo ? this.commonInfo.name : username;
+      return this.commonInfo && this.commonInfo.name ? this.commonInfo.name : username;
     }
   },
   methods: {
+    ...mapActions(['getCommonInfo']),
     // 用户名下拉菜单选择事件
     handleCommand(command) {
       if (command == 'loginout') {
@@ -104,6 +105,12 @@ export default {
     if (document.body.clientWidth < 1450) {
       this.collapseChage();
     }
+    this.getCommonInfo();
+    this.bus.$off('openDashboard');
+    this.bus.$on('openDashboard', () => {
+      this.getCommonInfo();
+    });
+
     // this.bus.$on('onresize', () => {
     //   if (document.body.clientWidth < 1450) {
     //     if (this.collapse) return;

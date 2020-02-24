@@ -186,15 +186,9 @@ export default {
     }
   },
   mounted() {
-    this.getCommonInfo();
     this.$post('./weather').then((data) => {
       this.weather = data.data.item;
     });
-    this.bus.$off('openDashboard');
-    this.bus.$on('openDashboard', () => {
-      this.getCommonInfo();
-    });
-
     this.pickerData = [
       moment()
         .month(moment().month() - 6)
