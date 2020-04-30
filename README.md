@@ -1,4 +1,4 @@
 # xinmao
 
 基于 vue + elementUI
-http://github.com/mynamezhaoyu/xinmao/raw/master/src/assets/logo.png
+![image]https://github.com/mynamezhaoyu/xinmao/blob/master/screenshots/wms1.png
