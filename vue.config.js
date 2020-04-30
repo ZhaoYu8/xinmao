@@ -9,9 +9,10 @@ module.exports = {
       'vue-router': 'VueRouter',
       axios: 'axios',
       'element-ui': 'ELEMENT',
-      antv: 'antv'
+      moment: 'moment'
     }
   },
+  parallel: true,
   devServer: {
     port: '8001',
     open: true

@@ -1,39 +1,79 @@
 <template>
   <div class="login-wrap">
     <div class="ms-login">
-      <div class="ms-title">后台管理系统</div>
+      <div class="ms-title">后台管理系统{{ tiggle ? '（登录）' : '（注册）' }}</div>
       <el-form :model="param" :rules="rules" ref="ms-login" label-width="0px" class="ms-content" v-show="tiggle">
         <el-form-item prop="username">
-          <el-input v-model="param.username" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitForm()"></el-input>
+          <el-input size="large" v-model="param.username" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitForm()"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input type="password" prefix-icon="el-icon-lock" placeholder="密码" v-model="param.password" :show-password="true" @keyup.enter.native="submitForm()"></el-input>
+          <el-input
+            size="large"
+            type="password"
+            prefix-icon="el-icon-lock"
+            placeholder="密码"
+            v-model="param.password"
+            :show-password="true"
+            @keyup.enter.native="submitForm()"
+          ></el-input>
         </el-form-item>
         <div class="login-btn">
           <el-button type="primary" @click="submitForm()">登录</el-button>
         </div>
-        <div>
+        <div class="d-f j-c-s-b">
           <el-checkbox v-model="checked" @change="checkedFun">记住密码</el-checkbox>
+          <el-link
+            :underline="false"
+            type="primary"
+            @click="
+              () => {
+                tiggle = !tiggle;
+              }
+            "
+            >注册</el-link
+          >
         </div>
         <p class="login-tips">Tips : 使用遇到问题，请联系作者。13370229059</p>
       </el-form>
 
       <el-form :model="register" :rules="registerRules" ref="register" label-width="0px" class="ms-content" v-show="!tiggle">
         <el-form-item prop="name">
-          <el-input v-model="register.name" prefix-icon="el-icon-office-building" placeholder="公司名称" @keyup.enter.native="submitRegister()"></el-input>
+          <el-input size="large" v-model="register.name" prefix-icon="el-icon-office-building" placeholder="公司名称" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <el-form-item prop="phone">
-          <el-input v-model="register.phone" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitRegister()"></el-input>
+          <el-input size="large" v-model="register.phone" prefix-icon="el-icon-mobile-phone" placeholder="手机号" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input type="password" prefix-icon="el-icon-lock" placeholder="密码" v-model="register.password" :show-password="true" @keyup.enter.native="submitRegister()"></el-input>
+          <el-input
+            size="large"
+            type="password"
+            prefix-icon="el-icon-lock"
+            placeholder="密码"
+            v-model="register.password"
+            :show-password="true"
+            @keyup.enter.native="submitRegister()"
+          ></el-input>
         </el-form-item>
         <el-form-item prop="code">
-          <el-input prefix-icon="el-icon-star-off" placeholder="4位数确认码，如不知晓，请联系作者" v-model="register.code" @keyup.enter.native="submitRegister()"></el-input>
+          <el-input size="large" prefix-icon="el-icon-star-off" placeholder="4位数确认码 7896" v-model="register.code" @keyup.enter.native="submitRegister()"></el-input>
         </el-form-item>
         <div class="login-btn">
           <el-button type="primary" @click="submitRegister()">注册</el-button>
         </div>
+        <div class="text-hidden">
+          <el-link
+            class="fr"
+            :underline="false"
+            type="primary"
+            @click="
+              () => {
+                tiggle = !tiggle;
+              }
+            "
+            >返回登录</el-link
+          >
+        </div>
+
         <p class="login-tips">Tips : 使用遇到问题，请联系作者。13370229059</p>
       </el-form>
     </div>
@@ -57,7 +97,7 @@ export default {
         name: '',
         phone: '',
         password: '',
-        code: ''
+        code: '7896'
       },
       tiggle: true,
       rules: {
@@ -222,8 +262,8 @@ export default {
     position: absolute;
     left: 50%;
     top: 50%;
-    width: 350px;
-    margin: -190px 0 0 -175px;
+    width: 450px;
+    transform translate(-50%,-50%);
     border-radius: 5px;
     background: rgba(255, 255, 255, 0.3);
     overflow: hidden;
@@ -233,7 +273,7 @@ export default {
       width: 100%;
       line-height: 50px;
       text-align: center;
-      font-size: 20px;
+      font-size: 30px;
       color: #fff;
       border-bottom: 1px solid #ddd;
     }
@@ -253,7 +293,7 @@ export default {
     }
 
     .login-tips {
-      font-size: 12px;
+      font-size: 18px;
       line-height: 30px;
       color: #fff;
     }

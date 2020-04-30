@@ -4,14 +4,6 @@
       <p class="f-16 f-w">
         工作台
       </p>
-      <el-button
-        @click="
-          () => {
-            $router.push('./print');
-          }
-        "
-        >跳转</el-button
-      >
       <div class="page-header-content">
         <el-row :gutter="10" class="d-f a-i-c">
           <el-col :span="18" class="d-f a-i-c">
